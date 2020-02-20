@@ -20,11 +20,12 @@ boa_pw.send_keys('ship12345')
 login_button.click()
 
 # put FOR loop here to loop through list of load numbers
-loadlist = ['145448'
+loadlist = [['145448', '1234']
 ]
 
 for x in loadlist:
-    load_id = x
+    load_id = x[0]
+    carrier_id = x[1]
     url = 'https://boa.3plsystemscloud.com/App_BW/staff/shipment/shipmentDetail.aspx?loadid='+load_id
     browser.get(url)
     
@@ -40,7 +41,7 @@ for x in loadlist:
         vol_carrier_link = browser.find_element_by_id('ctl00_BodyContent_hlCarrierVolLink')
         vol_carrier_link.click()
         carrier_select = Select(browser.find_element_by_id('ctl00_BodyContent_ListBoxCarriers'))
-        carrier_select.select_by_value('5709')
+        carrier_select.select_by_value(carrier_id)
         select_carrier_btn = browser.find_element_by_id('ctl00_BodyContent_SelectCarrierSave')
         select_carrier_btn.click()
 
