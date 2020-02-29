@@ -1,78 +1,16 @@
-# import selenium webdriver
-from selenium import webdriver
+import tms_login as tms
 from selenium.webdriver.support.ui import Select, WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.options import Options
 
-# activate headless mode
-options = Options()
-options.headless = True
+url = "https://boa.3plsystemscloud.com/"
 
-# activate chrome driver
-browser = webdriver.Chrome(options=options)
-browser.implicitly_wait(3)
-browser.maximize_window()
-browser.get("https://boa.3plsystemscloud.com/")
-
-# page elements to login
-boa_user = browser.find_element_by_id("txb-username")
-boa_pw = browser.find_element_by_id("txb-password")
-login_button = browser.find_element_by_id("ctl00_ContentBody_butLogin")
-
-# login credentials
-boa_user.send_keys("daigo@boalogistics.com")
-boa_pw.send_keys("ship12345")
-login_button.click()
+browser = tms.login(url)
 
 # put FOR loop here to loop through list of load numbers
 loadlist = [
-    '148916', 
-    '148941', 
-    '148942', 
-    '148944', 
-    '148947', 
-    '148949', 
-    '148952', 
-    '148466', 
-    '148771', 
-    '148774', 
-    '148779', 
-    '148781', 
-    '148791', 
-    '148796', 
-    '148798', 
-    '148821', 
-    '148852', 
-    '148857', 
-    '148859', 
-    '148864', 
-    '148871', 
-    '148883', 
-    '148904', 
-    '148715', 
-    '148935', 
-    '148936', 
-    '148937', 
-    '148938', 
-    '148939', 
-    '148940', 
-    '148943', 
-    '148945', 
-    '148946', 
-    '148948', 
-    '148950', 
-    '148951', 
-    '148953', 
-    '148772', 
-    '148822', 
-    '148823', 
-    '148825', 
-    '148880', 
-    '148902', 
-    '148954', 
-    '148851', 
-    '148974', 
-    '148975', 
+    '149114', 
+
 ]
 
 for x in loadlist:
@@ -103,7 +41,6 @@ for x in loadlist:
     browser.switch_to.window(og_window)
     
     # check if load is already in booked/dispatched/cancelled status 
-    
     status = browser.find_element_by_id("lblTitle").text.upper()
     quote_status = status.find('QUOTED') > -1   
     
@@ -111,5 +48,7 @@ for x in loadlist:
         bookshipment = browser.find_element_by_id("ctl00_BodyContent_spnBookShipment")
         bookshipment.click()
         print(load_id + ' booked.')
+    else:
+        print(load_id + ' not booked. ' + status)
 
 browser.quit()
