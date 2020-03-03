@@ -155,9 +155,9 @@ for x in loadlist:
     # check if load is already in booked/dispatched/cancelled status and trace priority
     status = browser.find_element_by_id("lblTitle").text.upper()
     
-    trace_priority = status.find('TRACE') > -1  
+    not_trace_priority = status.find('TRACE') == -1  
     
-    if trace_priority:
+    if not_trace_priority:
         # set first window handle
         og_window = browser.window_handles[0]
         
