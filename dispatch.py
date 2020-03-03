@@ -1,23 +1,17 @@
-# import selenium webdriver
+import tms_login as tms
 from selenium import webdriver
 from selenium.webdriver.support.ui import Select, WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.chrome.options import Options
 
-# activate chrome driver
-browser = webdriver.Chrome()
-browser.implicitly_wait(3)
-browser.maximize_window()
-browser.get('https://boa.3plsystemscloud.com/')
+# variables to count final results of loads
+loads_dispatched = 0
+loads_not_dispatched = 0
 
-# page elements to login
-boa_user = browser.find_element_by_id('txb-username')
-boa_pw = browser.find_element_by_id('txb-password')
-login_button = browser.find_element_by_id('ctl00_ContentBody_butLogin')
+url = "https://boa.3plsystemscloud.com/"
 
-# login credentials
-boa_user.send_keys('daigo@boalogistics.com')
-boa_pw.send_keys('ship12345')
-login_button.click()
+browser = tms.login(url)
+
 
 # put FOR loop here to loop through list of load numbers
 loadlist = [['145448', '1234']
@@ -26,14 +20,14 @@ loadlist = [['145448', '1234']
 for x in loadlist:
     load_id = x[0]
     carrier_id = x[1]
-    url = 'https://boa.3plsystemscloud.com/App_BW/staff/shipment/shipmentDetail.aspx?loadid='+load_id
-    browser.get(url)
+    load_url = 'https://boa.3plsystemscloud.com/App_BW/staff/shipment/shipmentDetail.aspx?loadid='+load_id
+    browser.get(load_url)
     
     # verify load is not already dispatched status    
     status = browser.find_element_by_id('lblTitle').text.upper()
-    not_dispatched = status.find('DISPATCHED') == -1   
+    booked = status.find('BOOKED') != -1   
     
-    if not_dispatched:
+    if booked:
         # set first window handle
         og_window = browser.window_handles[0]
 
@@ -58,3 +52,14 @@ for x in loadlist:
         dispatch_btn = browser.find_element_by_id('btnDispatchComplete')
         dispatch_btn.click()       
         browser.switch_to.window(og_window)
+
+        print('Load number ' + load_id + ' dispatched!')
+        loads_dispatched += 1
+    else:
+        print('Auto dispatcher script did not dispatch: ' + status)
+        loads_not_dispatched += 1
+
+browser.quit()
+
+print(str(loads_dispatched) + ' loads dispatched.')
+print(str(loads_not_dispatched) + ' loads not dispatched.')
