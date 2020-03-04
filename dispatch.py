@@ -2,6 +2,7 @@ import tms_login as tms
 from selenium import webdriver
 from selenium.webdriver.support.ui import Select, WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
 
 # variables to count final results of loads
@@ -14,7 +15,7 @@ browser = tms.login(url)
 
 
 # put FOR loop here to loop through list of load numbers
-loadlist = [['145448', '1234']
+loadlist = [['148323', '5709']
 ]
 
 for x in loadlist:
@@ -38,23 +39,32 @@ for x in loadlist:
         carrier_select.select_by_value(carrier_id)
         select_carrier_btn = browser.find_element_by_id('ctl00_BodyContent_SelectCarrierSave')
         select_carrier_btn.click()
+        WebDriverWait(browser, timeout=30).until(EC.presence_of_element_located((By.ID, 'ctl00_BodyContent_ctlWarningsVertical_lblInsuranceWarnings')))
 
-        # dispatch
-        dispatch_link = browser.find_element_by_id('ctl00_BodyContent_lbDispatchLink')
-        dispatch_link.click()
-        WebDriverWait(browser, timeout=30).until(EC.number_of_windows_to_be(2))
+        # verify carrier insurance on file is not expired
+        carrier_insurance = browser.find_element_by_id('ctl00_BodyContent_ctlWarningsVertical_lblInsuranceWarnings').text.upper()
+        carrier_insurance_expired = carrier_insurance.find('EXPIRED') != -1 
 
-        # set handle to popup and switches to popup
-        popup = browser.window_handles[1]
-        browser.switch_to.window(popup)
+        if carrier_insurance_expired:
+            print(load_id + ' not dispatched. Carrier insurance on file is expired.')
+            loads_not_dispatched += 1
+        else:
+            # dispatch
+            dispatch_link = browser.find_element_by_id('ctl00_BodyContent_lbDispatchLink')
+            dispatch_link.click()
+            WebDriverWait(browser, timeout=30).until(EC.number_of_windows_to_be(2))
 
-        # variable and selections for Priority
-        dispatch_btn = browser.find_element_by_id('btnDispatchComplete')
-        dispatch_btn.click()       
-        browser.switch_to.window(og_window)
+            # set handle to popup and switches to popup
+            popup = browser.window_handles[1]
+            browser.switch_to.window(popup)
 
-        print('Load number ' + load_id + ' dispatched!')
-        loads_dispatched += 1
+            # variable and selections for Priority
+            dispatch_btn = browser.find_element_by_id('btnDispatchComplete')
+            dispatch_btn.click()       
+            browser.switch_to.window(og_window)
+
+            print('Load number ' + load_id + ' dispatched!')
+            loads_dispatched += 1
     else:
         print('Auto dispatcher script did not dispatch: ' + status)
         loads_not_dispatched += 1
@@ -63,3 +73,4 @@ browser.quit()
 
 print(str(loads_dispatched) + ' loads dispatched.')
 print(str(loads_not_dispatched) + ' loads not dispatched.')
+print('Browser closed.')
