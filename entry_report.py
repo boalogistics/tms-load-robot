@@ -35,9 +35,7 @@ browser.get(url)
 today = date.today()
 
 s_date = today
-#str_s_date = s_date.strftime("%m/%d/%Y")
-
-str_s_date = "03/11/2020"
+str_s_date = s_date.strftime("%m/%d/%Y")
 
 start = str_s_date + " 00:00:00"
 end = str_s_date + " 23:59:59"
@@ -80,8 +78,9 @@ data = pd.read_html(filepath)
 df = data[0]
 
 # grabs list of load numbers and load count, dropping the Totals row
-load_numbers = list(df['Load #'])[:-1]
+load_list_numbers = list(df['Load #'])[:-1]
+load_list = [str(x) for x in load_list_numbers]
 load_count = len(df.index) -1
 
-print(load_numbers)
+print(load_list)
 print(str(load_count) + ' loads entered today.')
