@@ -2,6 +2,5 @@
 __pycache__/
 sandbox.py
 venv/
-lcr_quote.py
+lcr_quote_ff.py
 geckodriver.log
-lcr-carrier-list.csv
