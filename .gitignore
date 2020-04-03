@@ -2,3 +2,6 @@
 __pycache__/
 sandbox.py
 venv/
+
+geckodriver.log
+lcr-carrier-list.csv
