@@ -4,3 +4,4 @@ sandbox.py
 venv/
 lcr_quote_ff.py
 geckodriver.log
+*.csv
