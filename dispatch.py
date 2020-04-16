@@ -1,22 +1,40 @@
+import json
 import tms_login as tms
-from selenium import webdriver
+from data_extract import get_trucks_data, create_truck
 from selenium.webdriver.support.ui import Select, WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
-from selenium.webdriver.chrome.options import Options
 
 # variables to count final results of loads
 loads_dispatched = 0
 loads_not_dispatched = 0
 
-url = "https://boa.3plsystemscloud.com/"
+trucks = get_trucks_data()
 
+truck_dict_list = []
+
+for x in trucks[1:]:
+    truck_dict = create_truck(x)
+    truck_dict_list.append(truck_dict)
+
+# carrier name - id # look up table in json
+with open('carrierid.json', 'r') as f:
+    carrier_lookup = json.load(f)
+
+loadlist = []
+
+for truck in truck_dict_list:
+    carrier_name = truck['carrier_name']
+    try:
+        load = [truck['load_no'], carrier_lookup[carrier_name]]
+        loadlist.append(load)
+    except:
+        print('Truck # ' + truck['truck_no'] + ', Load # ' + truck['load_no'] + ', ' + carrier_name + ' is not on the carrier list.')
+        loads_not_dispatched += 1
+
+
+url = 'https://boa.3plsystemscloud.com/'
 browser = tms.login(url)
-
-
-# put FOR loop here to loop through list of load numbers
-loadlist = [['148323', '5709']
-]
 
 for x in loadlist:
     load_id = x[0]
@@ -24,7 +42,7 @@ for x in loadlist:
     load_url = 'https://boa.3plsystemscloud.com/App_BW/staff/shipment/shipmentDetail.aspx?loadid='+load_id
     browser.get(load_url)
     
-    # verify load is not already dispatched status    
+    # verify load is in booked status    
     status = browser.find_element_by_id('lblTitle').text.upper()
     booked = status.find('BOOKED') != -1   
     
