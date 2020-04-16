@@ -64,7 +64,8 @@ for x in loadlist:
         carrier_insurance_expired = carrier_insurance.find('EXPIRED') != -1 
 
         if carrier_insurance_expired:
-            print(load_id + ' not dispatched. Carrier insurance on file is expired.')
+            carrier_name = browser.find_element_by_xpath("//div[@id='ctl00_BodyContent_divCarrierInfo']/div[1]/strong").text
+            print(load_id + ' not dispatched. Carrier {}\'s insurance on file is expired.'.format(carrier_name))
             loads_not_dispatched += 1
         else:
             # dispatch

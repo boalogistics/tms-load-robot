@@ -1,7 +1,7 @@
+venv/
 .vscode/
 __pycache__/
 sandbox.py
-venv/
 *_ff.py
 geckodriver.log
 *.csv
