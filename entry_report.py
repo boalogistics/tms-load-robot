@@ -1,27 +1,15 @@
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
-from datetime import date
 import os
 import pandas as pd
 import time
+import tms_login as tms
+from datetime import date
+# from selenium.webdriver.chrome.options import Options
 
 # list of files before downloading
 before = os.listdir(r"C:\Users\BOA\Downloads")
 
-# activate chrome driver
-browser = webdriver.Chrome()
-browser.maximize_window()
-browser.get("https://boa.3plsystemscloud.com/")
-
-# page elements to login
-boa_user = browser.find_element_by_id("txb-username")
-boa_pw = browser.find_element_by_id("txb-password")
-login_button = browser.find_element_by_id("ctl00_ContentBody_butLogin")
-
-# login credentials
-boa_user.send_keys("***EMAIL HERE***")
-boa_pw.send_keys("***PASSWORD HERE***")
-login_button.click()
+url = 'https://boa.3plsystemscloud.com/'
+browser = tms.login(url)
 
 # enter report code into report_code variable
 # "Daily Booking Report" report
@@ -36,6 +24,7 @@ today = date.today()
 
 s_date = today
 str_s_date = s_date.strftime("%m/%d/%Y")
+#str_s_date = s_date.strftime("03/27/2020")
 
 start = str_s_date + " 00:00:00"
 end = str_s_date + " 23:59:59"

@@ -2,6 +2,6 @@
 __pycache__/
 sandbox.py
 venv/
-lcr_quote_ff.py
+*_ff.py
 geckodriver.log
 *.csv

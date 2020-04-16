@@ -1,14 +1,13 @@
 import tms_login as tms
 from selenium.webdriver.support.ui import Select, WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.chrome.options import Options
+# from selenium.webdriver.chrome.options import Options
 
 # variables to count final results of loads
 loads_booked = 0
 loads_not_booked = 0
 
 url = 'https://boa.3plsystemscloud.com/'
-
 browser = tms.login(url)
 
 
