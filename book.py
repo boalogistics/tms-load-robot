@@ -24,7 +24,8 @@ for x in loadlist:
     client_credit_exceeded = client_credit.find('EXCEEDED') != -1
 
     if client_credit_exceeded:
-        print(load_id + ' not booked. Credit limit on account is exceeded.')
+        client_name = browser.find_element_by_xpath("//div[@id='ctl00_BodyContent_divCustomerInfo']/div[1]/a").text
+        print(load_id + ' not booked. Client {} has exceeded credit limit.'.format(client_name))
         loads_not_booked += 1
     else:
         # check if load is already in booked/dispatched/cancelled status and trace priority
