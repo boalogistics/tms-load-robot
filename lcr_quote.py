@@ -1,4 +1,9 @@
+## TODO add error catcher for timing out and/or alert on LCR page to skip current load number
+## alternatively add parameter for webdrvr options in tms_login
+
+
 import csv
+# import tms_login as tms
 from selenium import webdriver
 from selenium.webdriver.support.ui import Select, WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
