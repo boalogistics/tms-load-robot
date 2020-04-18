@@ -81,8 +81,8 @@ browser = tms.login(url)
 
 for x in load_list:
     load_id = x
-    url = 'https://boa.3plsystemscloud.com/App_BW/staff/shipment/shipmentDetail.aspx?loadid='+load_id
-    browser.get(url)
+    load_url = 'https://boa.3plsystemscloud.com/App_BW/staff/shipment/shipmentDetail.aspx?loadid='+load_id
+    browser.get(load_url)
 
     # verify client is in good standing without credit hold
     client_credit =  browser.find_element_by_id('ctl00_BodyContent_ctlWarningsVertical_lblCreditWarnings').text.upper()
