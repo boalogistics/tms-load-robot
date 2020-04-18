@@ -1,7 +1,6 @@
 import tms_login as tms
 from selenium.webdriver.support.ui import Select, WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-# from selenium.webdriver.chrome.options import Options
 
 # variables to count final results of loads
 loads_booked = 0
@@ -18,7 +17,7 @@ for x in loadlist:
     url = 'https://boa.3plsystemscloud.com/App_BW/staff/shipment/shipmentDetail.aspx?loadid='+load_id
     browser.get(url)
 
-    # verify client is is good standing without credit hold
+    # verify client is in good standing without credit hold
     client_credit =  browser.find_element_by_id('ctl00_BodyContent_ctlWarningsVertical_lblCreditWarnings').text.upper()
     client_credit_exceeded = client_credit.find('EXCEEDED') != -1
 

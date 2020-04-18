@@ -32,7 +32,6 @@ for truck in truck_dict_list:
         print('Truck # ' + truck['truck_no'] + ', Load # ' + truck['load_no'] + ', ' + carrier_name + ' is not on the carrier list.')
         loads_not_dispatched += 1
 
-
 url = 'https://boa.3plsystemscloud.com/'
 browser = tms.login(url)
 
