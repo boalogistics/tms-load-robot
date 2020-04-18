@@ -22,3 +22,11 @@ def create_truck(truck_list):
     truck_dict['carrier_name'] = truck_list[3]
     truck_dict['dispatched'] = truck_list[4]
     return truck_dict
+
+class Truck:
+    def __init__(self, truck_list):
+        self.load_no = truck_list[0]
+        self.married_load = truck_list[1]
+        self.truck_no = truck_list[2]
+        self.carrier_name = truck_list[3]
+        self.dispatched = truck_list[4]
