@@ -1,9 +1,9 @@
-import os
+import os, time
 import pandas as pd
-import time
 import tms_login as tms
 from datetime import date
 
+# set to Chrome default download folder
 DOWNLOAD_FOLDER = "C:\\Users\\daigo\\Downloads"
 
 # list of files before downloading
