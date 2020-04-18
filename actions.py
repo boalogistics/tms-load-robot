@@ -1,6 +1,12 @@
-class Book():
+def login():
     pass
 
-class Dispatch():
+def run_lcr():
+    pass
+
+def book():
+    pass
+
+def dispatch():
     pass
 
