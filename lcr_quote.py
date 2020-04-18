@@ -1,29 +1,13 @@
 ## TODO add error catcher for timing out and/or alert on LCR page to skip current load number
-## alternatively add parameter for webdrvr options in tms_login
-
 
 import csv
-# import tms_login as tms
-from selenium import webdriver
+import tms_login as tms
+from selenium.webdriver.common.by import By 
 from selenium.webdriver.support.ui import Select, WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.common.by import By 
 
-# activate chrome driver
-browser = webdriver.Chrome()
-browser.implicitly_wait(3)
-browser.maximize_window()
-browser.get('https://boa.3plsystemscloud.com/')
-
-# page elements to login
-boa_user = browser.find_element_by_id('txb-username')
-boa_pw = browser.find_element_by_id('txb-password')
-login_button = browser.find_element_by_id('ctl00_ContentBody_butLogin')
-
-# login credentials
-boa_user.send_keys('***EMAIL HERE***')
-boa_pw.send_keys('***PASSWORD HERE***')
-login_button.click()
+url = 'https://boa.3plsystemscloud.com/'
+browser = tms.login(url, False)
 
 # put FOR loop here to loop through list of load numbers
 loadlist = ['153110', 
