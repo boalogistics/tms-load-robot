@@ -4,8 +4,10 @@ import time
 import tms_login as tms
 from datetime import date
 
+DOWNLOAD_FOLDER = "C:\\Users\\daigo\\Downloads"
+
 # list of files before downloading
-before = os.listdir(r'C:\Users\daigo\Downloads')
+before = os.listdir(DOWNLOAD_FOLDER)
 
 url = 'https://boa.3plsystemscloud.com/'
 browser = tms.login(url, False)
@@ -13,8 +15,8 @@ browser = tms.login(url, False)
 # enter report code into report_code variable
 # "Daily Booking Report" report
 report_code = '3092F43103C3'
-url = 'https://boa.3plsystemscloud.com/App_BW/staff/Reports/ReportViewer.aspx?code=' + report_code
-browser.get(url)
+report_url = 'https://boa.3plsystemscloud.com/App_BW/staff/Reports/ReportViewer.aspx?code=' + report_code
+browser.get(report_url)
 
 today = date.today()
 s_date = today
@@ -42,7 +44,7 @@ time.sleep(3)
 browser.close()
 
 #compares list of files in Downloads folder after downloading file to extract filename
-after = os.listdir(r'C:\Users\daigo\Downloads')
+after = os.listdir(DOWNLOAD_FOLDER)
 change = set(after) - set(before)
 
 if len(change) == 1:
@@ -56,7 +58,7 @@ else:
 # sets filepath to downloaded file and create DataFrame from file 
 # output file extension is .xls but is actually.html format
 
-filepath = r'C:\Users\daigo\Downloads' + "\\" + file_name
+filepath = DOWNLOAD_FOLDER + "\\" + file_name
 data = pd.read_html(filepath)
 df = data[0]
 
