@@ -1,11 +1,11 @@
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 
-def login(url):
+def login(url, boolheadless = True):
     # activate headless mode
     options = Options()
-    options.headless = True
-
+    options.headless = boolheadless
+    
     # activate chrome driver
     browser = webdriver.Chrome(options=options)
     browser.get(url)

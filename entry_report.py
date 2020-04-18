@@ -6,10 +6,10 @@ from datetime import date
 # from selenium.webdriver.chrome.options import Options
 
 # list of files before downloading
-before = os.listdir(r"C:\Users\BOA\Downloads")
+before = os.listdir(r"C:\Users\daigo\Downloads")
 
 url = 'https://boa.3plsystemscloud.com/'
-browser = tms.login(url)
+browser = tms.login(url, False)
 
 # enter report code into report_code variable
 # "Daily Booking Report" report
@@ -50,7 +50,7 @@ time.sleep(3)
 browser.close()
 
 #compares list of files in Downloads folder after downloading file to extract filename
-after = os.listdir(r"C:\Users\BOA\Downloads")
+after = os.listdir(r"C:\Users\daigo\Downloads")
 change = set(after) - set(before)
 
 if len(change) == 1:
@@ -62,7 +62,7 @@ else:
 # sets filepath to downloaded file and create DataFrame from file 
 # *output file extension is .xls but is actually.html format
 
-filepath = r"C:\Users\BOA\Downloads" + "\\" + file_name
+filepath = r"C:\Users\daigo\Downloads" + "\\" + file_name
 data = pd.read_html(filepath)
 df = data[0]
 
