@@ -62,13 +62,13 @@ for x in loadlist:
             carrier_name = rows[row_index].get_attribute('title')
             
             # carrier filters; if enabling or disabling, modify IF block below
-            tradeshow_check = carrier_name.lower().find('trade show') < 0
-            frontline_check = carrier_name.lower().find('frontline') < 0
-            clearlane_check = carrier_name.lower().find('clear lane') < 0
-            overnite_check = carrier_name.lower().find('best overnite') < 0
-            custom_check = carrier_name.lower().find('custom companies') < 0
             roadrunner_check = carrier_name.lower().find('roadrunner') < 0
+            clearlane_check = carrier_name.lower().find('clear lane') < 0
+            frontline_check = carrier_name.lower().find('frontline') < 0
+            tradeshow_check = carrier_name.lower().find('trade show') < 0
+            overnite_check = carrier_name.lower().find('best overnite') < 0
             central_check = carrier_name.lower().find('central freight') < 0
+            custom_check = carrier_name.lower().find('custom companies') < 0
             
             if tradeshow_check and frontline_check and clearlane_check and overnite_check and custom_check and roadrunner_check and central_check:
                 button_index = row_index * 2
@@ -83,3 +83,7 @@ for x in loadlist:
         with open('lcr-carrier-list.csv', mode='a+') as carrier_list:
             carrier_writer = csv.writer(carrier_list, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
             carrier_writer.writerow([load_id, carrier_info])
+
+# def carrier_filter(carrier_dict):
+#         for key in carrier_dict:
+#             carrier_dict[key] = carrier_name.lower().find(key) < 0
