@@ -6,3 +6,4 @@ sandbox.py
 geckodriver.log
 *.csv
 *.exe
+*.log
