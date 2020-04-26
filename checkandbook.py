@@ -1,9 +1,19 @@
-import os, time
-import pandas as pd
-import tms_login as tms
+import logging, os, time
+import pandas as pd, tms_login as tms
 from datetime import date
 from selenium.webdriver.support.ui import Select, WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+
+# set up logging to file
+logging.basicConfig(level=logging.DEBUG,
+                    format='%(message)s',
+                    filename='myapp.log',
+                    filemode='w')
+console = logging.StreamHandler()
+console.setLevel(logging.INFO)
+formatter = logging.Formatter(fmt='%(asctime)s %(name)-12s: %(levelname)-8s %(message)s', datefmt='%d-%b-%y %H:%M:%S',)
+console.setFormatter(formatter)
+logging.getLogger('').addHandler(console)
 
 # set to Chrome default download folder
 DOWNLOAD_FOLDER = "C:\\Users\\daigo\\Downloads"
@@ -48,9 +58,6 @@ browser.close()
 datestamp = s_date.strftime('%y%m%d')
 log_file = open(datestamp + '_book.log', 'w')
 
-def printlog(statement, logfile):
-    print(statement)
-    log_file.write(statement + '\n')
 
 #compares list of files in Downloads folder after downloading file to extract filename
 after = os.listdir(DOWNLOAD_FOLDER)
@@ -58,11 +65,11 @@ change = set(after) - set(before)
 
 if len(change) == 1:
     file_name = change.pop()
-    printlog(file_name + ' downloaded.')
+    logging.info(file_name + ' downloaded.')
 elif len(change) == 0:
-    printlog('No file downloaded.', log_file)
+    logging.info('No file downloaded.')
 else:
-    printlog ('More than one file downloaded.', log_file)
+    logging.info ('More than one file downloaded.')
     
 # sets filepath to downloaded file and create DataFrame from file 
 # output file extension is .xls but is actually.html format
@@ -76,8 +83,8 @@ load_list_numbers = list(df['Load #'])[:-1]
 load_list = [str(x) for x in load_list_numbers]
 load_count = len(df.index) -1
 
-printlog(load_list, log_file)
-printlog(str(load_count) + ' loads entered today.', log_file)
+logging.info(load_list)
+logging.info(str(load_count) + ' loads entered today.')
 
 
 # variables to count final results of loads
@@ -97,7 +104,7 @@ for x in load_list:
 
     if client_credit_exceeded:
         client_name = browser.find_element_by_xpath("//div[@id='ctl00_BodyContent_divCustomerInfo']/div[1]/a").text
-        printlog(load_id + ' not booked. Client {} has exceeded credit limit.'.format(client_name), log_file)
+        logging.info(load_id + ' not booked. Client {} has exceeded credit limit.'.format(client_name))
         loads_not_booked += 1
     else:
         # check if load is already in booked/dispatched/cancelled status and trace priority
@@ -133,15 +140,14 @@ for x in load_list:
         if quote_status:
             bookshipment = browser.find_element_by_id('ctl00_BodyContent_spnBookShipment')
             bookshipment.click()
-            printlog(load_id + ' booked.', log_file)
+            logging.info(load_id + ' booked.')
             loads_booked += 1
         else:
-            printlog(load_id + ' not booked. ' + status, log_file)
+            logging.info(load_id + ' not booked. ' + status)
             loads_not_booked += 1
 
 browser.quit()
 
-printlog(str(loads_booked) + ' loads booked.', log_file)
-printlog(str(loads_not_booked) + ' loads not booked.', log_file)
-printlog('Browser closed.', log_file)
-log_file.close()
+logging.info(str(loads_booked) + ' loads booked.')
+logging.info(str(loads_not_booked) + ' loads not booked.')
+print('Browser closed.')
