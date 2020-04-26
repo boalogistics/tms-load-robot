@@ -1,9 +1,13 @@
-import json
+import json, logging, logging.config
 import tms_login as tms
 from data_extract import get_trucks_data, create_truck
 from selenium.webdriver.support.ui import Select, WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
+
+# initialize logger
+logging.config.fileConfig(fname='logger.conf')
+logger = logging.getLogger('')
 
 # variables to count final results of loads
 loads_dispatched = 0
@@ -29,7 +33,7 @@ for truck in truck_dict_list:
         load = [truck['load_no'], carrier_lookup[carrier_name]]
         loadlist.append(load)
     except:
-        print('Truck # ' + truck['truck_no'] + ', Load # ' + truck['load_no'] + ', ' + carrier_name + ' is not on the carrier list.')
+        logging.info('Truck # ' + truck['truck_no'] + ', Load # ' + truck['load_no'] + ', ' + carrier_name + ' is not on the carrier list.')
         loads_not_dispatched += 1
 
 url = 'https://boa.3plsystemscloud.com/'
@@ -64,7 +68,7 @@ for x in loadlist:
 
         if carrier_insurance_expired:
             carrier_name = browser.find_element_by_xpath("//div[@id='ctl00_BodyContent_divCarrierInfo']/div[1]/strong").text
-            print(load_id + ' not dispatched. Carrier {}\'s insurance on file is expired.'.format(carrier_name))
+            logging.info(load_id + ' not dispatched. Carrier {}\'s insurance on file is expired.'.format(carrier_name))
             loads_not_dispatched += 1
         else:
             # dispatch
@@ -81,14 +85,14 @@ for x in loadlist:
             dispatch_btn.click()       
             browser.switch_to.window(og_window)
 
-            print('Load number ' + load_id + ' dispatched!')
+            logging.info('Load number ' + load_id + ' dispatched!')
             loads_dispatched += 1
     else:
-        print('Auto dispatcher script did not dispatch: ' + status)
+        logging.info('Auto dispatcher script did not dispatch: ' + status)
         loads_not_dispatched += 1
 
 browser.quit()
 
-print(str(loads_dispatched) + ' loads dispatched.')
-print(str(loads_not_dispatched) + ' loads not dispatched.')
+logging.info(str(loads_dispatched) + ' loads dispatched.')
+logging.info(str(loads_not_dispatched) + ' loads not dispatched.')
 print('Browser closed.')

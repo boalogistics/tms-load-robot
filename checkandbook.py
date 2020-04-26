@@ -1,19 +1,12 @@
-import logging, os, time
+import logging, logging.config, os, time
 import pandas as pd, tms_login as tms
 from datetime import date
 from selenium.webdriver.support.ui import Select, WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
-# set up logging to file
-logging.basicConfig(level=logging.DEBUG,
-                    format='%(message)s',
-                    filename='myapp.log',
-                    filemode='w')
-console = logging.StreamHandler()
-console.setLevel(logging.INFO)
-formatter = logging.Formatter(fmt='%(asctime)s %(name)-12s: %(levelname)-8s %(message)s', datefmt='%d-%b-%y %H:%M:%S',)
-console.setFormatter(formatter)
-logging.getLogger('').addHandler(console)
+# initialize logger
+logging.config.fileConfig(fname='logger.conf')
+logger = logging.getLogger('')
 
 # set to Chrome default download folder
 DOWNLOAD_FOLDER = "C:\\Users\\daigo\\Downloads"
@@ -32,18 +25,14 @@ browser.get(report_url)
 
 today = date.today()
 s_date = today
-str_s_date = s_date.strftime('%m/%d/%Y')
-# use below instead to specify a particular day other than today
-#str_s_date = s_date.strftime("03/27/2020")
 
-start = str_s_date + ' 00:00:00'
-end = str_s_date + ' 23:59:59'
+start = s_date.strftime('%m/%d/%Y 00:00:00')
+end = s_date.strftime('%m/%d/%Y 23:59:59')
+
 startbox = browser.find_element_by_xpath("//td[1]/input[@class='filter between'][1]")
 endbox = browser.find_element_by_xpath("//td[1]/input[@class='filter between'][2]")
-startbox.clear()
-startbox.send_keys(start)
-endbox.clear()
-endbox.send_keys(end)
+startbox.clear().send_keys(start)
+endbox.clear().send_keys(end)
 
 # save & view report, then download
 save_button = browser.find_element_by_id('ctl00_ContentBody_butSaveView')
@@ -54,10 +43,6 @@ download.click()
 time.sleep(3)
 
 browser.close()
-
-datestamp = s_date.strftime('%y%m%d')
-log_file = open(datestamp + '_book.log', 'w')
-
 
 #compares list of files in Downloads folder after downloading file to extract filename
 after = os.listdir(DOWNLOAD_FOLDER)
