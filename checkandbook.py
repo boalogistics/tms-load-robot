@@ -45,17 +45,24 @@ time.sleep(3)
 
 browser.close()
 
+datestamp = s_date.strftime('%y%m%d')
+log_file = open(datestamp + '_book.log', 'w')
+
+def printlog(statement, logfile):
+    print(statement)
+    log_file.write(statement + '\n')
+
 #compares list of files in Downloads folder after downloading file to extract filename
 after = os.listdir(DOWNLOAD_FOLDER)
 change = set(after) - set(before)
 
 if len(change) == 1:
     file_name = change.pop()
-    print(file_name + ' downloaded.')
+    printlog(file_name + ' downloaded.')
 elif len(change) == 0:
-    print('No file downloaded.')
+    printlog('No file downloaded.', log_file)
 else:
-    print ('More than one file downloaded.')
+    printlog ('More than one file downloaded.', log_file)
     
 # sets filepath to downloaded file and create DataFrame from file 
 # output file extension is .xls but is actually.html format
@@ -69,8 +76,8 @@ load_list_numbers = list(df['Load #'])[:-1]
 load_list = [str(x) for x in load_list_numbers]
 load_count = len(df.index) -1
 
-print(load_list)
-print(str(load_count) + ' loads entered today.')
+printlog(load_list, log_file)
+printlog(str(load_count) + ' loads entered today.', log_file)
 
 
 # variables to count final results of loads
@@ -90,7 +97,7 @@ for x in load_list:
 
     if client_credit_exceeded:
         client_name = browser.find_element_by_xpath("//div[@id='ctl00_BodyContent_divCustomerInfo']/div[1]/a").text
-        print(load_id + ' not booked. Client {} has exceeded credit limit.'.format(client_name))
+        printlog(load_id + ' not booked. Client {} has exceeded credit limit.'.format(client_name), log_file)
         loads_not_booked += 1
     else:
         # check if load is already in booked/dispatched/cancelled status and trace priority
@@ -126,14 +133,15 @@ for x in load_list:
         if quote_status:
             bookshipment = browser.find_element_by_id('ctl00_BodyContent_spnBookShipment')
             bookshipment.click()
-            print(load_id + ' booked.')
+            printlog(load_id + ' booked.', log_file)
             loads_booked += 1
         else:
-            print(load_id + ' not booked. ' + status)
+            printlog(load_id + ' not booked. ' + status, log_file)
             loads_not_booked += 1
 
 browser.quit()
 
-print(str(loads_booked) + ' loads booked.')
-print(str(loads_not_booked) + ' loads not booked.')
-print('Browser closed.')
+printlog(str(loads_booked) + ' loads booked.', log_file)
+printlog(str(loads_not_booked) + ' loads not booked.', log_file)
+printlog('Browser closed.', log_file)
+log_file.close()
