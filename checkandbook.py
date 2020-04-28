@@ -31,8 +31,10 @@ end = s_date.strftime('%m/%d/%Y 23:59:59')
 
 startbox = browser.find_element_by_xpath("//td[1]/input[@class='filter between'][1]")
 endbox = browser.find_element_by_xpath("//td[1]/input[@class='filter between'][2]")
-startbox.clear().send_keys(start)
-endbox.clear().send_keys(end)
+startbox.clear()
+startbox.send_keys(start)
+endbox.clear()
+endbox.send_keys(end)
 
 # save & view report, then download
 save_button = browser.find_element_by_id('ctl00_ContentBody_butSaveView')
