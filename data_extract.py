@@ -30,3 +30,14 @@ class Truck:
         self.truck_no = truck_list[2]
         self.carrier_name = truck_list[3]
         self.dispatched = truck_list[4]
+
+def reefer_list_data():
+    """Gets list of POs from current week Boa Warehousing Reefer List Google Sheet.
+    """
+    scope = ['https://spreadsheets.google.com/feeds','https://www.googleapis.com/auth/drive']
+    creds = ServiceAccountCredentials.from_json_keyfile_name('reefer.json', scope)
+    client = gspread.authorize(creds)
+    sheet = client.open('Warehousing Sheet Data Feed')
+    data = sheet.worksheet('rl_qry')
+    reeferlist = data.get_all_values()
+    return reeferlist
