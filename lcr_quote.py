@@ -1,4 +1,4 @@
-## TODO add error catcher for timing out and/or alert on LCR page to skip current load number
+## TODO add code to handle alert on LCR and Edit profile window
 
 import csv
 import tms_login as tms
