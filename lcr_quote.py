@@ -197,6 +197,8 @@ for x in loadlist:
         with open('lcr-carrier-list.csv', mode='a+') as carrier_list:
             carrier_writer = csv.writer(carrier_list, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
             carrier_writer.writerow([load_id, repr(e)])
+
+browser.quit()
           
 
 
