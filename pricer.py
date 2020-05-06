@@ -140,3 +140,5 @@ for x in loadlist:
 
     except Exception as e:
         print(load_id + ' threw ' + repr(e))
+
+browser.quit()
