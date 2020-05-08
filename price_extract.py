@@ -750,7 +750,7 @@ for x in loadlist:
             price_writer = csv.writer(pricing, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
             price_writer.writerow([load_id, cost, billed, margin_usd, margin_pct])
           
-
+browser.quit()
 
 # def carrier_filter(carrier_dict):
 #         for key in carrier_dict:
