@@ -51,7 +51,7 @@ for x in loadlist:
     
     if booked:
         # set first window handle
-        og_window = browser.window_handles[0]
+        # og_window = browser.window_handles[0]
 
         # assign carrier
         vol_carrier_link = browser.find_element_by_id('ctl00_BodyContent_hlCarrierVolLink')
@@ -72,18 +72,20 @@ for x in loadlist:
             loads_not_dispatched += 1
         else:
             # dispatch
-            dispatch_link = browser.find_element_by_id('ctl00_BodyContent_lbDispatchLink')
-            dispatch_link.click()
-            WebDriverWait(browser, timeout=30).until(EC.number_of_windows_to_be(2))
+            dispatch = 'http://boa.3plsystemscloud.com/App_BW/staff/operations/trackDispatchPop.aspx?loadid='+load_id
+            browser.get(dispatch)
+            # dispatch_link = browser.find_element_by_id('ctl00_BodyContent_lbDispatchLink')
+            # dispatch_link.click()
+            # WebDriverWait(browser, timeout=30).until(EC.number_of_windows_to_be(2))
 
             # set handle to popup and switches to popup
-            popup = browser.window_handles[1]
-            browser.switch_to.window(popup)
+            # popup = browser.window_handles[1]
+            # browser.switch_to.window(popup)
 
             # variable and selections for Priority
             dispatch_btn = browser.find_element_by_id('btnDispatchComplete')
             dispatch_btn.click()       
-            browser.switch_to.window(og_window)
+            # browser.switch_to.window(og_window)
 
             logging.info('Load number ' + load_id + ' dispatched!')
             loads_dispatched += 1
