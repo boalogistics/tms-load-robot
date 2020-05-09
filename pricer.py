@@ -4,106 +4,47 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import Select, WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
+def costco_discount(city, pallets, retail):
+    discount_rate = discount_dict[city][pallets - 1]
+    # round to nearest multiple of 5
+    reduction_value = 5 * round(retail * discount_rate) / 5
+    return reduction_value
+
+discount_dict = {"West Palm Beach": [0.0294, 0.0466, 0.0542, 0.0601, 0.0593, 0.0595, 0.0546, 0.0570, 0.0471, 0.0379], 
+                "Atlanta": [0.0288, 0.0457, 0.0549, 0.0597, 0.0595, 0.0610, 0.0559, 0.0573, 0.0473, 0.0377], 
+                "Monrovia":[0.0294, 0.0444, 0.0541, 0.0610, 0.0608, 0.0598, 0.0557, 0.0576, 0.0477, 0.0372], 
+                "Monroe Township": [0.0288, 0.0455, 0.0552, 0.0600, 0.0604, 0.0596, 0.0554, 0.0569, 0.0470, 0.0374]}   
+
 url = 'https://boa.3plsystemscloud.com/'
 browser = tms.login(url, False)
 
 # put FOR loop here to loop through list of load numbers
-loadlist = [
-'156557', 
-'157878', 
-'156065', 
-'156117', 
-'156154', 
-'156156', 
-'156157', 
-'156158', 
-'156159', 
-'156162', 
-'157617', 
-'156536', 
-'156537', 
-'157967', 
-'157999', 
-'156540', 
-'157636', 
-'157825', 
-'156528', 
-'156563', 
-'156390', 
-'155842', 
-'155915', 
-'156269', 
-'155833', 
-'156396', 
-'156399', 
-'156407', 
-'156161', 
-'156155', 
-'156567', 
-'156352', 
-'156686', 
-'158001', 
-'157910', 
-'156535', 
-'156410', 
-'157948', 
-'156388', 
-'156452', 
-'156253', 
-'155819', 
-'156370', 
-'157891', 
-'157915', 
-'156539', 
-'156463', 
-'156401', 
-'156562', 
-'156572', 
-'156475', 
-'157943', 
-'157827', 
-'155848', 
-'155884', 
-'150779', 
-'154989', 
-'157823', 
-'156487', 
-'156340', 
-'156325', 
-'157939', 
-'157942', 
-'157824', 
-'157998', 
-'157887', 
-'156321', 
-'157959', 
-'156347', 
-'155852', 
-'155847', 
-'156468', 
-'156574', 
-'157992', 
-'158000', 
-'156565', 
-'157601'
-]
+loadlist = ['154356']
 
 for x in loadlist:
     try:
-        og_window = browser.window_handles[0]
         
         load_id = x
-        url = 'https://boa.3plsystemscloud.com/App_BW/staff/shipment/shipmentDetail.aspx?loadid='+load_id
-        browser.get(url)
+        load_url = 'https://boa.3plsystemscloud.com/App_BW/staff/shipment/shipmentDetail.aspx?loadid='+load_id
+        browser.get(load_url)
 
-        WebDriverWait(browser, timeout=120).until(EC.element_to_be_clickable((By.ID, 'ctl00_BodyContent_anchor_Editpricing')))
+        consignee_name = browser.find_element_by_xpath("//div[@id='ctl00_BodyContent_divShipRecLocations']/span/span[2]/div[@class='DivPanelB']/div[@class='PanelBodyForm']/table/tbody/tr[1]/td").text.upper()
+        consignee_city = browser.find_element_by_xpath("//div[@id='ctl00_BodyContent_divShipRecLocations']/span/span[2]/div[@class='DivPanelB']/div[@class='PanelBodyForm']/table/tbody/tr[2]/td").text
+        is_costco = consignee_name.find('COSTCO') != -1 and consignee_city in discount_dict
+        pallets = 'getpalletcount'
 
-        editpricing = browser.find_element_by_id('ctl00_BodyContent_anchor_Editpricing')
-        editpricing.click()
+        # add pallet counter here
+        # how to account for non discount costco locations?
 
-        WebDriverWait(browser, timeout=30).until(EC.number_of_windows_to_be(2))
-        popup = browser.window_handles[1]
-        browser.switch_to.window(popup)
+        edit_pricing = 'http://boa.3plsystemscloud.com/App_BW/staff/shipment/shipmentCostPop.aspx?loadid='+load_id
+        browser.get(edit_pricing)
+
+        base_retail = browser.find_element_by_id('ctl00_BodyContent_tbxShippingAmtBilled').get_attribute('value')
+        
+        if is_costco:
+            discount = costco_discount(consignee_city, pallets, base_retail)
+        else:
+            discount = str(float(base_retail) * -0.0415)
 
         supplemental_select = Select(browser.find_element_by_id('ddlAddSupplementals'))
         supplemental_select.select_by_value('55')
@@ -111,33 +52,22 @@ for x in loadlist:
         add_button = browser.find_element_by_id('btnAddSupplemental')
         add_button.click()
 
-        # WebDriverWait(browser, timeout=120).until(EC.element_to_be_clickable((By.ID, 'tbxAccessorialBilledNet55')))
-        # discount = browser.find_element_by_id('tbxAccessorialBilledNet55')
-        # discount.send_keys(Keys.CONTROL + 'a')
-        # discount.send_keys(Keys.DELETE)
-        # discount.send_keys(500)
+        WebDriverWait(browser, timeout=120).until(EC.element_to_be_clickable((By.ID, 'tbxAccessorialBilledNet55')))
+        discount_box = browser.find_element_by_id('tbxAccessorialBilledNet55')
+        discount_box.send_keys(Keys.CONTROL + 'a')
+        discount_box.send_keys(Keys.DELETE)
+        discount_box.send_keys(discount)
 
-        save_button = browser.find_element_by_id('btnUpdateCosts')
-        save_button.click()
+        # save_button = browser.find_element_by_id('btnUpdateCosts')
+        # save_button.click()
 
-        browser.switch_to.window(og_window)
+        # browser.switch_to.window(og_window)
         
-        # rowslist = table.find_elements_by_tag_name('tr')
-        # pricerow = str(len(rowslist)-1)
-        # marginrow = str(len(rowslist))
-        # # print(len(rowslist))
-        # # print(rowslist[len(rowslist)-1].text)
-        # # print(rowslist[len(rowslist)-2].text)
 
-        # cost = browser.find_element_by_xpath("//table[@id='ctl00_BodyContent_tblCommodities']/tbody/tr[" + pricerow +"]/td[@class='GridDataRight'][3]").text
-        # billed = browser.find_element_by_xpath("//table[@id='ctl00_BodyContent_tblCommodities']/tbody/tr[" + pricerow +"]/td[@class='GridDataRight'][2]").text
-        # margin_usd = browser.find_element_by_xpath("//table[@id='ctl00_BodyContent_tblCommodities']/tbody/tr[" + marginrow +"]/td[@class='GridDataRight'][3]").text
-        # margin_pct = browser.find_element_by_xpath("//table[@id='ctl00_BodyContent_tblCommodities']/tbody/tr[" + marginrow +"]/td[@class='GridDataRight'][2]").text
-        
-        # print('Load: ' + load_id + ', Cost: ' + cost + ', Billed: ' + billed + ', Margin$: ' + margin_usd + ', Margin%: ' + margin_pct)
         
 
     except Exception as e:
         print(load_id + ' threw ' + repr(e))
 
-browser.quit()
+# browser.quit()
+
