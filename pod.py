@@ -1,5 +1,5 @@
 import csv
-import tms_login_ff as tms
+import tms_login as tms
 from selenium.webdriver.common.by import By 
 from selenium.webdriver.support.ui import Select, WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
