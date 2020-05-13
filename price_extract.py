@@ -54,7 +54,3 @@ for x in loadlist:
             price_writer.writerow([load_id, cost, billed, margin_usd, margin_pct])
           
 browser.quit()
-
-# def carrier_filter(carrier_dict):
-#         for key in carrier_dict:
-#             carrier_dict[key] = carrier_name.lower().find(key) < 0
