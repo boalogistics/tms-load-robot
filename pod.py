@@ -13,29 +13,25 @@ f = open('pod_list.csv', 'a')
 loadlist = []
 
 for x in loadlist:
+    load_id = x
+    url = 'https://boa.3plsystemscloud.com/App_BW/staff/shipment/shipmentDetail.aspx?loadid='+load_id
+    browser.get(url)
+
     try:
-        load_id = x
-        url = 'https://boa.3plsystemscloud.com/App_BW/staff/shipment/shipmentDetail.aspx?loadid='+load_id
-        browser.get(url)
+        WebDriverWait(browser, timeout=1).until(EC.element_to_be_clickable((By.ID, 'ctl00_BodyContent_divStoredDocs')))
 
-        try:
-            WebDriverWait(browser, timeout=1).until(EC.element_to_be_clickable((By.ID, 'ctl00_BodyContent_divStoredDocs')))
-
-            doc_table = browser.find_element_by_id('ctl00_BodyContent_divStoredDocs')
-
-            doc_links = doc_table.find_elements_by_tag_name('a')
-            if any(link.text == 'POD' for link in doc_links):
-                print(load_id + ' has POD uploaded.')
-                f.write(load_id + ' has POD uploaded.\n')
-            else:
-                print(load_id + ' has no POD uploaded.')
-                f.write(load_id + ' has no POD uploaded.\n')
-        except:
-            print(load_id + ' has no documents uploaded.')
-            f.write(load_id + ' has no documents uploaded.\n')
+        doc_table = browser.find_element_by_id('ctl00_BodyContent_divStoredDocs')
+        doc_links = doc_table.find_elements_by_tag_name('a')
         
+        if any(link.text == 'POD' for link in doc_links):
+            print(load_id + ' has POD uploaded.')
+            f.write(load_id + ' has POD uploaded.\n')
+        else:
+            print(load_id + ' has no POD uploaded.')
+            f.write(load_id + ' has no POD uploaded.\n')
     except Exception as e:
-        print(load_id + ' threw ' + repr(e))
+        print(load_id + ' has no documents uploaded.')
+        f.write(load_id + ' has no documents uploaded.\n')
         f.write(load_id + ' threw ' + repr(e) + '\n')
           
 browser.quit()
