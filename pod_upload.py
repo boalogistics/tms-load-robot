@@ -1,7 +1,4 @@
 import tms_login as tms
-from selenium.webdriver.common.by import By 
-from selenium.webdriver.support.ui import Select, WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
 
 url = 'https://boa.3plsystemscloud.com/'
 browser = tms.login(url)
