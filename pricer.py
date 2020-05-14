@@ -19,11 +19,7 @@ discount_dict = {"West Palm Beach": [0.0294, 0.0466, 0.0542, 0.0601, 0.0593, 0.0
 url = 'https://boa.3plsystemscloud.com/'
 browser = tms.login(url, False)
 
-loadlist = ['155819',
-'156269',
-'157825',
-'155884',
-'156162'
+loadlist = ['155894'
 ]
 
 for x in loadlist:
@@ -44,16 +40,15 @@ for x in loadlist:
         edit_pricing = 'http://boa.3plsystemscloud.com/App_BW/staff/shipment/shipmentCostPop.aspx?loadid='+load_id
         browser.get(edit_pricing)
 
-        price_table = browser.find_element_by_id('tblPricing')
-        price_elements = price_table.find_elements_by_tag_name('td')
-        discount_exists = any(td.text == 'Discount:' for td in price_elements)
+        td_list = browser.find_elements_by_tag_name('td')
+        discount_exists = any(td.text == 'Discount:' for td in td_list)
         
         while discount_exists == False:
             supplemental_select = Select(browser.find_element_by_id('ddlAddSupplementals'))
             supplemental_select.select_by_value('55')
             add_button = browser.find_element_by_id('btnAddSupplemental')
             add_button.click()
-            discount_exists = any(td.text == 'Discount:' for td in price_elements)
+            td_list = browser.find_elements_by_tag_name('td')
 
         base_retail = browser.find_element_by_id('ctl00_BodyContent_tbxShippingAmtBilled').get_attribute('value')
 
@@ -63,9 +58,9 @@ for x in loadlist:
         else:
             discount = str(float(base_retail) * -0.0415)
 
-        discount_box_pos = [td.text for td in price_elements].index('Discount:')
+        discount_box_pos = [td.text for td in td_list].index('Discount:')
         # input box in next TD cell after Discount label
-        discount_cell = price_elements[discount_box_pos + 1]
+        discount_cell = td_list[discount_box_pos + 1]
         discount_input = discount_cell.find_element_by_tag_name('input')
         discount_input.send_keys(Keys.CONTROL + 'a')
         discount_input.send_keys(Keys.DELETE)
