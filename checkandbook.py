@@ -1,15 +1,15 @@
-import logging, logging.config, os, time
+import getpass, logging, logging.config, os, time
 import pandas as pd, tms_login as tms
 from datetime import date
 from selenium.webdriver.support.ui import Select, WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
 # initialize logger
-logging.config.fileConfig(fname='logger.conf')
+logging.config.fileConfig(fname='logs/cfg/book.conf')
 logger = logging.getLogger('')
 
-# set to Chrome default download folder
-DOWNLOAD_FOLDER = "C:\\Users\\daigo\\Downloads"
+# set to Chrome default download folder - BOA CITRIX DESKTOP DEFAULT SETTINGS
+DOWNLOAD_FOLDER = "C:\\Users\\" + getpass.getuser().title() + "\\Downloads"
 
 # list of files before downloading
 before = os.listdir(DOWNLOAD_FOLDER)
