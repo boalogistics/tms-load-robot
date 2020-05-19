@@ -6,7 +6,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 
 # initialize logger
-logging.config.fileConfig(fname='logger.conf')
+logging.config.fileConfig(fname='logs/cfg/dispatch.conf')
 logger = logging.getLogger('')
 
 # variables to count final results of loads
@@ -22,7 +22,7 @@ for x in trucks[1:]:
     truck_dict_list.append(truck_dict)
 
 # carrier name - id # look up table in json
-with open('carrierid.json', 'r') as f:
+with open('db/carrierid.json', 'r') as f:
     carrier_lookup = json.load(f)
 
 loadlist = []
