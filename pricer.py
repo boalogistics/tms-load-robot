@@ -22,13 +22,7 @@ def costco_discount(city, pallets, retail):
 url = 'https://boa.3plsystemscloud.com/'
 browser = tms.login(url, False)
 
-loadlist = ['157887',
-'156154',
-'156161',
-'157824',
-'158933',
-'156325'
-]
+loadlist = ['156410', '156540']
 
 for x in loadlist:
     try:        
@@ -77,7 +71,7 @@ for x in loadlist:
 
         save_button = browser.find_element_by_id('btnUpdateCosts')
         save_button.click()
-        logging.info(load_id + ' discounted by ' + discount)
+        logging.info(load_id + ' base retail ' + str(base_retail) + ' discounted '  + discount + '('+str(int(discount)/base_retail)+')')
     except Exception as e:
         logging.exception(load_id + ' threw ' + repr(e))
 
