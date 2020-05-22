@@ -5,42 +5,12 @@ from selenium.webdriver.support.ui import Select
 # initialize logger
 logging.config.fileConfig(fname='logs/cfg/upload.conf')
 logger = logging.getLogger('')
+logging.info('==========')
 
 url = 'https://boa.3plsystemscloud.com/'
 browser = tms.login(url)
 
-load_list = ['159210',
-'154809',
-'154947',
-'155852',
-'156321',
-'156344',
-'156388',
-'156572',
-'157554',
-'157646',
-'157648',
-'157822',
-'157875',
-'157886',
-'157888',
-'157892',
-'157922',
-'158045',
-'158974',
-'158975',
-'158976',
-'159016',
-'159023',
-'159051',
-'159053',
-'159054',
-'159247',
-'159344',
-'159398',
-'159546',
-'157968'
-]
+load_list = ['154500', '155962', '155963', '156008', '156088', '156098', '156106', '156144', '156148', '156157', '156167', '156193', '156212', '156272', '156383', '156390', '156399', '156407', '156487', '156599', '156600', '156606', '156623', '157553', '157558', '157559', '157561', '157568', '157569', '157579', '157623', '157808', '157813', '157861', '157862', '157863', '157865', '157867', '157874', '157929', '157930', '157942', '158003', '158044', '158856', '159069', '148348', '156006', '156099', '156100', '156147', '156353', '156356', '156528', '156627', '157622', '157844', '158002', '158946']
 
 for x in load_list:
     public_pod = False
@@ -65,7 +35,10 @@ for x in load_list:
         upload_btn.click()
         logging.info('POD for ' + load_id + ' uploaded.')
     except Exception as e:
-        logging.info('POD for' + load_id + ' not uploaded: ' + repr(e))
+        logging.info('POD for ' + load_id + ' not uploaded: ' + repr(e))
 
 browser.close()
 print('Browser closed.')
+
+# import os
+# os.startfile('logs/upload.log')
