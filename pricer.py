@@ -29,14 +29,7 @@ report_code = '82D85081FF9F'
 report_url = 'https://boa.3plsystemscloud.com/App_BW/staff/Reports/ReportViewer.aspx?code=' + report_code
 browser.get(report_url)
 
-loadlist = ['156407',
-'156158',
-'156452',
-'156487',
-'156390',
-'156370',
-'157967'
-]
+loadlist = ['157617', '156065', '156537', '156563', '156562', '156157', '156399', '156567']
 
 loadno = browser.find_element_by_xpath("//td[1]/input[@class='filter']")
 loadno.clear()
@@ -50,9 +43,7 @@ save_button.click()
 browser.implicitly_wait(3)
 download = browser.find_element_by_id('ctl00_ContentBody_butExportToExcel')
 download.click()
-time.sleep(3)
-
-#browser.close()
+time.sleep(1)
 
 #compares list of files in Downloads folder after downloading file to extract filename
 after = os.listdir(DOWNLOAD_FOLDER)
@@ -66,35 +57,27 @@ elif len(change) == 0:
 else:
     logging.info ('More than one file downloaded.')
     
-# sets filepath to downloaded file and create DataFrame from file 
 # output file extension is .xls but is actually.html format
-
 filepath = DOWNLOAD_FOLDER + "\\" + file_name
 data = pd.read_html(filepath)
 df = data[0]
 
 # grabs list of load numbers and load count, dropping the Totals row
-load_table = df[['Load #', 'Consignee', 'C/ City', 'Pallets', 'Base Retail']].drop(len(df.index)-1)
+load_table = df[['Load #', 'Consignee', 'C/ City', 'Pallets', 'Base Retail']].drop(len(df.index)-1).to_dict()
 
 
 # look up table in json for Costco location x Pallets
-#costco_discount_dict = json.load(open('db/costco_table.json', 'r'))
+costco_discount_dict = json.load(open('db/costco_table.json', 'r'))
 
-for x in loadlist:
+for x in load_table.index:
     try:        
-        load_id = x
-        load_url = 'https://boa.3plsystemscloud.com/App_BW/staff/shipment/shipmentDetail.aspx?loadid='+load_id
-        browser.get(load_url)
-
+        load_id = load_table['Load #'][x]
+   
         # how to deal with multistop
-        consignee_name = browser.find_element_by_xpath("//div[@id='ctl00_BodyContent_divShipRecLocations']/span/span[2]/div[@class='DivPanelB']/div[@class='PanelBodyForm']/table/tbody/tr[1]/td").text.upper()
-        consignee_city = browser.find_element_by_xpath("//div[@id='ctl00_BodyContent_divShipRecLocations']/span/span[2]/div[@class='DivPanelB']/div[@class='PanelBodyForm']/table/tbody/tr[3]/td").text
+        consignee_name = load_table['Consignee'][x].upper()
+        consignee_city = load_table['C/ City'][x]
         is_costco = consignee_name.find('COSTCO') != -1 and consignee_city in costco_discount_dict
-        pallets = 'getpalletcount'
-
-        # add pallet counter here
-        # how to account for non discount costco locations?
-        # run a report for costco?
+        pallets = load_table['Pallets'][x]
 
         edit_pricing = 'http://boa.3plsystemscloud.com/App_BW/staff/shipment/shipmentCostPop.aspx?loadid='+load_id
         browser.get(edit_pricing)
@@ -102,20 +85,22 @@ for x in loadlist:
         td_list = browser.find_elements_by_tag_name('td')
         discount_exists = any(td.text == 'Discount:' for td in td_list)
         
-        while discount_exists == False:
+        while not discount_exists:
             supplemental_select = Select(browser.find_element_by_id('ddlAddSupplementals'))
-            supplemental_select.select_by_value('55')
+            try:
+                supplemental_select.select_by_value('55')
+            except Exception as e:
+                logging.exception(load_id + ' threw ' + repr(e))
             add_button = browser.find_element_by_id('btnAddSupplemental')
             add_button.click()
             td_list = browser.find_elements_by_tag_name('td')
 
-        base_retail = browser.find_element_by_id('ctl00_BodyContent_tbxShippingAmtBilled').get_attribute('value')
+        base_retail = load_table['Base Retail'][x]
 
         if is_costco:
-            discount = 0
-            # discount = costco_discount(consignee_city, pallets, base_retail)
+            discount = costco_discount(consignee_city, pallets, base_retail)
         else:
-            discount = str(float(base_retail) * -0.0415)
+            discount = str(base_retail * -0.0415)
 
         discount_box_pos = [td.text for td in td_list].index('Discount:')
         # input box in next TD cell after Discount label
@@ -127,10 +112,10 @@ for x in loadlist:
 
         save_button = browser.find_element_by_id('btnUpdateCosts')
         save_button.click()
-        logging.info(load_id + ' base retail ' + str(base_retail) + ' discounted '  + discount + '('+ str(float(discount)/float(base_retail)) + ')')
+        logging.info(load_id + ' base retail ' + str(base_retail) + ' discounted '  + discount + '('+ str(float(discount)/base_retail) + ')')
     except Exception as e:
         logging.info(load_id + ' threw ' + repr(e))
 
 browser.quit()
 print('Browser closed.')
-#costco_discount_dict.close()
+costco_discount_dict.close()
