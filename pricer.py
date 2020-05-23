@@ -61,10 +61,7 @@ else:
 filepath = DOWNLOAD_FOLDER + "\\" + file_name
 data = pd.read_html(filepath)
 df = data[0]
-
-# grabs list of load numbers and load count, dropping the Totals row
 load_table = df[['Load #', 'Consignee', 'C/ City', 'Pallets', 'Base Retail']].drop(len(df.index)-1).to_dict()
-
 
 # look up table in json for Costco location x Pallets
 costco_discount_dict = json.load(open('db/costco_table.json', 'r'))
@@ -119,3 +116,5 @@ for x in load_table.index:
 browser.quit()
 print('Browser closed.')
 costco_discount_dict.close()
+
+os.startfile('logs\\price.log')
