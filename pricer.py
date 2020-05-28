@@ -7,7 +7,7 @@ def costco_discount(city, pallets, retail):
     # subtract 1 from pallets argument for list index
     discount_rate = costco_discount_dict[city][pallets - 1]
     # round to nearest multiple of 5
-    reduction_value = 5 * round(retail * discount_rate) / 5
+    reduction_value = -5 * round(retail * discount_rate) / 5
     return reduction_value
 
 # initialize logger
@@ -29,7 +29,7 @@ report_code = '82D85081FF9F'
 report_url = 'https://boa.3plsystemscloud.com/App_BW/staff/Reports/ReportViewer.aspx?code=' + report_code
 browser.get(report_url)
 
-loadlist = ['157617', '156065', '156537', '156563', '156562', '156157', '156399', '156567']
+loadlist = ['158001', '157999', '158880', '158878']
 
 loadno = browser.find_element_by_xpath("//td[1]/input[@class='filter']")
 loadno.clear()
@@ -61,14 +61,14 @@ else:
 filepath = DOWNLOAD_FOLDER + "\\" + file_name
 data = pd.read_html(filepath)
 df = data[0]
-load_table = df[['Load #', 'Consignee', 'C/ City', 'Pallets', 'Base Retail']].drop(len(df.index)-1).to_dict()
+load_table = df[['Load #', 'Consignee', 'C/ City', 'Pallets', 'Base Retail']].drop(len(df.index)-1)
 
 # look up table in json for Costco location x Pallets
 costco_discount_dict = json.load(open('db/costco_table.json', 'r'))
 
 for x in load_table.index:
     try:        
-        load_id = load_table['Load #'][x]
+        load_id = str(load_table['Load #'][x])
    
         # how to deal with multistop
         consignee_name = load_table['Consignee'][x].upper()
@@ -91,11 +91,12 @@ for x in load_table.index:
             add_button = browser.find_element_by_id('btnAddSupplemental')
             add_button.click()
             td_list = browser.find_elements_by_tag_name('td')
+            discount_exists = any(td.text == 'Discount:' for td in td_list)
 
         base_retail = load_table['Base Retail'][x]
 
         if is_costco:
-            discount = costco_discount(consignee_city, pallets, base_retail)
+            discount = str(costco_discount(consignee_city, pallets, base_retail))
         else:
             discount = str(base_retail * -0.0415)
 
@@ -115,6 +116,6 @@ for x in load_table.index:
 
 browser.quit()
 print('Browser closed.')
-costco_discount_dict.close()
+# costco_discount_dict.close()
 
-os.startfile('logs\\price.log')
+os.startfile('logs\\pricer.log')
