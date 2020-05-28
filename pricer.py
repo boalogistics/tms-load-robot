@@ -70,11 +70,7 @@ for x in load_table.index:
     try:        
         load_id = str(load_table['Load #'][x])
    
-        # how to deal with multistop
-        consignee_name = load_table['Consignee'][x].upper()
-        consignee_city = load_table['C/ City'][x]
-        pallets = load_table['Pallets'][x]
-        is_costco = consignee_name.find('COSTCO') != -1 and consignee_city in costco_discount_dict and pallets < 11
+        # how to deal with multistop?
 
         edit_pricing = 'http://boa.3plsystemscloud.com/App_BW/staff/shipment/shipmentCostPop.aspx?loadid='+load_id
         browser.get(edit_pricing)
@@ -93,6 +89,10 @@ for x in load_table.index:
             td_list = browser.find_elements_by_tag_name('td')
             discount_exists = any(td.text == 'Discount:' for td in td_list)
 
+        consignee_name = load_table['Consignee'][x].upper()
+        consignee_city = load_table['C/ City'][x]
+        pallets = load_table['Pallets'][x]
+        is_costco = consignee_name.find('COSTCO') != -1 and consignee_city in costco_discount_dict and pallets < 11
         base_retail = load_table['Base Retail'][x]
 
         if is_costco:
