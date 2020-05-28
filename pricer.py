@@ -29,7 +29,7 @@ report_code = '82D85081FF9F'
 report_url = 'https://boa.3plsystemscloud.com/App_BW/staff/Reports/ReportViewer.aspx?code=' + report_code
 browser.get(report_url)
 
-loadlist = ['158001', '157999', '158880', '158878']
+loadlist = ['157891', '157942', '157939', '156565', '156347', '157992', '157959']
 
 loadno = browser.find_element_by_xpath("//td[1]/input[@class='filter']")
 loadno.clear()
@@ -73,8 +73,8 @@ for x in load_table.index:
         # how to deal with multistop
         consignee_name = load_table['Consignee'][x].upper()
         consignee_city = load_table['C/ City'][x]
-        is_costco = consignee_name.find('COSTCO') != -1 and consignee_city in costco_discount_dict
         pallets = load_table['Pallets'][x]
+        is_costco = consignee_name.find('COSTCO') != -1 and consignee_city in costco_discount_dict and pallets < 11
 
         edit_pricing = 'http://boa.3plsystemscloud.com/App_BW/staff/shipment/shipmentCostPop.aspx?loadid='+load_id
         browser.get(edit_pricing)
