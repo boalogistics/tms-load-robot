@@ -5,7 +5,7 @@ def get_trucks_data():
     """Gets list of trucks from current week Boa Warehousing Delivery Schedule Google Sheet.
     """
     scope = ['https://spreadsheets.google.com/feeds','https://www.googleapis.com/auth/drive']
-    creds = ServiceAccountCredentials.from_json_keyfile_name('reefer.json', scope)
+    creds = ServiceAccountCredentials.from_json_keyfile_name('db/reefer.json', scope)
     client = gspread.authorize(creds)
     sheet = client.open('Warehousing Sheet Data Feed')
     data = sheet.worksheet('EXPORT')
@@ -35,7 +35,7 @@ def reefer_list_data():
     """Gets list of POs from current week Boa Warehousing Reefer List Google Sheet.
     """
     scope = ['https://spreadsheets.google.com/feeds','https://www.googleapis.com/auth/drive']
-    creds = ServiceAccountCredentials.from_json_keyfile_name('reefer.json', scope)
+    creds = ServiceAccountCredentials.from_json_keyfile_name('db/reefer.json', scope)
     client = gspread.authorize(creds)
     sheet = client.open('Warehousing Sheet Data Feed')
     data = sheet.worksheet('rl_qry')
