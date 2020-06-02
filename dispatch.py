@@ -98,3 +98,6 @@ browser.quit()
 logging.info(str(loads_dispatched) + ' loads dispatched.')
 logging.info(str(loads_not_dispatched) + ' loads not dispatched.')
 print('Browser closed.')
+
+import os
+os.startfile('logs\\dispatch.log')

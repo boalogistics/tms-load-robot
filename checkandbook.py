@@ -108,9 +108,9 @@ for x in load_list:
             logging.info(load_id + ' not booked. ' + status)
             loads_not_booked += 1
         
-        not_trace_priority = status.find('TRACE') == -1  
+        trace_priority = status.find('TRACE') > -1  
         
-        if not_trace_priority:
+        if not trace_priority:
             edit_shipment = 'http://boa.3plsystemscloud.com/App_BW/staff/shipment/EditShipmentPop.aspx?loadid='+load_id
             browser.get(edit_shipment)
 
@@ -127,3 +127,5 @@ browser.quit()
 logging.info(str(loads_booked) + ' loads booked.')
 logging.info(str(loads_not_booked) + ' loads not booked.')
 print('Browser closed.')
+
+os.startfile('logs\\book.log')
