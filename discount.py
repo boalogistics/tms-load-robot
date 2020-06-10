@@ -1,4 +1,4 @@
-import json
+import json, logging
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import Select
 
@@ -6,13 +6,17 @@ from selenium.webdriver.support.ui import Select
 costco_discount_dict = json.load(open('db/costco_table.json', 'r'))
 
 def calc_costco_discount(city, pallets, retail):
-    # subtract 1 from pallets argument for list index
-    discount_rate = costco_discount_dict[city][pallets - 1]
-    # round to nearest multiple of 5
-    reduction_value = -5 * round(retail * discount_rate) / 5
+    reduction_value = 0
+    if pallets < 11:
+        # subtract 1 from pallets argument for list index
+        discount_rate = costco_discount_dict[city][pallets - 1]
+        # round to nearest multiple of 5
+        reduction_value = -5 * round(retail * discount_rate) / 5
+    else:
+        logging.info(city + ' pallets over 10, consult sales.')
     return reduction_value
 
-def applydiscount(table):
+def applydiscount(table, WebdriverObject):
     for x in table.index:
         try:        
             load_id = str(table['Load #'][x])
@@ -20,20 +24,20 @@ def applydiscount(table):
             # how to deal with multistop?
 
             edit_pricing = 'http://boa.3plsystemscloud.com/App_BW/staff/shipment/shipmentCostPop.aspx?loadid='+load_id
-            browser.get(edit_pricing)
+            WebdriverObject.get(edit_pricing)
 
-            td_list = browser.find_elements_by_tag_name('td')
+            td_list = WebdriverObject.find_elements_by_tag_name('td')
             discount_exists = any(td.text == 'Discount:' for td in td_list)
             
             while not discount_exists:
-                supplemental_select = Select(browser.find_element_by_id('ddlAddSupplementals'))
+                supplemental_select = Select(WebdriverObject.find_element_by_id('ddlAddSupplementals'))
                 try:
                     supplemental_select.select_by_value('55')
                 except Exception as e:
                     logging.exception(load_id + ' threw ' + repr(e))
-                add_button = browser.find_element_by_id('btnAddSupplemental')
+                add_button = WebdriverObject.find_element_by_id('btnAddSupplemental')
                 add_button.click()
-                td_list = browser.find_elements_by_tag_name('td')
+                td_list = WebdriverObject.find_elements_by_tag_name('td')
                 discount_exists = any(td.text == 'Discount:' for td in td_list)
 
             consignee_name = table['Consignee'][x].upper()
@@ -55,7 +59,7 @@ def applydiscount(table):
             discount_input.send_keys(Keys.DELETE)
             discount_input.send_keys(discount)
 
-            save_button = browser.find_element_by_id('btnUpdateCosts')
+            save_button = WebdriverObject.find_element_by_id('btnUpdateCosts')
             save_button.click()
             logging.info(load_id + ' base retail ' + str(base_retail) + ' discounted '  + discount + '('+ str(float(discount)/base_retail) + ')')
         except Exception as e:
