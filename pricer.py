@@ -21,7 +21,29 @@ report_code = '23725A2291F1'
 report_url = 'https://boa.3plsystemscloud.com/App_BW/staff/Reports/ReportViewer.aspx?code=' + report_code
 browser.get(report_url)
 
-loadlist = ['157891', '157942', '157939', '156565', '156347', '157992', '157959']
+loadlist = ['159185',
+'159789',
+'156539',
+'157948',
+'158905',
+'158956',
+'158957',
+'159141',
+'159149',
+'159188',
+'159203',
+'159794',
+'160186',
+'160444',
+'160445',
+'160720',
+'157998',
+'159109',
+'159651',
+'159166',
+'159597',
+'159813',
+'160076']
 
 loadno = browser.find_element_by_xpath("//td[1]/input[@class='filter']")
 loadno.clear()
@@ -55,7 +77,7 @@ data = pd.read_html(filepath)
 df = data[0]
 load_table = df[['Load #', 'Consignee', 'C/ City', 'Pallets', 'Base Retail']].drop(len(df.index)-1)
 
-applydiscount(load_table)
+applydiscount(load_table, browser)
 
 browser.quit()
 print('Browser closed.')
