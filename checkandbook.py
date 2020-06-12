@@ -38,11 +38,8 @@ browser.get(report_url)
 
 s_date = today
 
-# start = s_date.strftime('%m/%d/%Y 00:00:00')
-# end = s_date.strftime('%m/%d/%Y 23:59:59')
-start = '06/11/2020 00:00:00'
-end = '06/11/2020 23:59:59'
-
+start = s_date.strftime('%m/%d/%Y 00:00:00')
+end = s_date.strftime('%m/%d/%Y 23:59:59')
 
 startbox = browser.find_element_by_xpath("//td[1]/input[@class='filter between'][1]")
 endbox = browser.find_element_by_xpath("//td[1]/input[@class='filter between'][2]")
