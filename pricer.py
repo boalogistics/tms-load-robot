@@ -1,6 +1,41 @@
 import getpass, logging, logging.config, os, time
 import pandas as pd, tms_login as tms
 from discount import applydiscount
+from passport import run_rates
+from selenium.webdriver.common.keys import Keys
+
+
+def enterbilling(table):
+    for x in table.index:
+        try:        
+            load_id = str(table['Load #'][x])
+    
+            edit_pricing = 'http://boa.3plsystemscloud.com/App_BW/staff/shipment/shipmentCostPop.aspx?loadid='+load_id
+            browser.get(edit_pricing)
+        
+            origin = table['S/ City'][x] + ', ' + table['S/ State'][x]
+            destination = table['C/ City'][x] + ', ' + table['C/ State'][x]
+            pallets = table['Pallets'][x]
+
+            base_retail = str(run_rates(origin, destination, pallets))
+
+            td_list = browser.find_elements_by_tag_name('td')
+            shipping_cost_box_pos = [td.text for td in td_list].index('Shipping Costs:')
+            # input box in next TD cell after Shipping Cost label
+            shipping_cost_cell = td_list[shipping_cost_box_pos + 1]
+            shipping_cost_input = shipping_cost_cell.find_element_by_tag_name('input')
+            shipping_cost_input.send_keys(Keys.CONTROL + 'a')
+            shipping_cost_input.send_keys(Keys.DELETE)
+            shipping_cost_input.send_keys(base_retail)
+
+            save_button = browser.find_element_by_id('btnUpdateCosts')
+            save_button.click()
+            logging.info(load_id + ' base retail: ' + str(base_retail))
+        except Exception as e:
+            logging.info(load_id + ' threw ' + repr(e))
+
+
+
 
 # initialize logger
 logging.config.fileConfig(fname='logs/cfg/price.conf')
@@ -21,29 +56,11 @@ report_code = '23725A2291F1'
 report_url = 'https://boa.3plsystemscloud.com/App_BW/staff/Reports/ReportViewer.aspx?code=' + report_code
 browser.get(report_url)
 
-loadlist = ['159185',
-'159789',
-'156539',
-'157948',
-'158905',
-'158956',
-'158957',
-'159141',
-'159149',
-'159188',
-'159203',
-'159794',
-'160186',
-'160444',
-'160445',
-'160720',
-'157998',
-'159109',
-'159651',
-'159166',
-'159597',
-'159813',
-'160076']
+loadlist = ['159420',
+'160259',
+'160611',
+'160616',
+'160617']
 
 loadno = browser.find_element_by_xpath("//td[1]/input[@class='filter']")
 loadno.clear()
@@ -75,12 +92,21 @@ else:
 filepath = DOWNLOAD_FOLDER + "\\" + file_name
 data = pd.read_html(filepath)
 df = data[0]
-load_table = df[['Load #', 'Consignee', 'C/ City', 'Pallets', 'Base Retail']].drop(len(df.index)-1)
+load_table = df[['Load #', 'S/ City', 'S/ State', 'C/ City', 'C/ State', 'Pallets', 'Base Retail', 'Customer #']].drop(len(df.index)-1)
 
-applydiscount(load_table, browser)
+stir = load_table[load_table['Customer #'] == 1374]
+passport = load_table[load_table['Customer #'] == 1495]
+
+enterbilling(passport)
+
+if len(stir.index) > 0:
+    applydiscount(stir, browser)
 
 browser.quit()
 print('Browser closed.')
 # costco_discount_dict.close()
 
 os.startfile('logs\\pricer.log')
+
+
+
