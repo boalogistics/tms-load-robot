@@ -4,9 +4,19 @@ from datetime import date
 from selenium.webdriver.support.ui import Select, WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
+today = date.today()
+datestr = today
+filename = 'logs/book' + datestr.strftime('_%m%d%Y_') + '.csv'
+
 # initialize logger
 logging.config.fileConfig(fname='logs/cfg/book.conf')
 logger = logging.getLogger('')
+
+# daily report isolating single day
+report = logging.FileHandler(filename=filename)
+formatter = logging.Formatter()
+report.setFormatter(formatter)
+logger.addHandler(report)
 
 # set to Chrome default download folder - BOA CITRIX DESKTOP DEFAULT SETTINGS
 DOWNLOAD_FOLDER = "C:\\Users\\" + getpass.getuser().title() + "\\Downloads"
@@ -23,7 +33,6 @@ report_code = '3092F43103C3'
 report_url = 'https://boa.3plsystemscloud.com/App_BW/staff/Reports/ReportViewer.aspx?code=' + report_code
 browser.get(report_url)
 
-today = date.today()
 s_date = today
 
 start = s_date.strftime('%m/%d/%Y 00:00:00')
@@ -128,4 +137,4 @@ logging.info(str(loads_booked) + ' loads booked.')
 logging.info(str(loads_not_booked) + ' loads not booked.')
 print('Browser closed.')
 
-os.startfile('logs\\book.log')
+os.startfile(filename)
