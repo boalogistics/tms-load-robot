@@ -6,9 +6,10 @@ from selenium.webdriver.support import expected_conditions as EC
 
 today = date.today()
 datestr = today
-filename = 'logs/book' + datestr.strftime('_%m%d%Y_') + '.csv'
+filename = 'logs\\book' + datestr.strftime('_%m%d%Y_') + '.csv'
 
 # initialize logger
+print('Initializing logger...')
 logging.config.fileConfig(fname='logs/cfg/book.conf')
 logger = logging.getLogger('')
 
@@ -17,6 +18,7 @@ report = logging.FileHandler(filename=filename)
 formatter = logging.Formatter()
 report.setFormatter(formatter)
 logger.addHandler(report)
+print('Logger initialized.')
 
 # set to Chrome default download folder - BOA CITRIX DESKTOP DEFAULT SETTINGS
 DOWNLOAD_FOLDER = "C:\\Users\\" + getpass.getuser().title() + "\\Downloads"
@@ -26,6 +28,7 @@ before = os.listdir(DOWNLOAD_FOLDER)
 
 url = 'https://boa.3plsystemscloud.com/'
 browser = tms.login(url, False)
+print('Logged into TMS.')
 
 # enter report code into report_code variable
 # "Daily Booking Report" report
@@ -35,8 +38,11 @@ browser.get(report_url)
 
 s_date = today
 
-start = s_date.strftime('%m/%d/%Y 00:00:00')
-end = s_date.strftime('%m/%d/%Y 23:59:59')
+# start = s_date.strftime('%m/%d/%Y 00:00:00')
+# end = s_date.strftime('%m/%d/%Y 23:59:59')
+start = '06/11/2020 00:00:00'
+end = '06/11/2020 23:59:59'
+
 
 startbox = browser.find_element_by_xpath("//td[1]/input[@class='filter between'][1]")
 endbox = browser.find_element_by_xpath("//td[1]/input[@class='filter between'][2]")
@@ -54,6 +60,7 @@ download.click()
 time.sleep(3)
 
 browser.close()
+print('Retrieved entry report.')
 
 #compares list of files in Downloads folder after downloading file to extract filename
 after = os.listdir(DOWNLOAD_FOLDER)
@@ -137,4 +144,7 @@ logging.info(str(loads_booked) + ' loads booked.')
 logging.info(str(loads_not_booked) + ' loads not booked.')
 print('Browser closed.')
 
+logging.shutdown()
+print('Session log saved to {}.'.format(filename))
+print('Logger closed.')
 os.startfile(filename)
