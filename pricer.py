@@ -30,12 +30,10 @@ def enterbilling(table):
 
             save_button = browser.find_element_by_id('btnUpdateCosts')
             save_button.click()
-            logging.info(load_id + ' base retail: ' + str(base_retail))
+            logging.info(load_id + 'Origin: ' + origin + ' Destination: ' + destination + ' Pallets: ' + str(pallets) + ' Base retail: ' + base_retail)
         except Exception as e:
             logging.info(load_id + ' threw ' + repr(e))
-
-
-
+            # exception handler for Key errors out of pallet range or city
 
 # initialize logger
 logging.config.fileConfig(fname='logs/cfg/price.conf')
@@ -56,11 +54,15 @@ report_code = '23725A2291F1'
 report_url = 'https://boa.3plsystemscloud.com/App_BW/staff/Reports/ReportViewer.aspx?code=' + report_code
 browser.get(report_url)
 
-loadlist = ['159420',
-'160259',
-'160611',
-'160616',
-'160617']
+loadlist = ['160605',
+'160610',
+'161118',
+'161236',
+'161237',
+'161243',
+'161736',
+'161737'
+]
 
 loadno = browser.find_element_by_xpath("//td[1]/input[@class='filter']")
 loadno.clear()
@@ -92,12 +94,15 @@ else:
 filepath = DOWNLOAD_FOLDER + "\\" + file_name
 data = pd.read_html(filepath)
 df = data[0]
-load_table = df[['Load #', 'S/ City', 'S/ State', 'C/ City', 'C/ State', 'Pallets', 'Base Retail', 'Customer #']].drop(len(df.index)-1)
+load_table = df[['Load #', 'Consignee', 'S/ City', 'S/ State', 'C/ City', 'C/ State', 'Pallets', 'Base Retail', 'Customer #']].drop(len(df.index)-1)
 
 stir = load_table[load_table['Customer #'] == 1374]
 passport = load_table[load_table['Customer #'] == 1495]
 
-enterbilling(passport)
+print(passport)
+
+if len(passport.index) > 0:
+    enterbilling(passport)
 
 if len(stir.index) > 0:
     applydiscount(stir, browser)
