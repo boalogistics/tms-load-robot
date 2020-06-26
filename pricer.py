@@ -15,9 +15,10 @@ def enterbilling(table):
         
             origin = table['S/ City'][x] + ', ' + table['S/ State'][x]
             destination = table['C/ City'][x] + ', ' + table['C/ State'][x]
+            temp = table['Equipment'][x]
             pallets = table['Pallets'][x]
 
-            base_retail = str(run_rates(origin, destination, pallets))
+            base_retail = str(run_rates(origin, destination, pallets, temp))
 
             td_list = browser.find_elements_by_tag_name('td')
             shipping_cost_box_pos = [td.text for td in td_list].index('Shipping Costs:')
@@ -49,20 +50,12 @@ url = 'https://boa.3plsystemscloud.com/'
 browser = tms.login(url, False)
 
 # enter report code into report_code variable
-# "Daily Booking Report" report
+# "Pricer / Discounter" report
 report_code = '23725A2291F1'
 report_url = 'https://boa.3plsystemscloud.com/App_BW/staff/Reports/ReportViewer.aspx?code=' + report_code
 browser.get(report_url)
 
-loadlist = ['160605',
-'160610',
-'161118',
-'161236',
-'161237',
-'161243',
-'161736',
-'161737'
-]
+loadlist = ['161638', '160802', '161325', '159440', '161522', '160865', '160942', '161033']
 
 loadno = browser.find_element_by_xpath("//td[1]/input[@class='filter']")
 loadno.clear()
@@ -94,12 +87,10 @@ else:
 filepath = DOWNLOAD_FOLDER + "\\" + file_name
 data = pd.read_html(filepath)
 df = data[0]
-load_table = df[['Load #', 'Consignee', 'S/ City', 'S/ State', 'C/ City', 'C/ State', 'Pallets', 'Base Retail', 'Customer #']].drop(len(df.index)-1)
+load_table = df[['Load #', 'Consignee', 'S/ City', 'S/ State', 'C/ City', 'C/ State', 'Equipment', 'Pallets', 'Base Retail', 'Customer #']].drop(len(df.index)-1)
 
 stir = load_table[load_table['Customer #'] == 1374]
 passport = load_table[load_table['Customer #'] == 1495]
-
-print(passport)
 
 if len(passport.index) > 0:
     enterbilling(passport)
@@ -112,6 +103,3 @@ print('Browser closed.')
 # costco_discount_dict.close()
 
 os.startfile('logs\\pricer.log')
-
-
-
