@@ -2,8 +2,9 @@ venv/
 .vscode/
 __pycache__/
 sandbox.py
-*_ff.py
+loadnos.txt
 geckodriver.log
+*_ff.py
 *.csv
 *.exe
 *.log
