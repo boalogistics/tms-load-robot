@@ -26,7 +26,7 @@ logger.addHandler(report)
 print('Logger initialized.')
 
 # set to Chrome default download folder - BOA CITRIX DESKTOP DEFAULT SETTINGS
-DOWNLOAD_FOLDER = "C:\\Users\\" + getpass.getuser().title() + "\\Downloads"
+DOWNLOAD_FOLDER = f"C:\\Users\\{getpass.getuser().title()}\\Downloads"
 
 # list of files before downloading
 before = os.listdir(DOWNLOAD_FOLDER)
@@ -70,7 +70,7 @@ change = set(after) - set(before)
 
 if len(change) == 1:
     file_name = change.pop()
-    logging.info(file_name + ' downloaded.')
+    logging.info(f'{file_name} downloaded.')
 elif len(change) == 0:
     logging.info('No file downloaded.')
 else:
@@ -79,17 +79,17 @@ else:
 # sets filepath to downloaded file and create DataFrame from file
 # output file extension is .xls but is actually.html format
 
-filepath = DOWNLOAD_FOLDER + "\\" + file_name
+filepath = f'{DOWNLOAD_FOLDER}\\{file_name}'
 data = pd.read_html(filepath)
 df = data[0]
 
 # grabs list of load numbers and load count, dropping the Totals row
 load_list_numbers = list(df['Load #'])[:-1]
-load_list = [str(x) for x in load_list_numbers]
+load_list = [str(load_num) for load_num in load_list_numbers]
 load_count = len(df.index) - 1
 
 logging.info(load_list)
-logging.info(str(load_count) + ' loads entered today.')
+logging.info(f'{load_count} loads entered today.')
 
 
 # variables to count final results of loads
@@ -100,7 +100,7 @@ browser = tms.login(url)
 
 for x in load_list:
     load_id = x
-    load_url = 'https://boa.3plsystemscloud.com/App_BW/staff/shipment/shipmentDetail.aspx?loadid='+load_id
+    load_url = f'{url}App_BW/staff/shipment/shipmentDetail.aspx?loadid={load_id}'
     browser.get(load_url)
 
     # verify client is in good standing without credit hold
@@ -109,7 +109,7 @@ for x in load_list:
 
     if client_credit_exceeded:
         client_name = browser.find_element_by_xpath("//div[@id='ctl00_BodyContent_divCustomerInfo']/div[1]/a").text
-        logging.info(load_id + ' not booked. Client {} has exceeded credit limit.'.format(client_name))
+        logging.info(f'{load_id} not booked. Client {client_name} has exceeded credit limit.')
         loads_not_booked += 1
     else:
         # check if load is already in booked/dispatched/cancelled status and trace priority
@@ -129,7 +129,7 @@ for x in load_list:
         trace_priority = status.find('TRACE') > -1
 
         if not trace_priority:
-            edit_shipment = 'http://boa.3plsystemscloud.com/App_BW/staff/shipment/EditShipmentPop.aspx?loadid='+load_id
+            edit_shipment = f'{url}App_BW/staff/shipment/EditShipmentPop.aspx?loadid={load_id}'
             browser.get(edit_shipment)
 
             # variable and selections for Equipment Types
@@ -142,11 +142,11 @@ for x in load_list:
 
 browser.quit()
 
-logging.info(str(loads_booked) + ' loads booked.')
-logging.info(str(loads_not_booked) + ' loads not booked.')
+logging.info(f'{loads_booked} loads booked.')
+logging.info(f'{loads_not_booked} loads not booked.')
 print('Browser closed.')
 
 logging.shutdown()
-print('Session log saved to {}.'.format(filename))
+print(f'Session log saved to {filename}.')
 print('Logger closed.')
 os.startfile(filename)
