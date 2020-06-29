@@ -1,9 +1,12 @@
-import json, logging, logging.config
-import tms_login as tms
-from data_extract import get_trucks_data, create_truck
+import json
+import logging
+import logging.config
+import os
 from selenium.webdriver.support.ui import Select, WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
+import tms_login as tms
+from data_extract import get_trucks_data, create_truck
 
 # initialize logger
 logging.config.fileConfig(fname='logs/cfg/dispatch.conf')
@@ -42,13 +45,13 @@ browser = tms.login(url)
 for x in loadlist:
     load_id = x[0]
     carrier_id = x[1]
-    load_url = 'https://boa.3plsystemscloud.com/App_BW/staff/shipment/shipmentDetail.aspx?loadid='+load_id
+    load_url = f'{url}App_BW/staff/shipment/shipmentDetail.aspx?loadid={load_id}'
     browser.get(load_url)
-    
-    # verify load is in booked status    
+
+    # verify load is in booked status
     status = browser.find_element_by_id('lblTitle').text.upper()
-    booked = status.find('BOOKED') != -1   
-    
+    booked = status.find('BOOKED') != -1
+
     if booked:
         # set first window handle
         og_window = browser.window_handles[0]
@@ -64,7 +67,7 @@ for x in loadlist:
 
         # verify carrier insurance on file is not expired
         carrier_insurance = browser.find_element_by_id('ctl00_BodyContent_ctlWarningsVertical_lblInsuranceWarnings').text.upper()
-        carrier_insurance_expired = carrier_insurance.find('EXPIRED') != -1 
+        carrier_insurance_expired = carrier_insurance.find('EXPIRED') != -1
 
         if carrier_insurance_expired:
             carrier_name = browser.find_element_by_xpath("//div[@id='ctl00_BodyContent_divCarrierInfo']/div[1]/strong").text
@@ -84,20 +87,19 @@ for x in loadlist:
 
             # variable and selections for Priority
             dispatch_btn = browser.find_element_by_id('btnDispatchComplete')
-            dispatch_btn.click()       
+            dispatch_btn.click()
             browser.switch_to.window(og_window)
 
-            logging.info('Load number ' + load_id + ' dispatched!')
+            logging.info(f'Load number {load_id} dispatched!')
             loads_dispatched += 1
     else:
-        logging.info('Auto dispatcher script did not dispatch: ' + status)
+        logging.info(f'Auto dispatcher script did not dispatch: {status}')
         loads_not_dispatched += 1
 
 browser.quit()
 
-logging.info(str(loads_dispatched) + ' loads dispatched.')
-logging.info(str(loads_not_dispatched) + ' loads not dispatched.')
+logging.info(f'{loads_dispatched} loads dispatched.')
+logging.info(f'{loads_not_dispatched} loads not dispatched.')
 print('Browser closed.')
 
-import os
 os.startfile('logs\\dispatch.log')
