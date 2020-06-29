@@ -5,8 +5,7 @@ import os
 import time
 from datetime import date
 import pandas as pd
-from selenium.webdriver.support.ui import Select, WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import Select
 import tms_login as tms
 
 today = date.today()
@@ -120,10 +119,10 @@ for x in load_list:
         if quote_status:
             js_book = 'WebForm_DoPostBackWithOptions(new WebForm_PostBackOptions("ctl00$BodyContent$lbBookShipment", "", true, "", "", false, true))'
             browser.execute_script(js_book)
-            logging.info(load_id + ' booked.')
+            logging.info(f'{load_id} booked.')
             loads_booked += 1
         else:
-            logging.info(load_id + ' not booked. ' + status)
+            logging.info(f'{load_id} not booked. {status}')
             loads_not_booked += 1
 
         trace_priority = status.find('TRACE') > -1
