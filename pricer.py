@@ -1,18 +1,25 @@
-import getpass, logging, logging.config, os, time
-import pandas as pd, tms_login as tms
+# TODO refactor enterbilling() and see how to modularize passport module
+
+import getpass
+import logging
+import logging.config
+import os
+import time
+import pandas as pd
+from selenium.webdriver.common.keys import Keys
+import tms_login as tms
 from discount import applydiscount
 from passport import run_rates
-from selenium.webdriver.common.keys import Keys
 
 
 def enterbilling(table):
     for x in table.index:
-        try:        
+        try:
             load_id = str(table['Load #'][x])
-    
+
             edit_pricing = 'http://boa.3plsystemscloud.com/App_BW/staff/shipment/shipmentCostPop.aspx?loadid='+load_id
             browser.get(edit_pricing)
-        
+
             origin = table['S/ City'][x] + ', ' + table['S/ State'][x]
             destination = table['C/ City'][x] + ', ' + table['C/ State'][x]
             temp = table['Equipment'][x]
@@ -35,6 +42,7 @@ def enterbilling(table):
         except Exception as e:
             logging.info(load_id + ' threw ' + repr(e))
             # exception handler for Key errors out of pallet range or city
+
 
 # initialize logger
 logging.config.fileConfig(fname='logs/cfg/price.conf')
@@ -71,7 +79,7 @@ download = browser.find_element_by_id('ctl00_ContentBody_butExportToExcel')
 download.click()
 time.sleep(1)
 
-#compares list of files in Downloads folder after downloading file to extract filename
+# compares list of files in Downloads folder after downloading file to extract filename
 after = os.listdir(DOWNLOAD_FOLDER)
 change = set(after) - set(before)
 
@@ -81,8 +89,8 @@ if len(change) == 1:
 elif len(change) == 0:
     logging.info('No file downloaded.')
 else:
-    logging.info ('More than one file downloaded.')
-    
+    logging.info('More than one file downloaded.')
+
 # output file extension is .xls but is actually.html format
 filepath = DOWNLOAD_FOLDER + "\\" + file_name
 data = pd.read_html(filepath)
