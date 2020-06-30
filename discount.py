@@ -1,9 +1,11 @@
-import json, logging
+import json
+import logging
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import Select
 
 # look up table in json for Costco location x Pallets
 costco_discount_dict = json.load(open('db/costco_table.json', 'r'))
+
 
 def calc_costco_discount(city, pallets, retail):
     reduction_value = 0
@@ -13,17 +15,18 @@ def calc_costco_discount(city, pallets, retail):
         # round to nearest multiple of 5
         reduction_value = -5 * round(retail * discount_rate) / 5
     else:
-        logging.info(city + ' pallets over 10, consult sales.')
+        logging.info(f'{city} pallet count over 10, consult sales.')
     return reduction_value
+
 
 def applydiscount(table, WebdriverObject):
     for x in table.index:
-        try:        
+        try:
             load_id = str(table['Load #'][x])
-    
+
             # how to deal with multistop?
 
-            edit_pricing = 'http://boa.3plsystemscloud.com/App_BW/staff/shipment/shipmentCostPop.aspx?loadid='+load_id
+            edit_pricing = f'http://boa.3plsystemscloud.com/App_BW/staff/shipment/shipmentCostPop.aspx?loadid={load_id}'
             WebdriverObject.get(edit_pricing)
 
             td_list = WebdriverObject.find_elements_by_tag_name('td')
@@ -61,6 +64,6 @@ def applydiscount(table, WebdriverObject):
 
             save_button = WebdriverObject.find_element_by_id('btnUpdateCosts')
             save_button.click()
-            logging.info(load_id + ' base retail ' + str(base_retail) + ' discounted '  + discount + '('+ str(float(discount)/base_retail) + ')')
+            logging.info(f'{load_id} base retail {base_retail} discounted {discount} ({float(discount)/base_retail})')
         except Exception as e:
             logging.info(load_id + ' threw ' + repr(e))
