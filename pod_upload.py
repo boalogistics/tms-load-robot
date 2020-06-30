@@ -33,7 +33,7 @@ for x in load_list:
         if public_pod:
             view_permission = Select(browser.find_element_by_id(f'{prefix}rdoPermissionList'))
             view_permission.select_by_value('1')
-            logging.info(load_id + ' POD made public for ' + client_name)
+            logging.info(f'{load_id} POD made public for {client_name}')
 
         upload_btn = browser.find_element_by_id(f'{prefix}btnUploadFile')
         upload_btn.click()
