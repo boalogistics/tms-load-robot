@@ -9,44 +9,32 @@ import pandas as pd
 from selenium.webdriver.common.keys import Keys
 import tms_login as tms
 from discount import applydiscount
-from passport import run_rates
+import passport, stir
 
 
-def enterbilling(table, url='http://boa.3plsystemscloud.com/'):
-    for x in table.index:
-        try:
-            load_id = str(table['Load #'][x])
+def enter_billing(load, price):
+    url = 'http://boa.3plsystemscloud.com/'
+    try:
+        retail = str(price)
 
-            edit_pricing = (
-                f'{url}'
-                f'App_BW/staff/shipment/shipmentCostPop.aspx?loadid'
-                f'={load_id}'
-                )
-            browser.get(edit_pricing)
+        edit_pricing = (
+            f'{url}App_BW/staff/shipment/shipmentCostPop.aspx?loadid={load}'
+            )
+        browser.get(edit_pricing)
 
-            origin = table['S/ City'][x] + ', ' + table['S/ State'][x]
-            destination = table['C/ City'][x] + ', ' + table['C/ State'][x]
-            temp = table['Equipment'][x]
-            pallets = table['Pallets'][x]
+        td_list = browser.find_elements_by_tag_name('td')
+        ship_cost_pos = [td.text for td in td_list].index('Shipping Costs:')
+        # input box in next TD cell after Shipping Cost label
+        ship_cost_cell = td_list[ship_cost_pos + 1]
+        ship_cost_input = ship_cost_cell.find_element_by_tag_name('input')
+        ship_cost_input.send_keys(Keys.CONTROL + 'a')
+        ship_cost_input.send_keys(Keys.DELETE)
+        ship_cost_input.send_keys(retail)
 
-            base_retail = str(run_rates(origin, destination, pallets, temp))
-
-            td_list = browser.find_elements_by_tag_name('td')
-            ship_cost_pos = [td.text for td in td_list].index('Shipping Costs:')
-            # input box in next TD cell after Shipping Cost label
-            ship_cost_cell = td_list[ship_cost_pos + 1]
-            ship_cost_input = ship_cost_cell.find_element_by_tag_name('input')
-            ship_cost_input.send_keys(Keys.CONTROL + 'a')
-            ship_cost_input.send_keys(Keys.DELETE)
-            ship_cost_input.send_keys(base_retail)
-
-            save_button = browser.find_element_by_id('btnUpdateCosts')
-            save_button.click()
-            logging.info(f'{load_id} Origin: {origin} Destination: {destination}'
-                         f' Pallets: {pallets} Base retail: {base_retail}')
-        except Exception as e:
-            logging.info(f'{load_id} threw {repr(e)}')
-            # exception handler for Key errors out of pallet range or city
+        save_button = browser.find_element_by_id('btnUpdateCosts')
+        save_button.click()
+    except Exception as e:
+        logging.info(f'{load} threw {repr(e)}')
 
 
 # initialize logger
@@ -113,13 +101,19 @@ stir = load_table[load_table['Customer #'] == 1374]
 passport = load_table[load_table['Customer #'] == 1495]
 
 if len(passport.index) > 0:
-    enterbilling(passport)
+    for row_dict in passport.to_dict(orient='records'): 
+        selling_price = passport.get_price(row_dict)
 
 if len(stir.index) > 0:
-    applydiscount(stir, browser)
+    for row_dict in stir.to_dict(orient='records'): 
+        selling_price = stir.get_price(row_dict)
+        applydiscount(stir, browser)
+
+enter_billing(retail)
+logging.info(f'{load_id} Origin: {origin} Destination: {destination}'
+                f' Pallets: {pallets} Base retail: {base_retail}')
 
 browser.quit()
 print('Browser closed.')
-# costco_discount_dict.close()
 
 os.startfile('logs\\pricer.log')
