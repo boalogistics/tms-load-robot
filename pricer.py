@@ -12,11 +12,9 @@ from discount import applydiscount
 import passport, stir
 
 
-def enter_billing(load, price):
+def enter_billing(load, price, discount=0):
     url = 'http://boa.3plsystemscloud.com/'
     try:
-        retail = str(price)
-
         edit_pricing = (
             f'{url}App_BW/staff/shipment/shipmentCostPop.aspx?loadid={load}'
             )
@@ -29,10 +27,14 @@ def enter_billing(load, price):
         ship_cost_input = ship_cost_cell.find_element_by_tag_name('input')
         ship_cost_input.send_keys(Keys.CONTROL + 'a')
         ship_cost_input.send_keys(Keys.DELETE)
-        ship_cost_input.send_keys(retail)
+        ship_cost_input.send_keys(price)
+
+        if discount:
+            applydiscount()
 
         save_button = browser.find_element_by_id('btnUpdateCosts')
         save_button.click()
+        logging.info(f'{load} Base retail: {price}')
     except Exception as e:
         logging.info(f'{load} threw {repr(e)}')
 
@@ -97,21 +99,19 @@ load_table = df[[
     'C/ State', 'Equipment', 'Pallets', 'Base Retail', 'Customer #'
     ]].drop(len(df.index)-1)
 
-stir = load_table[load_table['Customer #'] == 1374]
-passport = load_table[load_table['Customer #'] == 1495]
+passport_df = load_table[load_table['Customer #'] == 1495][]
+stir_df = load_table[load_table['Customer #'] == 1374]
 
-if len(passport.index) > 0:
-    for row_dict in passport.to_dict(orient='records'): 
-        selling_price = passport.get_price(row_dict)
+if len(passport_df.index) > 0:
+    for row in passport_df.index: 
+        selling_price = passport.get_price(passport_df.iloc[row])
+        enter_billing(passport_df.iloc[row].loc['Load #'], selling_price)
 
-if len(stir.index) > 0:
-    for row_dict in stir.to_dict(orient='records'): 
-        selling_price = stir.get_price(row_dict)
-        applydiscount(stir, browser)
+if len(stir_df.index) > 0:
+    for row_dict in stir_df.to_dict(orient='records'): 
+        selling_price = stir.get_price(stir_df.iloc[row])
+        applydiscount(stir_df.iloc[row], selling_price, browser)
 
-enter_billing(retail)
-logging.info(f'{load_id} Origin: {origin} Destination: {destination}'
-                f' Pallets: {pallets} Base retail: {base_retail}')
 
 browser.quit()
 print('Browser closed.')
