@@ -8,8 +8,8 @@ import time
 import pandas as pd
 from selenium.webdriver.common.keys import Keys
 import tms_login as tms
-from discount import applydiscount
-import passport, stir
+import discount
+import passport
 
 
 def enter_billing(load, price, discount=0):
@@ -34,7 +34,7 @@ def enter_billing(load, price, discount=0):
             logging(f'{load} already has existing pricing.')
 
         if discount:
-            applydiscount(load, discount, browser)
+            discount.apply_discount(load, discount, browser)
             logging.info(f'{load} discounted {discount} ({float(discount) / price})')
 
 
@@ -63,11 +63,7 @@ REPORT_CODE = '23725A2291F1'
 report_url = f'{url}App_BW/staff/Reports/ReportViewer.aspx?code={REPORT_CODE}'
 browser.get(report_url)
 
-loadlist = [
-    '161638', '160802', '161325',
-    '159440', '161522', '160865',
-    '160942', '161033'
-    ]
+loadlist = ['161846', '162314', '161739', '161735', '161436', '161567', '161626']
 
 loadno = browser.find_element_by_xpath("//td[1]/input[@class='filter']")
 loadno.clear()
@@ -110,15 +106,18 @@ stir_df = load_table[load_table['Customer #'] == 1374]
 if len(passport_df.index) > 0:
     for row in passport_df.index:
         current_row = passport_df.iloc[row]
-        selling_price = passport.get_price(current_row)
-        enter_billing(current_row.loc['Load #'], selling_price)
+        if current_row['Pallets'] < 21:
+            selling_price = passport.get_price(current_row)
+            enter_billing(*selling_price)
+        else:
+            logging.info(current_row['Load #'] + ' exceeds 20 pallets')
 
 if len(stir_df.index) > 0:
     for row in stir_df.index:
         current_row = stir_df.iloc[row]
-        selling_price = stir.get_price(current_row)
-        discount = stir.get_discount(current_row)
-        enter_billing(current_row.loc['Load #'], selling_price, discount)
+        selling_price = discount.get_price(current_row)
+        discount = discount.get_discount(current_row)
+        enter_billing(*selling_price, discount)
 
 browser.quit()
 print('Browser closed.')
