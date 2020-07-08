@@ -13,7 +13,7 @@ import passport, stir
 
 
 def enter_billing(load, price, discount=0):
-    url = 'http://boa.3plsystemscloud.com/'
+    # url = 'http://boa.3plsystemscloud.com/'
     try:
         edit_pricing = (
             f'{url}App_BW/staff/shipment/shipmentCostPop.aspx?loadid={load}'
@@ -25,16 +25,21 @@ def enter_billing(load, price, discount=0):
         # input box in next TD cell after Shipping Cost label
         ship_cost_cell = td_list[ship_cost_pos + 1]
         ship_cost_input = ship_cost_cell.find_element_by_tag_name('input')
-        ship_cost_input.send_keys(Keys.CONTROL + 'a')
-        ship_cost_input.send_keys(Keys.DELETE)
-        ship_cost_input.send_keys(price)
+        if ship_cost_input.get_attribute('value'):
+            ship_cost_input.send_keys(Keys.CONTROL + 'a')
+            ship_cost_input.send_keys(Keys.DELETE)
+            ship_cost_input.send_keys(str(price))
+            logging.info(f'{load} Base retail: {price}')
+        else:
+            logging(f'{load} already has existing pricing.')
 
         if discount:
-            applydiscount()
+            applydiscount(load, discount, browser)
+            logging.info(f'{load} discounted {discount} ({float(discount) / price})')
 
-        save_button = browser.find_element_by_id('btnUpdateCosts')
-        save_button.click()
-        logging.info(f'{load} Base retail: {price}')
+
+        save_price_btn = browser.find_element_by_id('btnUpdateCosts')
+        save_price_btn.click()
     except Exception as e:
         logging.info(f'{load} threw {repr(e)}')
 
@@ -71,8 +76,8 @@ for x in loadlist[:-1]:
 loadno.send_keys(f'\'{loadlist[-1]}\'')
 
 # save & view report, then download
-save_button = browser.find_element_by_id('ctl00_ContentBody_butSaveView')
-save_button.click()
+save_report_btn = browser.find_element_by_id('ctl00_ContentBody_butSaveView')
+save_report_btn.click()
 browser.implicitly_wait(3)
 download = browser.find_element_by_id('ctl00_ContentBody_butExportToExcel')
 download.click()
@@ -99,19 +104,21 @@ load_table = df[[
     'C/ State', 'Equipment', 'Pallets', 'Base Retail', 'Customer #'
     ]].drop(len(df.index)-1)
 
-passport_df = load_table[load_table['Customer #'] == 1495][]
+passport_df = load_table[load_table['Customer #'] == 1495]
 stir_df = load_table[load_table['Customer #'] == 1374]
 
 if len(passport_df.index) > 0:
-    for row in passport_df.index: 
-        selling_price = passport.get_price(passport_df.iloc[row])
-        enter_billing(passport_df.iloc[row].loc['Load #'], selling_price)
+    for row in passport_df.index:
+        current_row = passport_df.iloc[row]
+        selling_price = passport.get_price(current_row)
+        enter_billing(current_row.loc['Load #'], selling_price)
 
 if len(stir_df.index) > 0:
-    for row_dict in stir_df.to_dict(orient='records'): 
-        selling_price = stir.get_price(stir_df.iloc[row])
-        applydiscount(stir_df.iloc[row], selling_price, browser)
-
+    for row in stir_df.index:
+        current_row = stir_df.iloc[row]
+        selling_price = stir.get_price(current_row)
+        discount = stir.get_discount(current_row)
+        enter_billing(current_row.loc['Load #'], selling_price, discount)
 
 browser.quit()
 print('Browser closed.')
