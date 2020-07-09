@@ -19,6 +19,7 @@ costco_discount_dict = json.load(open('db/costco_table.json', 'r'))
 
 
 def get_price(df_row):
+    load_no = df_row['Load #']
     origin = df_row['S/ City'] + ', ' + df_row['S/ State']
     destination = df_row['C/ City'] + ', ' + df_row['C/ State']
     weight = df_row['Weight']
@@ -27,7 +28,8 @@ def get_price(df_row):
     rate_df_row = pd.read_excel('db/stir.xlsx')
     key = json.load(open('db/region.json', 'r'))
     df = pd.DataFrame(rate_df_row)
-    df = pd.pivot_df_row(df, index=['Origin', 'Destination'])
+    df = pd.pivot_table(df, index=['Origin', 'Destination'])
+    # handle exception key error here for cities not on spreadsheet
     base_selling = df.loc[key[origin]].loc[destination][pallets]
 
     wt_per_plt = weight / pallets
@@ -43,12 +45,12 @@ def get_price(df_row):
     chargeable_selling = (chgble_plt * base_selling) * (1 - discount)
 
     if base_selling > chargeable_selling:
-        return base_selling
+        return [load_no, base_selling]
     else:
         if pallets < 5:
-            return ceil((chargeable_selling - 5) / 10) * 10
+            return [load_no, ceil((chargeable_selling - 5) / 10) * 10]
         else:
-            return ceil((chargeable_selling / 10)) * 10
+            return [load_no, ceil((chargeable_selling / 10)) * 10]
 
 
 def calc_costco_discount(city, pallets, retail):
@@ -69,13 +71,13 @@ def get_discount(df_row, price):
     pallets = df_row['Pallets']
     is_costco = consignee_name.find('COSTCO') != -1 and consignee_city in costco_discount_dict and pallets < 11
     if is_costco:
-        discount = calc_costco_discount(consignee_city, pallets, price)
+        discount_amt = calc_costco_discount(consignee_city, pallets, price)
     else:
-        discount = price * -0.0415
-    return discount
+        discount_amt = float(price) * -0.0415
+    return discount_amt
 
 
-def apply_discount(load, discount, WebdriverObject):
+def apply_discount(load, discount_amt, WebdriverObject):
     try:
         td_list = WebdriverObject.find_elements_by_tag_name('td')
         discount_exists = any(td.text == 'Discount:' for td in td_list)
@@ -96,6 +98,6 @@ def apply_discount(load, discount, WebdriverObject):
         discount_input = discount_cell.find_element_by_tag_name('input')
         discount_input.send_keys(Keys.CONTROL + 'a')
         discount_input.send_keys(Keys.DELETE)
-        discount_input.send_keys(str(discount))
+        discount_input.send_keys(str(discount_amt))
     except Exception as e:
         logging.info(f'{load} threw {repr(e)}')
