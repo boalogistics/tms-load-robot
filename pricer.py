@@ -1,4 +1,4 @@
-# TODO refactor enterbilling() and see how to modularize passport module
+# TODO module and variable naming; how to structure 'selling_price' variable
 
 import getpass
 import logging
@@ -12,7 +12,7 @@ import discount
 import passport
 
 
-def enter_billing(load, price, discount=0):
+def enter_billing(load, price, discount_amt=0):
     # url = 'http://boa.3plsystemscloud.com/'
     try:
         edit_pricing = (
@@ -33,9 +33,9 @@ def enter_billing(load, price, discount=0):
         else:
             logging(f'{load} already has existing pricing.')
 
-        if discount:
-            discount.apply_discount(load, discount, browser)
-            logging.info(f'{load} discounted {discount} ({float(discount) / price})')
+        if discount_amt:
+            discount.apply_discount(load, discount_amt, browser)
+            logging.info(f'{load} discounted {discount_amt} ({float(discount_amt) / price})')
 
 
         save_price_btn = browser.find_element_by_id('btnUpdateCosts')
@@ -63,7 +63,7 @@ REPORT_CODE = '23725A2291F1'
 report_url = f'{url}App_BW/staff/Reports/ReportViewer.aspx?code={REPORT_CODE}'
 browser.get(report_url)
 
-loadlist = ['161846', '162314', '161739', '161735', '161436', '161567', '161626']
+loadlist = ['161436']
 
 loadno = browser.find_element_by_xpath("//td[1]/input[@class='filter']")
 loadno.clear()
@@ -97,27 +97,28 @@ data = pd.read_html(filepath)
 df = data[0]
 load_table = df[[
     'Load #', 'Consignee', 'S/ City', 'S/ State', 'C/ City',
-    'C/ State', 'Equipment', 'Pallets', 'Base Retail', 'Customer #'
+    'C/ State', 'Equipment', 'Pallets', 'Weight', 'Base Retail', 'Customer #'
     ]].drop(len(df.index)-1)
 
 passport_df = load_table[load_table['Customer #'] == 1495]
 stir_df = load_table[load_table['Customer #'] == 1374]
 
 if len(passport_df.index) > 0:
+    print(passport_df)
     for row in passport_df.index:
         current_row = passport_df.iloc[row]
         if current_row['Pallets'] < 21:
             selling_price = passport.get_price(current_row)
             enter_billing(*selling_price)
         else:
-            logging.info(current_row['Load #'] + ' exceeds 20 pallets')
+            logging.info(str(current_row['Load #']) + ' exceeds 20 pallets')
 
 if len(stir_df.index) > 0:
     for row in stir_df.index:
         current_row = stir_df.iloc[row]
         selling_price = discount.get_price(current_row)
-        discount = discount.get_discount(current_row)
-        enter_billing(*selling_price, discount)
+        discount_amt = discount.get_discount(current_row, selling_price[1])
+        enter_billing(*selling_price, discount_amt)
 
 browser.quit()
 print('Browser closed.')
