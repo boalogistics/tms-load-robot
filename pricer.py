@@ -63,7 +63,7 @@ REPORT_CODE = '23725A2291F1'
 report_url = f'{url}App_BW/staff/Reports/ReportViewer.aspx?code={REPORT_CODE}'
 browser.get(report_url)
 
-loadlist = ['161436']
+loadlist = ['164719', '165129', '165275', '165276', '165278', '165280', '165281', '165283', '165285', '165286', '165287', '165288', '165289', '165458', '166594', '166595', '166598', '166599', '166600', '166602', '166603', '166604', '166605', '166606', '166608', '166609', '166610', '166611', '166612', '166714', '167098', '167192', '167290']
 
 loadno = browser.find_element_by_xpath("//td[1]/input[@class='filter']")
 loadno.clear()
@@ -104,21 +104,31 @@ passport_df = load_table[load_table['Customer #'] == 1495]
 stir_df = load_table[load_table['Customer #'] == 1374]
 
 if len(passport_df.index) > 0:
-    print(passport_df)
+    passport_df.reset_index(drop=True, inplace=True)
     for row in passport_df.index:
-        current_row = passport_df.iloc[row]
-        if current_row['Pallets'] < 21:
-            selling_price = passport.get_price(current_row)
-            enter_billing(*selling_price)
-        else:
-            logging.info(str(current_row['Load #']) + ' exceeds 20 pallets')
+        try:
+            current_row = passport_df.iloc[row]
+            if current_row['Pallets'] < 21 or current_row['C/ City'] == 'Mira Loma':
+                selling_price = passport.get_price(current_row)
+                enter_billing(*selling_price)
+            else:
+                logging.info(str(current_row['Load #']) + ' exceeds 20 pallets')
+        except Exception as e:
+            logging.info(str(current_row['Load #']) +  ' errored. ' + repr(e))
 
 if len(stir_df.index) > 0:
+    stir_df.reset_index(drop=True, inplace=True)
     for row in stir_df.index:
-        current_row = stir_df.iloc[row]
-        selling_price = discount.get_price(current_row)
-        discount_amt = discount.get_discount(current_row, selling_price[1])
-        enter_billing(*selling_price, discount_amt)
+        try:
+            current_row = stir_df.iloc[row]
+            # TODO how to account for rates not on table? and manually entered existing?
+            # check if Base Retail == 0
+            selling_price = discount.get_price(current_row)
+            discount_amt = discount.get_discount(current_row, selling_price[1])
+            enter_billing(*selling_price, discount_amt)
+            # print(*selling_price, discount_amt)
+        except Exception as e:
+            logging.info(str(current_row['Load #']) +  ' errored. ' + repr(e))
 
 browser.quit()
 print('Browser closed.')
