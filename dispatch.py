@@ -16,7 +16,7 @@ logger = logging.getLogger('')
 loads_dispatched = 0
 loads_not_dispatched = 0
 
-trucks = get_trucks_data()
+trucks = get_trucks_data('EXPORT')
 
 truck_dict_list = []
 
