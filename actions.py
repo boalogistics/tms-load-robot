@@ -20,3 +20,11 @@ class Truck:
         self.carrier = carrier
         self.dispatched = dispatched
 
+class Load:
+    """
+    Class to hold all load information
+    """
+    def __init__(self, load_id, whatelse):
+        self.id = load_id
+        self.whatelse = pass
+        
