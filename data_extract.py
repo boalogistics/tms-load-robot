@@ -2,17 +2,17 @@ import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 
 
-def get_trucks_data():
-    """Gets list of trucks from current week's
-        Boa Warehousing Delivery Schedule Google Sheet.
+def open_sheet(spreadsheetname, sheetname):
+    """Logs into Google account and returns sheet object.
+        Takes the SpreadSheet name and then Sheet name as arguments.
     """
     scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
     creds = ServiceAccountCredentials.from_json_keyfile_name('db/reefer.json', scope)
     client = gspread.authorize(creds)
-    sheet = client.open('Warehousing Sheet Data Feed')
-    data = sheet.worksheet('EXPORT')
-    trucks = data.get_all_values()
-    return trucks
+    sheet = client.open(spreadsheetname)
+    data = sheet.worksheet(sheetname)
+    # trucks = data.get_all_values()
+    return data
 
 
 def create_truck(truck_list):
