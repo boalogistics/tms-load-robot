@@ -8,7 +8,8 @@ import time
 import pandas as pd
 from selenium.webdriver.common.keys import Keys
 import tms_login as tms
-import discount
+# import discount
+import discount_sept as discount
 import passport
 
 
@@ -63,7 +64,7 @@ REPORT_CODE = '23725A2291F1'
 report_url = f'{url}App_BW/staff/Reports/ReportViewer.aspx?code={REPORT_CODE}'
 browser.get(report_url)
 
-loadlist = ['164719', '165129', '165275', '165276', '165278', '165280', '165281', '165283', '165285', '165286', '165287', '165288', '165289', '165458', '166594', '166595', '166598', '166599', '166600', '166602', '166603', '166604', '166605', '166606', '166608', '166609', '166610', '166611', '166612', '166714', '167098', '167192', '167290']
+loadlist = ['169350']
 
 loadno = browser.find_element_by_xpath("//td[1]/input[@class='filter']")
 loadno.clear()
