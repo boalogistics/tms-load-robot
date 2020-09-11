@@ -6,7 +6,7 @@ from selenium.webdriver.support.ui import Select, WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 import tms_login as tms
-from data_extract import get_trucks_data, create_truck
+from data_extract import open_sheet, create_truck
 
 # initialize logger
 logging.config.fileConfig(fname='logs/cfg/dispatch.conf')
@@ -16,7 +16,9 @@ logger = logging.getLogger('')
 loads_dispatched = 0
 loads_not_dispatched = 0
 
-trucks = get_trucks_data()
+# get list of trucks from Boa Warehousing Delivery Schedule.
+truck_sheet = open_sheet('Warehousing Sheet Data Feed', 'EXPORT')
+trucks = truck_sheet.get_all_values()
 
 truck_dict_list = []
 
