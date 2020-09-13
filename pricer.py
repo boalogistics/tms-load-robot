@@ -64,7 +64,7 @@ REPORT_CODE = '23725A2291F1'
 report_url = f'{url}App_BW/staff/Reports/ReportViewer.aspx?code={REPORT_CODE}'
 browser.get(report_url)
 
-loadlist = ['169350']
+loadlist = ['168611', '168613', '168631', '168710']
 
 loadno = browser.find_element_by_xpath("//td[1]/input[@class='filter']")
 loadno.clear()
@@ -98,24 +98,33 @@ data = pd.read_html(filepath)
 df = data[0]
 load_table = df[[
     'Load #', 'Consignee', 'S/ City', 'S/ State', 'C/ City',
-    'C/ State', 'Equipment', 'Pallets', 'Weight', 'Base Retail', 'Customer #'
+    'C/ State', 'Equipment', 'Pallets', 'Weight', 'Base Retail', 'Cost', 'Retail', 'Customer #'
     ]].drop(len(df.index)-1)
 
 passport_df = load_table[load_table['Customer #'] == 1495]
 stir_df = load_table[load_table['Customer #'] == 1374]
 
+export_df = pd.DataFrame(['Load', 'City-State', 'Pallets', 'Margin'])
+
 if len(passport_df.index) > 0:
     passport_df.reset_index(drop=True, inplace=True)
     for row in passport_df.index:
-        try:
-            current_row = passport_df.iloc[row]
-            if current_row['Pallets'] < 21 or current_row['C/ City'] == 'Mira Loma':
-                selling_price = passport.get_price(current_row)
-                enter_billing(*selling_price)
-            else:
-                logging.info(str(current_row['Load #']) + ' exceeds 20 pallets')
-        except Exception as e:
-            logging.info(str(current_row['Load #']) +  ' errored. ' + repr(e))
+        current_row = passport_df.iloc[row]
+        current_load = current_row['Load #']
+        current_plts = current_row['Pallets']
+        current_retail = current_row['Base Retail']
+
+        if current_retail != 0:    
+            try:
+                if current_plts < 21 or current_row['C/ City'] == 'Mira Loma':
+                    selling_price = passport.get_price(current_row)
+                    enter_billing(*selling_price)
+                else:
+                    logging.info(str(current_load) + ' exceeds 20 pallets: ' + str(current_plts))
+            except Exception as e:
+                logging.info(str(current_load) +  ' errored. ' + repr(e))
+        else:
+            logging.info(str(current_load) + ' already has base retail entered: ' + str(current_retail))
 
 if len(stir_df.index) > 0:
     stir_df.reset_index(drop=True, inplace=True)
