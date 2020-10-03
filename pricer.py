@@ -64,7 +64,7 @@ REPORT_CODE = '23725A2291F1'
 report_url = f'{url}App_BW/staff/Reports/ReportViewer.aspx?code={REPORT_CODE}'
 browser.get(report_url)
 
-loadlist = ['168681', '168521', '168608', '168614', '169200', '168678']
+loadlist = ['168307', '170252', '170364', '170793', '170845', '170848', '170942', '170943', '170248', '170251', '168460']
 
 loadno = browser.find_element_by_xpath("//td[1]/input[@class='filter']")
 loadno.clear()
@@ -104,7 +104,7 @@ load_table = df[[
 passport_df = load_table[load_table['Customer #'] == 1495]
 stir_df = load_table[load_table['Customer #'] == 1374]
 
-export_df = pd.DataFrame(['Load', 'City-State', 'Pallets', 'Margin'])
+export_df = pd.DataFrame([['Load', 'City-State', 'Pallets', 'Margin']])
 
 if len(passport_df.index) > 0:
     passport_df.reset_index(drop=True, inplace=True)
@@ -136,7 +136,7 @@ if len(passport_df.index) > 0:
 if len(stir_df.index) > 0:
     stir_df.reset_index(drop=True, inplace=True)
     for row in stir_df.index:
-        current_row = passport_df.iloc[row]
+        current_row = stir_df.iloc[row]
         current_load = current_row['Load #']
         current_plts = current_row['Pallets']
         current_retail = current_row['Base Retail']
