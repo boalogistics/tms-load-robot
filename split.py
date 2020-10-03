@@ -15,9 +15,6 @@ from data_extract import open_sheet, create_truck
 # logging.config.fileConfig(fname='logs/cfg/split.conf')
 # logger = logging.getLogger('')
 
-# variables to count final results of loads
-loads_dispatched = 0
-loads_not_dispatched = 0
 
 # get list of trucks from Boa Warehousing Delivery Schedule.
 truck_sheet = open_sheet('Warehousing Sheet Data Feed', 'split_export')
@@ -33,24 +30,17 @@ tms_dfs_dict = {
     'indiv_loads':  ''
 }
 
-# married_loads = []
-# indiv_loads = []
-
 for truck in trucks[1:]:
     if truck[1] not in load_no_dict['married_loads']:
         load_no_dict['married_loads'].append(truck[1])
     if truck[0] not in load_no_dict['indiv_loads']:
         load_no_dict['indiv_loads'].append(truck[0])
 
-# load_nos = [married_loads, indiv_loads]
-
 # set to Chrome default download folder - BOA CITRIX DESKTOP DEFAULT SETTINGS
 DOWNLOAD_FOLDER = f"C:\\Users\\{getpass.getuser().title()}\\Downloads"
 
-
 url = 'https://boa.3plsystemscloud.com/'
 browser = tms.login(url, False)
-
 
 # enter report code into REPORT_CODE constant
 # "Pricer / Discounter" report
@@ -103,7 +93,6 @@ for key, value in load_no_dict.items():
 
 browser.close()
 
-
 tms_married_df = tms_dfs_dict['married_loads']
 tms_indiv_df = tms_dfs_dict['indiv_loads']
 
@@ -121,25 +110,36 @@ gs_indiv_df = gs_trucks_df[['INDIVIDUAL', 'MARRIED', 'TRUCK', 'CHARGEABLE']]
 
 tms_married_df['Load #'] = tms_married_df['Load #'].astype(float)
 
+
+#TODO need to flesh out left / right / full outer joins and how to handle records with no matches
+
 joint_indiv_df = gs_indiv_df.join(tms_indiv_df.set_index('Load #'),  on='INDIVIDUAL')
 joint_married_df = gs_married_df.join(tms_married_df.set_index('Load #'), on='MARRIED').reset_index()
 
 # compare pallet counts / totals
-indiv_mismatches = joint_indiv_df[joint_indiv_df['CHARGEABLE'] != joint_indiv_df['Pallets']]
-married_mismatches = joint_married_df[joint_married_df['CHARGEABLE'] != joint_married_df['Pallets']]
+mismatched_indiv = joint_indiv_df[joint_indiv_df['CHARGEABLE'] != joint_indiv_df['Pallets']]
+mismatched_married = joint_married_df[joint_married_df['CHARGEABLE'] != joint_married_df['Pallets']]
 
 # get lists of mismatched master and indiv loads, create global master load list, exclude from following cost calculations
 # report @ end load numbers with mismatches
+# mismatched_master = 
 
 
 # divide up total line haul cost by total pallets
 joint_married_df['Per Pallet'] = joint_married_df['Base Cost'] / joint_married_df['CHARGEABLE']
 per_pallet_df = joint_married_df[['MARRIED', 'Per Pallet']]
 
-# join master truck per pallet pricing table
+# join master truck per pallet pricing table TODO flesh out left / right / full outer joins
 joint_indiv_df = joint_indiv_df.join(per_pallet_df.set_index('MARRIED'), on='MARRIED')
 joint_indiv_df['Allocated Cost'] = joint_indiv_df['CHARGEABLE'] * joint_indiv_df['Per Pallet']
 
-indiv_costs_df = joint_indiv_df[['INDIVIDUAL', 'CHARGEABLE', 'Per Pallet', 'Allocated Cost']]
+indiv_costs_df = joint_indiv_df[['MARRIED', 'Base Cost', 'INDIVIDUAL', 'CHARGEABLE', 'Per Pallet', 'Allocated Cost']]
+   
+export_df = indiv_costs_df
 
-print(indiv_costs_df)
+filesave = 'export.xlsx'
+sheetname = 'export'
+writer = pd.ExcelWriter(filesave, engine="xlsxwriter")
+export_df.to_excel(writer, sheet_name=sheetname)
+writer.save()
+print("Saved file " + filesave + "!")
