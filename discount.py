@@ -73,7 +73,9 @@ def get_discount(df_row, price):
     if is_costco:
         discount_amt = calc_costco_discount(consignee_city, pallets, price)
     else:
-        discount_amt = float(price) * -0.0415
+        # discount_amt = float(price) * -0.0415
+        # removing all other discounts beside costco for october
+        discount_amt = 0
     return discount_amt
 
 
