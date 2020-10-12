@@ -18,7 +18,7 @@ def getlist():
         print(e)
         messagebox.showerror('Alert', 'Invalid values were present, please verify output for accuracy.')
     finally:
-        res_list = list(filter(lambda item: len(item) == 6 and item != 'Master' and item !='Single', res_list))
+        res_list = list(filter(lambda item: len(item) == 6 and item != 'Master' and item !='Single' and item != 'Consol', res_list))
         print('Dropping invalid load numbers...\n', res_list)
     if all(len(i) == 6 for i in res_list):
         print('probably valid load numbers!')
