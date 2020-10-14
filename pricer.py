@@ -64,8 +64,7 @@ REPORT_CODE = '23725A2291F1'
 report_url = f'{url}App_BW/staff/Reports/ReportViewer.aspx?code={REPORT_CODE}'
 browser.get(report_url)
 
-loadlist = ['168307', '170252', '170364', '170793', '170845', '170848', '170942', '170943', '170248', '170251', '168460']
-
+loadlist = ['169814', '170428']
 loadno = browser.find_element_by_xpath("//td[1]/input[@class='filter']")
 loadno.clear()
 for x in loadlist[:-1]:
@@ -118,7 +117,7 @@ if len(passport_df.index) > 0:
 
         # if current_retail != 0.0:    
         try:
-            if current_plts < 21 or current_row['C/ City'] == 'Mira Loma':
+            if current_plts < 21 or current_row['C/ City'] == 'Mira Loma' or current_row['C/ City'] == 'Tracy':
                 selling_price = passport.get_price(current_row)
                 enter_billing(*selling_price)
                 margin = (current_row['Billed'] + selling_price[1] - current_row['Cost']) / (current_row['Billed'] + selling_price[1])
@@ -130,9 +129,9 @@ if len(passport_df.index) > 0:
         # else:
         #     logging.info(str(current_load) + ' already has base retail entered: ' + str(current_retail))
         
-        export_row = pd.DataFrame([current_load, current_cs, current_plts, margin])
-        pd.concat([export_df, export_row], ignore_index=True)
-
+        export_row = pd.DataFrame([[current_load, current_cs, current_plts, margin]])
+        export_df = pd.concat([export_df, export_row], ignore_index=False)
+        
 if len(stir_df.index) > 0:
     stir_df.reset_index(drop=True, inplace=True)
     for row in stir_df.index:
@@ -156,8 +155,8 @@ if len(stir_df.index) > 0:
         except Exception as e:
             logging.info(str(current_row['Load #']) +  ' errored. ' + repr(e))
 
-        export_row = pd.DataFrame([current_load, current_cs, current_plts, margin])
-        pd.concat([export_df, export_row], ignore_index=True)
+        export_row = pd.DataFrame([[current_load, current_cs, current_plts, margin]])
+        export_df = pd.concat([export_df, export_row], ignore_index=False)
 
 browser.quit()
 print('Browser closed.')
