@@ -37,9 +37,8 @@ load_list = ['159971',
 '159995',
 '159996']
 
-for x in load_list:
-    load_id = x
-    load_url = 'https://boa.3plsystemscloud.com/App_BW/staff/shipment/shipmentDetail.aspx?loadid='+load_id
+for load_id in load_list:
+    load_url = f'{url}App_BW/staff/shipment/shipmentDetail.aspx?loadid={load_id}'
     browser.get(load_url)
 
 #    js_cancel = 'WebForm_DoPostBackWithOptions(new WebForm_PostBackOptions(&quot;ctl00$BodyContent$lbCancel&quot;, &quot;&quot;, true, &quot;&quot;, &quot;&quot;, false, true))'
