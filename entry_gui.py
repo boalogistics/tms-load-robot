@@ -1,6 +1,6 @@
 import tkinter as tk
 import os
-import tkinter.font as font
+import tkinter.font as tkFont
 from tkinter import messagebox
 
 def getlist():
@@ -38,14 +38,15 @@ def getlist():
 
 window = tk.Tk()
 window.title('Load Bot')
-
-
+window.option_add('*Font', 'SegoeUI')
+# window.Text.configure(font=(family='SegoeUI', fg='white'), bg='grey')
 
 frame_top = tk.Frame()
 
 title = tk.Label(
     master=frame_top,
     text='Enter load numbers below, each separated on a new line.',
+    font='12',
     height=2
 )
 title.pack()
