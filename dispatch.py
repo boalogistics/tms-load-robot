@@ -44,6 +44,8 @@ for truck in truck_dict_list:
 url = 'https://boa.3plsystemscloud.com/'
 browser = tms.login(url)
 
+PREFIX = 'ctl00_BodyContent_'
+
 for x in loadlist:
     load_id = x[0]
     carrier_id = x[1]
@@ -59,27 +61,27 @@ for x in loadlist:
         og_window = browser.window_handles[0]
 
         # assign carrier
-        vol_carrier_link = browser.find_element_by_id('ctl00_BodyContent_hlCarrierVolLink')
+        vol_carrier_link = browser.find_element_by_id(f'{PREFIX}hlCarrierVolLink')
         vol_carrier_link.click()
-        carrier_select = Select(browser.find_element_by_id('ctl00_BodyContent_ListBoxCarriers'))
+        carrier_select = Select(browser.find_element_by_id(f'{PREFIX}ListBoxCarriers'))
         carrier_select.select_by_value(carrier_id)
-        select_carrier_btn = browser.find_element_by_id('ctl00_BodyContent_SelectCarrierSave')
+        select_carrier_btn = browser.find_element_by_id(f'{PREFIX}SelectCarrierSave')
         select_carrier_btn.click()
-        WebDriverWait(browser, timeout=30).until(EC.presence_of_element_located((By.ID, 'ctl00_BodyContent_ctlWarningsVertical_lblInsuranceWarnings')))
+        WebDriverWait(browser, timeout=30).until(EC.presence_of_element_located((By.ID, f'{PREFIX}ctlWarningsVertical_lblInsuranceWarnings')))
 
         # verify carrier insurance on file is not expired
-        carrier_insurance = browser.find_element_by_id('ctl00_BodyContent_ctlWarningsVertical_lblInsuranceWarnings').text.upper()
+        carrier_insurance = browser.find_element_by_id(f'{PREFIX}ctlWarningsVertical_lblInsuranceWarnings').text.upper()
         carrier_insurance_expired = carrier_insurance.find('EXPIRED') != -1
 
         if carrier_insurance_expired:
-            carrier_name = browser.find_element_by_xpath("//div[@id='ctl00_BodyContent_divCarrierInfo']/div[1]/strong").text
+            carrier_name = browser.find_element_by_xpath(f"//div[@id='{PREFIX}divCarrierInfo']/div[1]/strong").text
             logging.info(load_id + ' not dispatched. Carrier {}\'s insurance on file is expired.'.format(carrier_name))
             loads_not_dispatched += 1
         else:
             # dispatch
             # dispatch = 'http://boa.3plsystemscloud.com/App_BW/staff/operations/trackDispatchPop.aspx?loadid='+load_id
             # browser.get(dispatch)
-            dispatch_link = browser.find_element_by_id('ctl00_BodyContent_lbDispatchLink')
+            dispatch_link = browser.find_element_by_id(f'{PREFIX}lbDispatchLink')
             dispatch_link.click()
             WebDriverWait(browser, timeout=30).until(EC.number_of_windows_to_be(2))
 
