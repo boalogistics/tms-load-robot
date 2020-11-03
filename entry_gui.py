@@ -66,7 +66,7 @@ entry = tk.Text(
     master=frame_mid, 
     bd=0, 
     height=25, 
-    width=80,
+    width=40,
     yscrollcommand = scrollbar.set
 )
 entry.pack()
