@@ -1,6 +1,6 @@
 import tkinter as tk
 import os
-import tkinter.font as font
+import tkinter.font as tkFont
 from tkinter import messagebox
 
 def getlist():
@@ -18,7 +18,7 @@ def getlist():
         print(e)
         messagebox.showerror('Alert', 'Invalid values were present, please verify output for accuracy.')
     finally:
-        res_list = list(filter(lambda item: len(item) == 6 and item != 'Master' and item !='Single', res_list))
+        res_list = list(filter(lambda item: len(item) == 6 and item != 'Master' and item !='Single' and item != 'Consol', res_list))
         print('Dropping invalid load numbers...\n', res_list)
     if all(len(i) == 6 for i in res_list):
         print('probably valid load numbers!')
@@ -38,14 +38,15 @@ def getlist():
 
 window = tk.Tk()
 window.title('Load Bot')
-
-
+window.option_add('*Font', 'SegoeUI')
+# window.Text.configure(font=(family='SegoeUI', fg='white'), bg='grey')
 
 frame_top = tk.Frame()
 
 title = tk.Label(
     master=frame_top,
     text='Enter load numbers below, each separated on a new line.',
+    font='12',
     height=2
 )
 title.pack()
