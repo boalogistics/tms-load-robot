@@ -63,7 +63,7 @@ time.sleep(3)
 browser.close()
 print('Retrieved entry report.')
 
-# compares list of files in Downloads folder after downloading file to extract filename
+# list of files in Downloads folder after downloading to extract filename
 after = os.listdir(DOWNLOAD_FOLDER)
 change = set(after) - set(before)
 
