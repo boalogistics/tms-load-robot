@@ -4,6 +4,8 @@ import tkinter.font as tkFont
 from tkinter import messagebox
 
 def getlist():
+    # list of text to filter out
+    FILTERS = ['Master', 'Single', 'Consol', 'Please', 'Hello ']
     text = entry.get('1.0', tk.END)
     res_list = (text.rstrip().split('\n')) 
     print('Raw input: \n', res_list)
@@ -18,7 +20,8 @@ def getlist():
         print(e)
         messagebox.showerror('Alert', 'Invalid values were present, please verify output for accuracy.')
     finally:
-        res_list = list(filter(lambda item: len(item) == 6 and item != 'Master' and item !='Single' and item != 'Consol' and item != 'Please' and item != 'Hello ', res_list))
+        res_list = list(filter(lambda item: len(item) == 6 and item not in FILTERS, res_list))
+        # res_list = list(filter(lambda item: len(item) == 6 and item != 'Master' and item !='Single' and item != 'Consol' and item != 'Please' and item != 'Hello ', res_list))
         print('Dropping invalid load numbers...\n', res_list)
     if all(len(i) == 6 for i in res_list):
         print('probably valid load numbers!')
