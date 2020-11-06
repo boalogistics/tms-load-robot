@@ -8,8 +8,8 @@ import time
 import pandas as pd
 from selenium.webdriver.common.keys import Keys
 import tms_login as tms
-# import discount
-import discount_sept as discount
+import discount
+# import discount_sept as discount
 import passport
 
 
@@ -64,7 +64,7 @@ REPORT_CODE = '23725A2291F1'
 report_url = f'{url}App_BW/staff/Reports/ReportViewer.aspx?code={REPORT_CODE}'
 browser.get(report_url)
 
-loadlist = ['169814', '170428']
+loadlist = ['172608', '173869', '173352', '173302', '173349', '173348', '173932', '172047', '173172', '173743', '172728', '172500', '173175', '172446']
 loadno = browser.find_element_by_xpath("//td[1]/input[@class='filter']")
 loadno.clear()
 for x in loadlist[:-1]:
@@ -102,6 +102,7 @@ load_table = df[[
 
 passport_df = load_table[load_table['Customer #'] == 1495]
 stir_df = load_table[load_table['Customer #'] == 1374]
+wildbrine_df = load_table[load_table['Customer #'] == 890]
 
 export_df = pd.DataFrame([['Load', 'City-State', 'Pallets', 'Margin']])
 
