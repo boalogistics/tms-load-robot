@@ -11,6 +11,7 @@ import tms_login as tms
 import discount
 # import discount_sept as discount
 import passport
+import wildbrine
 
 
 def enter_billing(load, price, discount_amt=0):
@@ -64,7 +65,8 @@ REPORT_CODE = '23725A2291F1'
 report_url = f'{url}App_BW/staff/Reports/ReportViewer.aspx?code={REPORT_CODE}'
 browser.get(report_url)
 
-loadlist = ['172608', '173869', '173352', '173302', '173349', '173348', '173932', '172047', '173172', '173743', '172728', '172500', '173175', '172446']
+loadlist = ['143656', '143660', '143661', '143662', '143663', '143768', '144307', '144308', '144327', '144737', '144738', '149328', '150233', '156250', '157810', '159040', '159918', '160215', '160216', '160217', '160218', '161747', '161748', '161820', '162389', '162390', '162391', '162392', '162393', '162394', '162395', '162578', '162579', '162990', '162992', '162993', '163075', '163647', '163648', '164069', '164071', '164072', '164074', '164230', '164231', '164802', '164803', '164804', '164805', '164848', '164849', '164850', '164851', '164891', '165994', '165995', '165996', '165997', '166232', '166234', '166235', '166777', '167214', '167371', '167372', '167373', '167376', '167377', '167378', '168066', '168067', '168068', '168070', '168071', '168072', '168074', '168128', '168725', '168726', '168727', '168728', '168729', '168730', '169235', '169864', '169865', '169866', '169867', '169868', '169869', '169870', '170310', '170311', '170312', '170313', '170314', '170315', '170923', '170924', '170925', '170926', '170927', '171545', '171546', '171547', '171548', '171549', '171589', '172131', '172132', '172133', '172134', '172136', '172137', '172623', '172765', '172766', '172767', '173430', '173431', '173432', '173433', '173434', '174039', '174040', '174046', '174479']
+
 loadno = browser.find_element_by_xpath("//td[1]/input[@class='filter']")
 loadno.clear()
 for x in loadlist[:-1]:
@@ -112,7 +114,7 @@ if len(passport_df.index) > 0:
         current_row = passport_df.iloc[row]
         current_load = current_row['Load #']
         current_plts = current_row['Pallets']
-        current_retail = current_row['Base Retail']
+        # current_retail = current_row['Base Retail']
         current_cs = current_row['C/ City'] + ', ' + current_row['C/ State']
         margin = '-'
 
@@ -126,7 +128,7 @@ if len(passport_df.index) > 0:
             else:
                 logging.info(str(current_load) + ' exceeds 20 pallets: ' + str(current_plts))
         except Exception as e:
-            logging.info(str(current_load) +  ' errored. ' + repr(e))
+            logging.info(str(current_load) +  ' errored. No rate found for ' + repr(e))
         # else:
         #     logging.info(str(current_load) + ' already has base retail entered: ' + str(current_retail))
         
@@ -139,7 +141,7 @@ if len(stir_df.index) > 0:
         current_row = stir_df.iloc[row]
         current_load = current_row['Load #']
         current_plts = current_row['Pallets']
-        current_retail = current_row['Base Retail']
+        # current_retail = current_row['Base Retail']
         current_cs = current_row['C/ City'] + ', ' + current_row['C/ State']
         margin = '-'
 
@@ -154,8 +156,35 @@ if len(stir_df.index) > 0:
             logging.info(str(current_load) + ' ' + current_cs + ' margin: ' + str(margin) + ', pallets: ' + str(current_plts))
             # print(*selling_price, discount_amt)
         except Exception as e:
-            logging.info(str(current_row['Load #']) +  ' errored. ' + repr(e))
+            logging.info(str(current_row['Load #']) +  ' errored. No rate found for ' + repr(e))
 
+        export_row = pd.DataFrame([[current_load, current_cs, current_plts, margin]])
+        export_df = pd.concat([export_df, export_row], ignore_index=False)
+
+if len(wildbrine_df.index) > 0:
+    # wildbrine_df.reset_index(drop=True, inplace=True)
+    for row in wildbrine_df.index:
+        current_row = wildbrine_df.iloc[row]
+        current_load = current_row['Load #']
+        current_plts = current_row['Pallets']
+        # current_retail = current_row['Base Retail']
+        current_cs = current_row['C/ City'] + ', ' + current_row['C/ State']
+        margin = '-'
+
+        # if current_retail != 0.0:    
+        try:
+            if current_plts < 10:
+                selling_price = wildbrine.get_price(current_row)
+                # enter_billing(*selling_price)
+                margin = (current_row['Billed'] + selling_price[1] - current_row['Cost']) / (current_row['Billed'] + selling_price[1])
+                logging.info(str(current_load) + ' ' + current_cs + ' margin: ' + str(margin) + ', pallets: ' + str(current_plts))
+            else:
+                logging.info(str(current_load) + ' exceeds 9 pallets: ' + str(current_plts))
+        except Exception as e:
+            logging.info(str(current_load) +  ' errored. No rate found for ' + repr(e))
+        # else:
+        #     logging.info(str(current_load) + ' already has base retail entered: ' + str(current_retail))
+        
         export_row = pd.DataFrame([[current_load, current_cs, current_plts, margin]])
         export_df = pd.concat([export_df, export_row], ignore_index=False)
 
