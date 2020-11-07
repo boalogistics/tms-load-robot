@@ -43,6 +43,7 @@ for x in load_list:
     except Exception as e:
         logging.info(f'POD for {load_id} not uploaded: {repr(e)}')
 
+logging.info('==========')
 browser.close()
 print('Browser closed.')
 
