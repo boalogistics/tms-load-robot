@@ -1,8 +1,13 @@
 import logging
 import logging.config
 import os
+import sys
 from selenium.webdriver.support.ui import Select
 import tms_login as tms
+
+if len(sys.argv) < 2:
+    print('Error: Expected TXT file as argument.')
+    sys.exit()
 
 # initialize logger
 logging.config.fileConfig(fname='logs/cfg/upload.conf')
@@ -12,7 +17,9 @@ logging.info('==========')
 BASE_URL = 'https://boa.3plsystemscloud.com/'
 browser = tms.login(BASE_URL)
 
-load_list = []
+loads_file = open(sys.argv[1], 'r')
+listified = loads_file.read().strip('][').split(', ')
+load_list = [load.strip("'") for load in listified]
 
 PREFIX = 'ctl00_BodyContent_'
 
