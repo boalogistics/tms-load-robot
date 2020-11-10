@@ -3,14 +3,13 @@ import logging
 import logging.config
 import os
 import time
-from datetime import date
+from datetime import date, timedelta
 import pandas as pd
 from selenium.webdriver.support.ui import Select
 import tms_login as tms
 
 today = date.today()
-datestr = today
-filename = 'logs\\book' + datestr.strftime('_%m%d%Y_') + '.csv'
+filename = 'logs\\book' + today.strftime('_%m%d%Y_') + '.csv'
 
 # initialize logger
 print('Initializing logger...')
@@ -40,10 +39,12 @@ report_code = '3092F43103C3'
 report_url = f'{url}App_BW/staff/Reports/ReportViewer.aspx?code={report_code}'
 browser.get(report_url)
 
-s_date = today
+# set start to yesterday 1pm
+s_date = today - timedelta(days = 1)
+e_date = today
 
-start = s_date.strftime('%m/%d/%Y 00:00:00')
-end = s_date.strftime('%m/%d/%Y 23:59:59')
+start = s_date.strftime('%m/%d/%Y 13:00:01')
+end = e_date.strftime('%m/%d/%Y 13:00:00')
 
 startbox = browser.find_element_by_xpath("//td[1]/input[@class='filter between'][1]")
 endbox = browser.find_element_by_xpath("//td[1]/input[@class='filter between'][2]")
