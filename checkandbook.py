@@ -120,7 +120,7 @@ for x in load_list:
         if quote_status:
             js_book = 'WebForm_DoPostBackWithOptions(new WebForm_PostBackOptions("ctl00$BodyContent$lbBookShipment", "", true, "", "", false, true))'
             browser.execute_script(js_book)
-            logging.info(f'{load_id} booked.')
+            logging.info(f'Load {load_id} booked.')
             loads_booked += 1
         else:
             logging.info(f'{load_id} not booked. {status}')
