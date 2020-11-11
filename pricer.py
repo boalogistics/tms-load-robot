@@ -175,7 +175,7 @@ if len(stir_df.index) > 0:
         export_df = pd.concat([export_df, export_row], ignore_index=False)
 
 if len(wildbrine_df.index) > 0:
-    # wildbrine_df.reset_index(drop=True, inplace=True)
+    wildbrine_df.reset_index(drop=True, inplace=True)
     for row in wildbrine_df.index:
         current_row = wildbrine_df.iloc[row]
         current_load = current_row['Load #']
@@ -188,7 +188,7 @@ if len(wildbrine_df.index) > 0:
         try:
             if current_plts < 10:
                 selling_price = wildbrine.get_price(current_row)
-                # enter_billing(*selling_price)
+                enter_billing(*selling_price)
                 margin = (current_row['Billed'] + selling_price[1] - current_row['Cost']) / (current_row['Billed'] + selling_price[1])
                 logging.info(str(current_load) + ' ' + current_cs + ' margin: ' + str(margin) + ', pallets: ' + str(current_plts))
             else:
@@ -202,7 +202,7 @@ if len(wildbrine_df.index) > 0:
         export_df = pd.concat([export_df, export_row], ignore_index=False)
 
 if len(papacantella_df.index) > 0:
-    # papacantella_df.reset_index(drop=True, inplace=True)
+    papacantella_df.reset_index(drop=True, inplace=True)
     for row in papacantella_df.index:
         current_row = papacantella_df.iloc[row]
         current_load = current_row['Load #']
@@ -215,7 +215,7 @@ if len(papacantella_df.index) > 0:
         try:
             if current_plts < 15:
                 selling_price = papacantella.get_price(current_row)
-                # enter_billing(*selling_price)
+                enter_billing(*selling_price)
                 margin = (current_row['Billed'] + selling_price[1] - current_row['Cost']) / (current_row['Billed'] + selling_price[1])
                 logging.info(str(current_load) + ' ' + current_cs + ' margin: ' + str(margin) + ', pallets: ' + str(current_plts))
             else:
