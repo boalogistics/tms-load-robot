@@ -135,7 +135,7 @@ if len(passport_df.index) > 0:
         try:
             if current_plts < 21 or current_row['C/ City'] == 'Mira Loma' or current_row['C/ City'] == 'Tracy':
                 selling_price = passport.get_price(current_row)
-                enter_billing(*selling_price)
+                # enter_billing(*selling_price)
                 margin = (current_row['Billed'] + selling_price[1] - current_row['Cost']) / (current_row['Billed'] + selling_price[1])
                 logging.info(str(current_load) + ' ' + current_cs + ' margin: ' + str(margin) + ', pallets: ' + str(current_plts))
             else:
@@ -164,7 +164,7 @@ if len(stir_df.index) > 0:
             # check if Base Retail == 0
             selling_price = discount.get_price(current_row)
             discount_amt = discount.get_discount(current_row, selling_price[1])
-            enter_billing(*selling_price, discount_amt)
+            # enter_billing(*selling_price, discount_amt)
             margin = (current_row['Billed'] + selling_price[1] - current_row['Cost'] + discount_amt) / (current_row['Billed'] + selling_price[1])
             logging.info(str(current_load) + ' ' + current_cs + ' margin: ' + str(margin) + ', pallets: ' + str(current_plts))
             # print(*selling_price, discount_amt)
@@ -188,7 +188,7 @@ if len(wildbrine_df.index) > 0:
         try:
             if current_plts < 10:
                 selling_price = wildbrine.get_price(current_row)
-                enter_billing(*selling_price)
+                # enter_billing(*selling_price)
                 margin = (current_row['Billed'] + selling_price[1] - current_row['Cost']) / (current_row['Billed'] + selling_price[1])
                 logging.info(str(current_load) + ' ' + current_cs + ' margin: ' + str(margin) + ', pallets: ' + str(current_plts))
             else:
@@ -215,7 +215,7 @@ if len(papacantella_df.index) > 0:
         try:
             if current_plts < 15:
                 selling_price = papacantella.get_price(current_row)
-                enter_billing(*selling_price)
+                # enter_billing(*selling_price)
                 margin = (current_row['Billed'] + selling_price[1] - current_row['Cost']) / (current_row['Billed'] + selling_price[1])
                 logging.info(str(current_load) + ' ' + current_cs + ' margin: ' + str(margin) + ', pallets: ' + str(current_plts))
             else:
