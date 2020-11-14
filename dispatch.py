@@ -9,8 +9,16 @@ import tms_login as tms
 from data_extract import open_sheet, create_truck
 
 # initialize logger
+print('Initializing logger...')
 logging.config.fileConfig(fname='logs/cfg/dispatch.conf')
 logger = logging.getLogger('')
+
+# constant file for emailing
+exportreport = logging.FileHandler(filename='logs/dispatch_export.csv', mode='w+')
+formatter = logging.Formatter()
+exportreport.setFormatter(formatter)
+logger.addHandler(report)
+print('Logger initialized.')
 
 # variables to count final results of loads
 loads_dispatched = 0
