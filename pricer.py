@@ -112,6 +112,9 @@ load_table = df[[
     'C/ State', 'C/ Zip', 'Equipment', 'Pallets', 'Weight', 'Base Retail', 'Cost', 'Billed', 'Customer #'
     ]].drop(len(df.index)-1)
 
+# filter rows that have 0 Base Retail entered
+load_table = load_table[int(load_table['Base Retail']) == 0]
+
 # TODO store client name + id in json
 passport_df = load_table[load_table['Customer #'] == 1495]
 stir_df = load_table[load_table['Customer #'] == 1374]
