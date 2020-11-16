@@ -4,8 +4,6 @@ import tkinter.font as tkFont
 from tkinter import messagebox
 
 def getlist():
-    # list of text to filter out
-    FILTERS = ['Master', 'Single', 'Consol', 'Please', 'Hello ']
     text = entry.get('1.0', tk.END)
     res_list = (text.rstrip().split('\n')) 
     print('Raw input: \n', res_list)
@@ -18,7 +16,7 @@ def getlist():
         int_check = [int(i) for i in res_list]
         messagebox.showinfo('Success!', 'Input values all integers.')
     except Exception as e:
-        messagebox.showinfo('Attention Needed!', 'Non-integer values found.Check output for accuracy.')
+        messagebox.showinfo('Attention Needed!', 'Non-integer values found. Check output for accuracy.')
 
     res_list_int = []
     for i in res_list:
@@ -26,7 +24,7 @@ def getlist():
             int(i)
             res_list_int.append(i)
         except Exception as e:
-                print(f'{i} is not an integer.')
+            print(f'{i} is not an integer.')
   
     if all(len(i) == 6 for i in res_list_int):
         print('probably all valid load numbers!')
