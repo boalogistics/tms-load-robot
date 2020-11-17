@@ -15,6 +15,7 @@ import passport
 import wildbrine
 # import pocino
 import papacantella
+import svd
 
 
 def enter_billing(load, price, discount_amt=0):
@@ -126,6 +127,7 @@ stir_df = load_table[load_table['Customer #'] == 1374]
 wildbrine_df = load_table[load_table['Customer #'] == 890]
 papacantella_df = load_table[load_table['Customer #'] == 1232]
 pocino_df = load_table[load_table['Customer #'] == 933]
+svd_df = load_table[load_table['Customer #'] == 611]
 
 export_df = pd.DataFrame([['Customer Name', 'Load', 'City-State', 'Pallets', 'Base Retail', 'Margin']])
 
@@ -145,7 +147,7 @@ if len(passport_df.index) > 0:
             if current_plts < 21 or current_row['C/ City'] == 'Mira Loma' or current_row['C/ City'] == 'Tracy':
                 selling_price = passport.get_price(current_row)
                 base_retail = selling_price[1]
-                enter_billing(*selling_price)
+                # enter_billing(*selling_price)
                 margin = (current_row['Billed'] + selling_price[1] - current_row['Cost']) / (current_row['Billed'] + selling_price[1])
                 logging.info(str(current_load) + ' ' + current_cs + ' margin: ' + str(margin) + ', pallets: ' + str(current_plts))
             else:
@@ -202,7 +204,7 @@ if len(wildbrine_df.index) > 0:
             if current_plts < 10:
                 selling_price = wildbrine.get_price(current_row)
                 base_retail = selling_price[1]
-                enter_billing(*selling_price)
+                # enter_billing(*selling_price)
                 margin = (current_row['Billed'] + selling_price[1] - current_row['Cost']) / (current_row['Billed'] + selling_price[1])
                 logging.info(str(current_load) + ' ' + current_cs + ' margin: ' + str(margin) + ', pallets: ' + str(current_plts))
             else:
@@ -231,11 +233,40 @@ if len(papacantella_df.index) > 0:
             if current_plts < 15:
                 selling_price = papacantella.get_price(current_row)
                 base_retail = selling_price[1]
-                enter_billing(*selling_price)
+                # enter_billing(*selling_price)
                 margin = (current_row['Billed'] + selling_price[1] - current_row['Cost']) / (current_row['Billed'] + selling_price[1])
                 logging.info(str(current_load) + ' ' + current_cs + ' margin: ' + str(margin) + ', pallets: ' + str(current_plts))
             else:
                 logging.info(str(current_load) + ' exceeds 14 pallets: ' + str(current_plts))
+        except Exception as e:
+            logging.info(str(current_load) +  ' errored. No rate found for ' + repr(e))
+        # else:
+        #     logging.info(str(current_load) + ' already has base retail entered: ' + str(current_retail))
+        
+        export_row = pd.DataFrame([[current_row['Customer Name'], current_load, current_cs, current_plts, base_retail, margin]])
+        export_df = pd.concat([export_df, export_row], ignore_index=False)
+
+if len(svd_df.index) > 0:
+    svd_df.reset_index(drop=True, inplace=True)
+    for row in svd_df.index:
+        current_row = svd_df.iloc[row]
+        current_load = current_row['Load #']
+        current_plts = current_row['Pallets']
+        # current_retail = current_row['Base Retail']
+        current_cs = current_row['C/ City'] + ', ' + current_row['C/ State']
+        base_retail = '-'
+        margin = '-'
+
+        # if current_retail != 0.0:    
+        try:
+            if current_plts < 24 and current_row['Weight'] <= 30600:
+                selling_price = svd.get_price(current_row)
+                base_retail = selling_price[1]
+                # enter_billing(*selling_price)
+                margin = (current_row['Billed'] + selling_price[1] - current_row['Cost']) / (current_row['Billed'] + selling_price[1])
+                logging.info(str(current_load) + ' ' + current_cs + ' margin: ' + str(margin) + ', pallets: ' + str(current_plts))
+            else:
+                logging.info(str(current_load) + ' exceeds max weight / pallet (30,600 / 24): ' + str(current_row['Weight']) + ' / ' + str(current_plts))
         except Exception as e:
             logging.info(str(current_load) +  ' errored. No rate found for ' + repr(e))
         # else:
