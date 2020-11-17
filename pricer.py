@@ -108,12 +108,17 @@ filepath = f'{DOWNLOAD_FOLDER}\\{file_name}'
 data = pd.read_html(filepath)
 df = data[0]
 load_table = df[[
-    'Load #', 'Consignee', 'S/ City', 'S/ State', 'C/ City',
+    'Load #', 'Customer Name', 'Consignee', 'S/ City', 'S/ State', 'C/ City',
     'C/ State', 'C/ Zip', 'Equipment', 'Pallets', 'Weight', 'Base Retail', 'Cost', 'Billed', 'Customer #'
     ]].drop(len(df.index)-1)
 
 # filter rows that have 0 Base Retail entered
-load_table = load_table[int(load_table['Base Retail']) == 0]
+load_table['Base Retail'] = pd.to_numeric(load_table['Base Retail'], downcast='float')
+priced = load_table[load_table['Base Retail'] != 0]
+print('Following loads already priced')
+print(priced)
+load_table = load_table[load_table['Base Retail'] == 0]
+print(load_table)
 
 # TODO store client name + id in json
 passport_df = load_table[load_table['Customer #'] == 1495]
@@ -122,7 +127,7 @@ wildbrine_df = load_table[load_table['Customer #'] == 890]
 papacantella_df = load_table[load_table['Customer #'] == 1232]
 pocino_df = load_table[load_table['Customer #'] == 933]
 
-export_df = pd.DataFrame([['Load', 'City-State', 'Pallets', 'Base Retail', 'Margin']])
+export_df = pd.DataFrame([['Customer Name', 'Load', 'City-State', 'Pallets', 'Base Retail', 'Margin']])
 
 if len(passport_df.index) > 0:
     passport_df.reset_index(drop=True, inplace=True)
@@ -132,13 +137,15 @@ if len(passport_df.index) > 0:
         current_plts = current_row['Pallets']
         # current_retail = current_row['Base Retail']
         current_cs = current_row['C/ City'] + ', ' + current_row['C/ State']
+        base_retail = '-'
         margin = '-'
 
         # if current_retail != 0.0:    
         try:
             if current_plts < 21 or current_row['C/ City'] == 'Mira Loma' or current_row['C/ City'] == 'Tracy':
                 selling_price = passport.get_price(current_row)
-                # enter_billing(*selling_price)
+                base_retail = selling_price[1]
+                enter_billing(*selling_price)
                 margin = (current_row['Billed'] + selling_price[1] - current_row['Cost']) / (current_row['Billed'] + selling_price[1])
                 logging.info(str(current_load) + ' ' + current_cs + ' margin: ' + str(margin) + ', pallets: ' + str(current_plts))
             else:
@@ -148,7 +155,7 @@ if len(passport_df.index) > 0:
         # else:
         #     logging.info(str(current_load) + ' already has base retail entered: ' + str(current_retail))
         
-        export_row = pd.DataFrame([[current_load, current_cs, current_plts, margin]])
+        export_row = pd.DataFrame([[current_row['Customer Name'], current_load, current_cs, current_plts, base_retail, margin]])
         export_df = pd.concat([export_df, export_row], ignore_index=False)
         
 if len(stir_df.index) > 0:
@@ -159,6 +166,7 @@ if len(stir_df.index) > 0:
         current_plts = current_row['Pallets']
         # current_retail = current_row['Base Retail']
         current_cs = current_row['C/ City'] + ', ' + current_row['C/ State']
+        base_retail = '-'
         margin = '-'
 
         try:
@@ -167,6 +175,7 @@ if len(stir_df.index) > 0:
             # check if Base Retail == 0
             selling_price = discount.get_price(current_row)
             discount_amt = discount.get_discount(current_row, selling_price[1])
+            base_retail = selling_price[1]
             # enter_billing(*selling_price, discount_amt)
             margin = (current_row['Billed'] + selling_price[1] - current_row['Cost'] + discount_amt) / (current_row['Billed'] + selling_price[1])
             logging.info(str(current_load) + ' ' + current_cs + ' margin: ' + str(margin) + ', pallets: ' + str(current_plts))
@@ -174,7 +183,7 @@ if len(stir_df.index) > 0:
         except Exception as e:
             logging.info(str(current_row['Load #']) +  ' errored. No rate found for ' + repr(e))
 
-        export_row = pd.DataFrame([[current_load, current_cs, current_plts, margin]])
+        export_row = pd.DataFrame([[current_row['Customer Name'], current_load, current_cs, current_plts, base_retail, margin]])
         export_df = pd.concat([export_df, export_row], ignore_index=False)
 
 if len(wildbrine_df.index) > 0:
@@ -185,13 +194,15 @@ if len(wildbrine_df.index) > 0:
         current_plts = current_row['Pallets']
         # current_retail = current_row['Base Retail']
         current_cs = current_row['C/ City'] + ', ' + current_row['C/ State']
+        base_retail = '-'
         margin = '-'
 
         # if current_retail != 0.0:    
         try:
             if current_plts < 10:
                 selling_price = wildbrine.get_price(current_row)
-                # enter_billing(*selling_price)
+                base_retail = selling_price[1]
+                enter_billing(*selling_price)
                 margin = (current_row['Billed'] + selling_price[1] - current_row['Cost']) / (current_row['Billed'] + selling_price[1])
                 logging.info(str(current_load) + ' ' + current_cs + ' margin: ' + str(margin) + ', pallets: ' + str(current_plts))
             else:
@@ -201,7 +212,7 @@ if len(wildbrine_df.index) > 0:
         # else:
         #     logging.info(str(current_load) + ' already has base retail entered: ' + str(current_retail))
         
-        export_row = pd.DataFrame([[current_load, current_cs, current_plts, margin]])
+        export_row = pd.DataFrame([[current_row['Customer Name'], current_load, current_cs, current_plts, base_retail, margin]])
         export_df = pd.concat([export_df, export_row], ignore_index=False)
 
 if len(papacantella_df.index) > 0:
@@ -212,13 +223,15 @@ if len(papacantella_df.index) > 0:
         current_plts = current_row['Pallets']
         # current_retail = current_row['Base Retail']
         current_cs = current_row['C/ City'] + ', ' + current_row['C/ State']
+        base_retail = '-'
         margin = '-'
 
         # if current_retail != 0.0:    
         try:
             if current_plts < 15:
                 selling_price = papacantella.get_price(current_row)
-                # enter_billing(*selling_price)
+                base_retail = selling_price[1]
+                enter_billing(*selling_price)
                 margin = (current_row['Billed'] + selling_price[1] - current_row['Cost']) / (current_row['Billed'] + selling_price[1])
                 logging.info(str(current_load) + ' ' + current_cs + ' margin: ' + str(margin) + ', pallets: ' + str(current_plts))
             else:
@@ -228,7 +241,7 @@ if len(papacantella_df.index) > 0:
         # else:
         #     logging.info(str(current_load) + ' already has base retail entered: ' + str(current_retail))
         
-        export_row = pd.DataFrame([[current_load, current_cs, current_plts, margin]])
+        export_row = pd.DataFrame([[current_row['Customer Name'], current_load, current_cs, current_plts, base_retail, margin]])
         export_df = pd.concat([export_df, export_row], ignore_index=False)
 
 # if len(pocino_df.index) > 0:
