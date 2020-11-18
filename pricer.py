@@ -144,7 +144,7 @@ if len(passport_df.index) > 0:
 
         # if current_retail != 0.0:    
         try:
-            if current_plts < 21 or current_row['C/ City'] == 'Mira Loma' or current_row['C/ City'] == 'Tracy':
+            if current_plts <= 20 or current_row['C/ City'] == 'Mira Loma' or current_row['C/ City'] == 'Tracy':
                 selling_price = passport.get_price(current_row)
                 base_retail = selling_price[1]
                 # enter_billing(*selling_price)
@@ -201,7 +201,7 @@ if len(wildbrine_df.index) > 0:
 
         # if current_retail != 0.0:    
         try:
-            if current_plts < 10:
+            if current_plts <= 9:
                 selling_price = wildbrine.get_price(current_row)
                 base_retail = selling_price[1]
                 # enter_billing(*selling_price)
@@ -230,7 +230,7 @@ if len(papacantella_df.index) > 0:
 
         # if current_retail != 0.0:    
         try:
-            if current_plts < 15:
+            if current_plts <= 14:
                 selling_price = papacantella.get_price(current_row)
                 base_retail = selling_price[1]
                 # enter_billing(*selling_price)
@@ -259,7 +259,7 @@ if len(svd_df.index) > 0:
 
         # if current_retail != 0.0:    
         try:
-            if current_plts < 24 and current_row['Weight'] <= 30600:
+            if current_plts <= 24 and current_row['Weight'] <= 30600:
                 selling_price = svd.get_price(current_row)
                 base_retail = selling_price[1]
                 # enter_billing(*selling_price)
