@@ -1,6 +1,7 @@
 venv/
 .vscode/
 __pycache__/
+ARCHIVE-passport-dry.xlsx
 sandbox.py
 loadnos.txt
 geckodriver.log
