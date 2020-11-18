@@ -29,6 +29,7 @@ def getlist():
     if all(len(i) == 6 for i in res_list_int):
         print('probably all valid load numbers!')
     else:
+        res_list_int = list(filter(lambda x: len(x) == 6, res_list_int))
         print('invalid load numbers present!')
     
     output = "['" + "', '".join(res_list_int) + "']"
