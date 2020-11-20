@@ -42,7 +42,6 @@ def enter_billing(load, price, discount_amt=0):
             discount.apply_discount(load, discount_amt, browser)
             logging.info(f'{load} discounted {discount_amt} ({float(discount_amt) / price})')
 
-
         save_price_btn = browser.find_element_by_id('btnUpdateCosts')
         save_price_btn.click()
     except Exception as e:
@@ -133,7 +132,10 @@ client_dict = {
 client_df_dict ={}
 
 for key in client_dict:
+    # TODO add condition to ignore empty DFs
     client_df_dict[key] = load_table[load_table['Customer #'] == client_dict[key]]
+
+print(client_df_dict)
 
 passport_df = load_table[load_table['Customer #'] == 1495]
 stir_df = load_table[load_table['Customer #'] == 1374]
@@ -158,7 +160,7 @@ if len(passport_df.index) > 0:
             if current_plts <= 20 or current_row['C/ City'] == 'Mira Loma' or current_row['C/ City'] == 'Tracy':
                 selling_price = passport.get_price(current_row)
                 base_retail = selling_price[1]
-                # enter_billing(*selling_price)
+                enter_billing(*selling_price)
                 margin = (current_row['Billed'] + selling_price[1] - current_row['Cost']) / (current_row['Billed'] + selling_price[1])
                 logging.info(str(current_load) + ' ' + current_cs + ' margin: ' + str(margin) + ', pallets: ' + str(current_plts))
             else:
@@ -183,12 +185,12 @@ if len(stir_df.index) > 0:
             current_row = stir_df.iloc[row]
             # TODO how to account for rates not on table? and manually entered existing?
             selling_price = discount.get_price(current_row)
-            discount_amt = discount.get_discount(current_row, selling_price[1])
+            # removing costco discount
+            # discount_amt = discount.get_discount(current_row, selling_price[1])
             base_retail = selling_price[1]
-            # enter_billing(*selling_price, discount_amt)
-            margin = (current_row['Billed'] + selling_price[1] - current_row['Cost'] + discount_amt) / (current_row['Billed'] + selling_price[1])
+            enter_billing(*selling_price)
+            margin = (current_row['Billed'] + selling_price[1] - current_row['Cost']) / (current_row['Billed'] + selling_price[1])
             logging.info(str(current_load) + ' ' + current_cs + ' margin: ' + str(margin) + ', pallets: ' + str(current_plts))
-            # print(*selling_price, discount_amt)
         except Exception as e:
             logging.info(str(current_row['Load #']) +  ' errored. No rate found for ' + repr(e))
 
