@@ -4,31 +4,35 @@ import tkinter.font as tkFont
 from tkinter import messagebox
 
 def getlist():
-    # list of text to filter out
-    FILTERS = ['Master', 'Single', 'Consol', 'Please', 'Hello ']
     text = entry.get('1.0', tk.END)
     res_list = (text.rstrip().split('\n')) 
     print('Raw input: \n', res_list)
     res_list = [item[:6] for item in res_list]
     print('Parsing first 6 characters...\n', res_list)
 
+    print('Checking for invalid load numbers...\n')
+    
     try:
-        print('Checking for invalid load numbers...\n')
-        res_list_int = [int(i) for i in res_list]
+        int_check = [int(i) for i in res_list]
         messagebox.showinfo('Success!', 'Input values all integers.')
     except Exception as e:
-        print(e)
-        messagebox.showerror('Alert', 'Invalid values were present, please verify output for accuracy.')
-    finally:
-        res_list = list(filter(lambda item: len(item) == 6 and item not in FILTERS, res_list))
-        # res_list = list(filter(lambda item: len(item) == 6 and item != 'Master' and item !='Single' and item != 'Consol' and item != 'Please' and item != 'Hello ', res_list))
-        print('Dropping invalid load numbers...\n', res_list)
-    if all(len(i) == 6 for i in res_list):
-        print('probably valid load numbers!')
+        messagebox.showinfo('Attention Needed!', 'Non-integer values found. Check output for accuracy.')
+
+    res_list_int = []
+    for i in res_list:
+        try:
+            int(i)
+            res_list_int.append(i)
+        except Exception as e:
+            print(f'{i} is not an integer.')
+  
+    if all(len(i) == 6 for i in res_list_int):
+        print('probably all valid load numbers!')
     else:
-        print('invalid load numbers!')
+        res_list_int = list(filter(lambda x: len(x) == 6, res_list_int))
+        print('invalid load numbers present!')
     
-    output = "['" + "', '".join(res_list) + "']"
+    output = "['" + "', '".join(res_list_int) + "']"
 
     print(output)
 
