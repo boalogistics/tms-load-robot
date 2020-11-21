@@ -13,7 +13,7 @@ if len(sys.argv) < 2:
 # initialize logger
 logging.config.fileConfig(fname='logs/cfg/upload.conf')
 logger = logging.getLogger('')
-logging.info('==========')
+logging.info('='*100)
 
 BASE_URL = 'https://boa.3plsystemscloud.com/'
 browser = tms.login(BASE_URL)
