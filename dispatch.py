@@ -17,7 +17,7 @@ logger = logging.getLogger('')
 exportreport = logging.FileHandler(filename='logs/dispatch_export.csv', mode='w+')
 formatter = logging.Formatter()
 exportreport.setFormatter(formatter)
-logger.addHandler(report)
+logger.addHandler(exportreport)
 print('Logger initialized.')
 
 # variables to count final results of loads
