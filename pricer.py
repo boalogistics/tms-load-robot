@@ -10,11 +10,11 @@ import pandas as pd
 from selenium.webdriver.common.keys import Keys
 import tms_login as tms
 import discount
-# import discount_sept as discount
 import passport
 import wildbrine
 # import pocino
 import papacantella
+import svd
 
 
 def enter_billing(load, price, discount_amt=0):
@@ -41,7 +41,6 @@ def enter_billing(load, price, discount_amt=0):
         if discount_amt:
             discount.apply_discount(load, discount_amt, browser)
             logging.info(f'{load} discounted {discount_amt} ({float(discount_amt) / price})')
-
 
         save_price_btn = browser.find_element_by_id('btnUpdateCosts')
         save_price_btn.click()
@@ -104,25 +103,48 @@ else:
 
 # output file extension is .xls but is actually.html format
 filepath = f'{DOWNLOAD_FOLDER}\\{file_name}'
-# filepath = 'Pricer_Discounter20201106.xls'
 data = pd.read_html(filepath)
 df = data[0]
 load_table = df[[
-    'Load #', 'Consignee', 'S/ City', 'S/ State', 'C/ City',
+    'Load #', 'Customer Name', 'Consignee', 'S/ City', 'S/ State', 'C/ City',
     'C/ State', 'C/ Zip', 'Equipment', 'Pallets', 'Weight', 'Base Retail', 'Cost', 'Billed', 'Customer #'
     ]].drop(len(df.index)-1)
 
 # filter rows that have 0 Base Retail entered
-load_table = load_table[int(load_table['Base Retail']) == 0]
+load_table['Base Retail'] = pd.to_numeric(load_table['Base Retail'], downcast='float')
+priced = load_table[load_table['Base Retail'] != 0]
+print('Following loads already priced')
+print(priced)
+load_table = load_table[load_table['Base Retail'] == 0]
+print(load_table)
 
 # TODO store client name + id in json
+
+client_dict = {
+    'passport': 1495,
+    'stir': 1374,
+    'wildbrine': 890,
+    'papacantella': 1232,
+    'pocino': 933,
+    'svd': 611
+}
+
+client_df_dict ={}
+
+for key in client_dict:
+    # TODO add condition to ignore empty DFs
+    client_df_dict[key] = load_table[load_table['Customer #'] == client_dict[key]]
+
+print(client_df_dict)
+
 passport_df = load_table[load_table['Customer #'] == 1495]
 stir_df = load_table[load_table['Customer #'] == 1374]
 wildbrine_df = load_table[load_table['Customer #'] == 890]
 papacantella_df = load_table[load_table['Customer #'] == 1232]
 pocino_df = load_table[load_table['Customer #'] == 933]
+svd_df = load_table[load_table['Customer #'] == 611]
 
-export_df = pd.DataFrame([['Load', 'City-State', 'Pallets', 'Base Retail', 'Margin']])
+export_df = pd.DataFrame([['Customer Name', 'Load', 'City-State', 'Pallets', 'Base Retail', 'Margin']])
 
 if len(passport_df.index) > 0:
     passport_df.reset_index(drop=True, inplace=True)
@@ -130,25 +152,23 @@ if len(passport_df.index) > 0:
         current_row = passport_df.iloc[row]
         current_load = current_row['Load #']
         current_plts = current_row['Pallets']
-        # current_retail = current_row['Base Retail']
         current_cs = current_row['C/ City'] + ', ' + current_row['C/ State']
+        base_retail = '-'
         margin = '-'
 
-        # if current_retail != 0.0:    
         try:
-            if current_plts < 21 or current_row['C/ City'] == 'Mira Loma' or current_row['C/ City'] == 'Tracy':
+            if current_plts <= 20 or current_row['C/ City'] == 'Mira Loma' or current_row['C/ City'] == 'Tracy':
                 selling_price = passport.get_price(current_row)
-                # enter_billing(*selling_price)
+                base_retail = selling_price[1]
+                enter_billing(*selling_price)
                 margin = (current_row['Billed'] + selling_price[1] - current_row['Cost']) / (current_row['Billed'] + selling_price[1])
                 logging.info(str(current_load) + ' ' + current_cs + ' margin: ' + str(margin) + ', pallets: ' + str(current_plts))
             else:
                 logging.info(str(current_load) + ' exceeds 20 pallets: ' + str(current_plts))
         except Exception as e:
             logging.info(str(current_load) +  ' errored. No rate found for ' + repr(e))
-        # else:
-        #     logging.info(str(current_load) + ' already has base retail entered: ' + str(current_retail))
         
-        export_row = pd.DataFrame([[current_load, current_cs, current_plts, margin]])
+        export_row = pd.DataFrame([[current_row['Customer Name'], current_load, current_cs, current_plts, base_retail, margin]])
         export_df = pd.concat([export_df, export_row], ignore_index=False)
         
 if len(stir_df.index) > 0:
@@ -157,24 +177,24 @@ if len(stir_df.index) > 0:
         current_row = stir_df.iloc[row]
         current_load = current_row['Load #']
         current_plts = current_row['Pallets']
-        # current_retail = current_row['Base Retail']
         current_cs = current_row['C/ City'] + ', ' + current_row['C/ State']
+        base_retail = '-'
         margin = '-'
 
         try:
             current_row = stir_df.iloc[row]
             # TODO how to account for rates not on table? and manually entered existing?
-            # check if Base Retail == 0
             selling_price = discount.get_price(current_row)
-            discount_amt = discount.get_discount(current_row, selling_price[1])
-            # enter_billing(*selling_price, discount_amt)
-            margin = (current_row['Billed'] + selling_price[1] - current_row['Cost'] + discount_amt) / (current_row['Billed'] + selling_price[1])
+            # removing costco discount
+            # discount_amt = discount.get_discount(current_row, selling_price[1])
+            base_retail = selling_price[1]
+            enter_billing(*selling_price)
+            margin = (current_row['Billed'] + selling_price[1] - current_row['Cost']) / (current_row['Billed'] + selling_price[1])
             logging.info(str(current_load) + ' ' + current_cs + ' margin: ' + str(margin) + ', pallets: ' + str(current_plts))
-            # print(*selling_price, discount_amt)
         except Exception as e:
             logging.info(str(current_row['Load #']) +  ' errored. No rate found for ' + repr(e))
 
-        export_row = pd.DataFrame([[current_load, current_cs, current_plts, margin]])
+        export_row = pd.DataFrame([[current_row['Customer Name'], current_load, current_cs, current_plts, base_retail, margin]])
         export_df = pd.concat([export_df, export_row], ignore_index=False)
 
 if len(wildbrine_df.index) > 0:
@@ -183,14 +203,14 @@ if len(wildbrine_df.index) > 0:
         current_row = wildbrine_df.iloc[row]
         current_load = current_row['Load #']
         current_plts = current_row['Pallets']
-        # current_retail = current_row['Base Retail']
         current_cs = current_row['C/ City'] + ', ' + current_row['C/ State']
+        base_retail = '-'
         margin = '-'
 
-        # if current_retail != 0.0:    
         try:
-            if current_plts < 10:
+            if current_plts <= 9:
                 selling_price = wildbrine.get_price(current_row)
+                base_retail = selling_price[1]
                 # enter_billing(*selling_price)
                 margin = (current_row['Billed'] + selling_price[1] - current_row['Cost']) / (current_row['Billed'] + selling_price[1])
                 logging.info(str(current_load) + ' ' + current_cs + ' margin: ' + str(margin) + ', pallets: ' + str(current_plts))
@@ -198,10 +218,8 @@ if len(wildbrine_df.index) > 0:
                 logging.info(str(current_load) + ' exceeds 9 pallets: ' + str(current_plts))
         except Exception as e:
             logging.info(str(current_load) +  ' errored. No rate found for ' + repr(e))
-        # else:
-        #     logging.info(str(current_load) + ' already has base retail entered: ' + str(current_retail))
         
-        export_row = pd.DataFrame([[current_load, current_cs, current_plts, margin]])
+        export_row = pd.DataFrame([[current_row['Customer Name'], current_load, current_cs, current_plts, base_retail, margin]])
         export_df = pd.concat([export_df, export_row], ignore_index=False)
 
 if len(papacantella_df.index) > 0:
@@ -210,14 +228,14 @@ if len(papacantella_df.index) > 0:
         current_row = papacantella_df.iloc[row]
         current_load = current_row['Load #']
         current_plts = current_row['Pallets']
-        # current_retail = current_row['Base Retail']
         current_cs = current_row['C/ City'] + ', ' + current_row['C/ State']
+        base_retail = '-'
         margin = '-'
 
-        # if current_retail != 0.0:    
         try:
-            if current_plts < 15:
+            if current_plts <= 14:
                 selling_price = papacantella.get_price(current_row)
+                base_retail = selling_price[1]
                 # enter_billing(*selling_price)
                 margin = (current_row['Billed'] + selling_price[1] - current_row['Cost']) / (current_row['Billed'] + selling_price[1])
                 logging.info(str(current_load) + ' ' + current_cs + ' margin: ' + str(margin) + ', pallets: ' + str(current_plts))
@@ -225,10 +243,33 @@ if len(papacantella_df.index) > 0:
                 logging.info(str(current_load) + ' exceeds 14 pallets: ' + str(current_plts))
         except Exception as e:
             logging.info(str(current_load) +  ' errored. No rate found for ' + repr(e))
-        # else:
-        #     logging.info(str(current_load) + ' already has base retail entered: ' + str(current_retail))
         
-        export_row = pd.DataFrame([[current_load, current_cs, current_plts, margin]])
+        export_row = pd.DataFrame([[current_row['Customer Name'], current_load, current_cs, current_plts, base_retail, margin]])
+        export_df = pd.concat([export_df, export_row], ignore_index=False)
+
+if len(svd_df.index) > 0:
+    svd_df.reset_index(drop=True, inplace=True)
+    for row in svd_df.index:
+        current_row = svd_df.iloc[row]
+        current_load = current_row['Load #']
+        current_plts = current_row['Pallets']
+        current_cs = current_row['C/ City'] + ', ' + current_row['C/ State']
+        base_retail = '-'
+        margin = '-'
+
+        try:
+            if current_plts <= 24 and current_row['Weight'] <= 30600:
+                selling_price = svd.get_price(current_row)
+                base_retail = selling_price[1]
+                # enter_billing(*selling_price)
+                margin = (current_row['Billed'] + selling_price[1] - current_row['Cost']) / (current_row['Billed'] + selling_price[1])
+                logging.info(str(current_load) + ' ' + current_cs + ' margin: ' + str(margin) + ', pallets: ' + str(current_plts))
+            else:
+                logging.info(str(current_load) + ' exceeds max weight / pallet (30,600 / 24): ' + str(current_row['Weight']) + ' / ' + str(current_plts))
+        except Exception as e:
+            logging.info(str(current_load) +  ' errored. No rate found for ' + repr(e))
+        
+        export_row = pd.DataFrame([[current_row['Customer Name'], current_load, current_cs, current_plts, base_retail, margin]])
         export_df = pd.concat([export_df, export_row], ignore_index=False)
 
 # if len(pocino_df.index) > 0:
