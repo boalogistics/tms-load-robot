@@ -3,15 +3,12 @@ import pandas as pd
 
 
 def get_price(df_row):
-    origin = df_row['S/ City'] + ', ' + df_row['S/ State']
-    destination = df_row['C/ City'] + ', ' + df_row['C/ State']
+    destination = df_row['C/ City'] + ', ' + df_row['C/ State'] + ' ' + df_row['C/ Zip'].astype(int).astype(str).zfill(5)
 
-    zipcode = df_row['C/ Zip']
     pallets = df_row['Pallets']
 
     rate_table = pd.read_excel('db/pocino.xlsx')
     df = pd.DataFrame(rate_table)
-    # df = pd.pivot_table(df, index=['Destination'])
-    print(df)
-    retail = df.loc[zipcode].loc[destination][pallets+1]
+    df = pd.pivot_table(df, index=['Destination'])
+    retail = df.loc[destination][pallets]
     return [df_row['Load #'], retail]
