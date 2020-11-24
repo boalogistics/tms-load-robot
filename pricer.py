@@ -16,6 +16,7 @@ import pocino
 import papacantella
 import svd
 import perfectbar
+import reynaldos
 
 
 def enter_billing(load, price, discount_amt=0):
@@ -128,7 +129,8 @@ client_dict = {
     'papacantella': 1232,
     'pocino': 933,
     'svd': 611,
-    'perfectbar': 1364
+    'perfectbar': 1364,
+    'reynaldos': 766
 }
 
 client_df_dict ={}
@@ -145,6 +147,7 @@ papacantella_df = load_table[load_table['Customer #'] == 1232]
 pocino_df = load_table[load_table['Customer #'] == 933]
 svd_df = load_table[load_table['Customer #'] == 611]
 perfectbar_df = load_table[load_table['Customer #'] == 1364]
+reynaldos_df = load_table[load_table['Customer #'] == 766]
 
 export_df = pd.DataFrame([['Customer Name', 'Load', 'City-State', 'Pallets', 'Base Retail', 'Margin']])
 
@@ -318,6 +321,31 @@ if len(perfectbar_df.index) > 0:
                 logging.info(str(current_load) + ' ' + current_cs + ' margin: ' + str(margin) + ', pallets: ' + str(current_plts))
             else:
                 logging.info(str(current_load) + ' exceeds 5 pallets: ' + str(current_plts))
+        except Exception as e:
+            logging.info(str(current_load) +  ' errored. No rate found for ' + repr(e))
+        
+        export_row = pd.DataFrame([[current_row['Customer Name'], current_load, current_cs, current_plts, base_retail, margin]])
+        export_df = pd.concat([export_df, export_row], ignore_index=False)
+
+if len(reynaldos_df.index) > 0:
+    reynaldos_df.reset_index(drop=True, inplace=True)
+    for row in reynaldos_df.index:
+        current_row = reynaldos_df.iloc[row]
+        current_load = current_row['Load #']
+        current_plts = current_row['Pallets']
+        current_cs = current_row['C/ City'] + ', ' + current_row['C/ State']
+        base_retail = '-'
+        margin = '-'
+
+        try:
+            if current_plts <= 12:
+                selling_price = reynaldos.get_price(current_row)
+                base_retail = selling_price[1]
+                # enter_billing(*selling_price)
+                margin = (current_row['Billed'] + selling_price[1] - current_row['Cost']) / (current_row['Billed'] + selling_price[1])
+                logging.info(str(current_load) + ' ' + current_cs + ' margin: ' + str(margin) + ', pallets: ' + str(current_plts))
+            else:
+                logging.info(str(current_load) + ' exceeds 12 pallets: ' + str(current_plts))
         except Exception as e:
             logging.info(str(current_load) +  ' errored. No rate found for ' + repr(e))
         
