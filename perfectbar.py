@@ -3,7 +3,7 @@ import pandas as pd
 
 
 def get_price(df_row):
-    destination = df_row['C/ City'] + ', ' + df_row['C/ State'] + ' ' + df_row['C/ Zip'].astype(int).astype(str).zfill(5)
+    destination = df_row['C/ City'] + ', ' + df_row['C/ State'] + ' ' + df_row['C/ Zip'].zfill(5)
 
     pallets = df_row['Pallets']
 
