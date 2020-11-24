@@ -193,7 +193,7 @@ if len(stir_df.index) > 0:
             # removing costco discount
             # discount_amt = discount.get_discount(current_row, selling_price[1])
             base_retail = selling_price[1]
-            enter_billing(*selling_price)
+            # enter_billing(*selling_price)
             margin = (current_row['Billed'] + selling_price[1] - current_row['Cost']) / (current_row['Billed'] + selling_price[1])
             logging.info(str(current_load) + ' ' + current_cs + ' margin: ' + str(margin) + ', pallets: ' + str(current_plts))
         except Exception as e:
@@ -216,7 +216,7 @@ if len(wildbrine_df.index) > 0:
             if current_plts <= 9:
                 selling_price = wildbrine.get_price(current_row)
                 base_retail = selling_price[1]
-                # enter_billing(*selling_price)
+                enter_billing(*selling_price)
                 margin = (current_row['Billed'] + selling_price[1] - current_row['Cost']) / (current_row['Billed'] + selling_price[1])
                 logging.info(str(current_load) + ' ' + current_cs + ' margin: ' + str(margin) + ', pallets: ' + str(current_plts))
             else:
@@ -241,7 +241,7 @@ if len(papacantella_df.index) > 0:
             if current_plts <= 14:
                 selling_price = papacantella.get_price(current_row)
                 base_retail = selling_price[1]
-                # enter_billing(*selling_price)
+                enter_billing(*selling_price)
                 margin = (current_row['Billed'] + selling_price[1] - current_row['Cost']) / (current_row['Billed'] + selling_price[1])
                 logging.info(str(current_load) + ' ' + current_cs + ' margin: ' + str(margin) + ', pallets: ' + str(current_plts))
             else:
@@ -266,7 +266,7 @@ if len(svd_df.index) > 0:
             if current_plts <= 24 and current_row['Weight'] <= 30600:
                 selling_price = svd.get_price(current_row)
                 base_retail = selling_price[1]
-                # enter_billing(*selling_price)
+                enter_billing(*selling_price)
                 margin = (current_row['Billed'] + selling_price[1] - current_row['Cost']) / (current_row['Billed'] + selling_price[1])
                 logging.info(str(current_load) + ' ' + current_cs + ' margin: ' + str(margin) + ', pallets: ' + str(current_plts))
             else:
@@ -291,7 +291,7 @@ if len(pocino_df.index) > 0:
             if current_plts <= 15:
                 selling_price = pocino.get_price(current_row)
                 base_retail = selling_price[1]
-                # enter_billing(*selling_price)
+                enter_billing(*selling_price)
                 margin = (current_row['Billed'] + selling_price[1] - current_row['Cost']) / (current_row['Billed'] + selling_price[1])
                 logging.info(str(current_load) + ' ' + current_cs + ' margin: ' + str(margin) + ', pallets: ' + str(current_plts))
             else:
@@ -316,7 +316,7 @@ if len(perfectbar_df.index) > 0:
             if current_plts <= 5:
                 selling_price = perfectbar.get_price(current_row)
                 base_retail = selling_price[1]
-                # enter_billing(*selling_price)
+                enter_billing(*selling_price)
                 margin = (current_row['Billed'] + selling_price[1] - current_row['Cost']) / (current_row['Billed'] + selling_price[1])
                 logging.info(str(current_load) + ' ' + current_cs + ' margin: ' + str(margin) + ', pallets: ' + str(current_plts))
             else:
@@ -341,7 +341,7 @@ if len(reynaldos_df.index) > 0:
             if current_plts <= 12:
                 selling_price = reynaldos.get_price(current_row)
                 base_retail = selling_price[1]
-                # enter_billing(*selling_price)
+                enter_billing(*selling_price)
                 margin = (current_row['Billed'] + selling_price[1] - current_row['Cost']) / (current_row['Billed'] + selling_price[1])
                 logging.info(str(current_load) + ' ' + current_cs + ' margin: ' + str(margin) + ', pallets: ' + str(current_plts))
             else:
