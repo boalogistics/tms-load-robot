@@ -3,10 +3,7 @@ import logging.config
 import time
 import os
 import pandas as pd
-from selenium import webdriver
 from datetime import date, datetime, timedelta
-from selenium.webdriver.support.ui import Select, WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
 import tms_login as tms
 
 # initialize logger
