@@ -12,3 +12,5 @@ geckodriver.log
 *.exe
 *.log
 *_pi.py
+pricer.xlsx
+export.xlsx
