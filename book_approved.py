@@ -1,27 +1,22 @@
+import logging
+import logging.config
+import time
+import os
+import pandas as pd
 from selenium import webdriver
 from datetime import date, datetime, timedelta
 from selenium.webdriver.support.ui import Select, WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-import time
-import os
-import pandas as pd
+import tms_login as tms
 
+# initialize logger
+print('Initializing logger...')
+logging.config.fileConfig(fname='logs/cfg/book.conf')
+logger = logging.getLogger('')
 
-# activate chrome driver
-browser = webdriver.Chrome()
-browser.maximize_window()
-browser.get("https://boa.3plsystemscloud.com/")
-
-# page elements to login
-boa_user = browser.find_element_by_id("txb-username")
-boa_pw = browser.find_element_by_id("txb-password")
-login_button = browser.find_element_by_id("ctl00_ContentBody_butLogin")
-
-# login credentials
-boa_user.send_keys("***EMAIL HERE***")
-boa_pw.send_keys("***PASSWORD HERE***")
-login_button.click()
-
+url = 'https://boa.3plsystemscloud.com/'
+browser = tms.login(url, False)
+print('Logged into TMS.')
 
 load_list = ['175899', '176308', '176309', '176310', '176311', '176312', '176313', '176314', '176315', '176316', '176317', '176400', '176401', '176402', '176403', '176404', '176616', '176618', '176681', '176682', '176683', '176684', '176781', '176782', '176783', '176784', '176785', '176786', '176787', '176788']
 
