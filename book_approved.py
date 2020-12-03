@@ -2,23 +2,29 @@ import logging
 import logging.config
 import time
 import os
+import sys
 import pandas as pd
 from datetime import date, datetime, timedelta
 import tms_login as tms
+
+if len(sys.argv) < 2:
+    print('Error: Expected TXT file as argument.')
+    sys.exit()
 
 # initialize logger
 print('Initializing logger...')
 logging.config.fileConfig(fname='logs/cfg/book.conf')
 logger = logging.getLogger('')
 
+loads_file = open(sys.argv[1], 'r')
+listified = loads_file.read().strip('][').split(', ')
+loadlist = [load.strip("'") for load in listified]
+
 url = 'https://boa.3plsystemscloud.com/'
 browser = tms.login(url, False)
 print('Logged into TMS.')
 
-load_list = ['175899', '176308', '176309', '176310', '176311', '176312', '176313', '176314', '176315', '176316', '176317', '176400', '176401', '176402', '176403', '176404', '176616', '176618', '176681', '176682', '176683', '176684', '176781', '176782', '176783', '176784', '176785', '176786', '176787', '176788']
-
-
-for x in load_list:
+for x in loadlist:
     load_id = x
     load_url = 'https://boa.3plsystemscloud.com/App_BW/staff/shipment/shipmentDetail.aspx?loadid='+load_id
     browser.get(load_url)
