@@ -34,9 +34,9 @@ for x in load_list:
     if quote_status:
         js_book = 'WebForm_DoPostBackWithOptions(new WebForm_PostBackOptions("ctl00$BodyContent$lbBookShipment", "", true, "", "", false, true))'
         browser.execute_script(js_book)
-        print(f'{load_id} booked.')
+        logging.info(f'{load_id} booked.')
     else:
-        print(f'{load_id} not booked.')        
+        logging.info(f'{load_id} not booked.')        
             
     not_trace_priority = status.find('TRACE') == -1  
         
@@ -53,5 +53,9 @@ for x in load_list:
         # save changes
         update_btn = browser.find_element_by_css_selector('[value="Update"]')
         update_btn.click()
+        logging.info(f'{load_id} marked Trace priority.')
 
 browser.quit()
+print('Browser closed.')
+logging.shutdown()
+print('Logger closed.')
