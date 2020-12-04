@@ -6,10 +6,14 @@ from selenium.webdriver.support.ui import WebDriverWait
 import tms_login as tms
 from data_extract import open_sheet
 
-sheet = open_sheet('Warehousing Sheet Data Feed', 'client_update_query')
-loads = sheet.get_all_values() 
+load_list = []
 
-load_list = [load[0] for load in loads[1:]]
+# repeat until sheet returns list of load numbers
+while len(load_list) == 0:
+    sheet = open_sheet('Warehousing Sheet Data Feed', 'client_update_query')
+    loads = sheet.get_all_values() 
+    load_list = [load[0] for load in loads[1:]]
+
 print(load_list)
 
 # set to Chrome default download folder - BOA CITRIX DESKTOP DEFAULT SETTINGS
