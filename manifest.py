@@ -39,7 +39,7 @@ save_report_btn.click()
 browser.implicitly_wait(3)
 download = browser.find_element_by_id('ctl00_ContentBody_butExportToExcel')
 download.click()
-time.sleep(1)
+time.sleep(3)
 browser.quit()
 
 # list of files in Downloads folder after downloading to extract filename
