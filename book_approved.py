@@ -5,6 +5,7 @@ import os
 import sys
 import pandas as pd
 from datetime import date, datetime, timedelta
+from selenium.webdriver.support.ui import Select
 import tms_login as tms
 
 if len(sys.argv) < 2:
