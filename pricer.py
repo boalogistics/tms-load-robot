@@ -9,7 +9,8 @@ import time
 import pandas as pd
 from selenium.webdriver.common.keys import Keys
 import tms_login as tms
-import discount
+# import discount
+import stir_nov as discount
 import passport
 import wildbrine
 import pocino
@@ -149,7 +150,7 @@ svd_df = load_table[load_table['Customer #'] == 611]
 perfectbar_df = load_table[load_table['Customer #'] == 1364]
 reynaldos_df = load_table[load_table['Customer #'] == 766]
 
-export_df = pd.DataFrame([['Customer Name', 'Load', 'City-State', 'Pallets', 'Base Retail', 'Margin']])
+export_df = pd.DataFrame([['Customer Name', 'Load', 'Destination', 'Pallets', 'Base Retail', 'Margin']])
 
 if len(passport_df.index) > 0:
     passport_df.reset_index(drop=True, inplace=True)
@@ -193,7 +194,7 @@ if len(stir_df.index) > 0:
             # removing costco discount
             # discount_amt = discount.get_discount(current_row, selling_price[1])
             base_retail = selling_price[1]
-            # enter_billing(*selling_price)
+            enter_billing(*selling_price)
             margin = (current_row['Billed'] + selling_price[1] - current_row['Cost']) / (current_row['Billed'] + selling_price[1])
             logging.info(str(current_load) + ' ' + current_cs + ' margin: ' + str(margin) + ', pallets: ' + str(current_plts))
         except Exception as e:
@@ -313,14 +314,14 @@ if len(perfectbar_df.index) > 0:
         margin = '-'
 
         try:
-            if current_plts <= 5:
+            if current_plts <= 10:
                 selling_price = perfectbar.get_price(current_row)
                 base_retail = selling_price[1]
                 enter_billing(*selling_price)
                 margin = (current_row['Billed'] + selling_price[1] - current_row['Cost']) / (current_row['Billed'] + selling_price[1])
                 logging.info(str(current_load) + ' ' + current_cs + ' margin: ' + str(margin) + ', pallets: ' + str(current_plts))
             else:
-                logging.info(str(current_load) + ' exceeds 5 pallets: ' + str(current_plts))
+                logging.info(str(current_load) + ' exceeds 10 pallets: ' + str(current_plts))
         except Exception as e:
             logging.info(str(current_load) +  ' errored. No rate found for ' + repr(e))
         
