@@ -105,6 +105,6 @@ def apply_discount(load, discount_amt, WebdriverObject):
 def verify_month():
     print('Stir rates set to December on.')
     verify = 'narf'
-    while verify != 'Y' or verify != 'N':
+    while verify != 'Y' and verify != 'N':
         verify = input('Continue? (Y)es or (N)o: ').upper()
     return verify == 'Y'
