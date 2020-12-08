@@ -23,6 +23,11 @@ report.setFormatter(formatter)
 logger.addHandler(report)
 print('Logger initialized.')
 
+# constant file for emailing
+exportreport = logging.FileHandler(filename='logs/book_export.csv', mode='w+')
+exportreport.setFormatter(formatter)
+logger.addHandler(exportreport)
+
 # set to Chrome default download folder - BOA CITRIX DESKTOP DEFAULT SETTINGS
 DOWNLOAD_FOLDER = f"C:\\Users\\{getpass.getuser().title()}\\Downloads"
 
