@@ -101,3 +101,10 @@ def apply_discount(load, discount_amt, WebdriverObject):
         discount_input.send_keys(str(discount_amt))
     except Exception as e:
         logging.info(f'{load} threw {repr(e)}')
+
+def verify_month():
+    print('Stir rates set to December on.')
+    verify = 'narf'
+    while verify != 'Y' and verify != 'N':
+        verify = input('Continue? (Y)es or (N)o: ').upper()
+    return verify == 'Y'
