@@ -9,8 +9,8 @@ import time
 import pandas as pd
 from selenium.webdriver.common.keys import Keys
 import tms_login as tms
-# import discount
-import stir_nov as discount
+import discount
+# import stir_nov as discount
 import passport
 import wildbrine
 import pocino
@@ -94,7 +94,7 @@ save_report_btn.click()
 browser.implicitly_wait(3)
 download = browser.find_element_by_id('ctl00_ContentBody_butExportToExcel')
 download.click()
-time.sleep(1)
+time.sleep(3)
 
 # list of files in Downloads folder after downloading to extract filename
 after = os.listdir(DOWNLOAD_FOLDER)
