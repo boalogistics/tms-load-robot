@@ -8,7 +8,7 @@ def get_price(df_row):
     temp = df_row['Equipment']
     pallets = df_row['Pallets']
 
-    rate_table = pd.read_excel('db/passport.xlsx')
+    rate_table = pd.read_excel('db/passport.xlsx', engine='openpyxl')
     key = json.load(open('db/equipment.json', 'r'))
     df = pd.DataFrame(rate_table)
     df = pd.pivot_table(df, index=['Origin', 'Temp', 'Destination'])

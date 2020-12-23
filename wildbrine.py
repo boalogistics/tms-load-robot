@@ -6,7 +6,7 @@ def get_price(df_row):
     destination = df_row['C/ City'] + ', ' + df_row['C/ State']
     pallets = df_row['Pallets']
 
-    rate_table = pd.read_excel('db/wildbrine.xlsx')
+    rate_table = pd.read_excel('db/wildbrine.xlsx', engine='openpyxl')
     df = pd.DataFrame(rate_table)
     df = pd.pivot_table(df, index=['Destination'])
     retail = df.loc[destination][pallets]
