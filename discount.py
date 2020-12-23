@@ -25,7 +25,7 @@ def get_price(df_row):
     weight = df_row['Weight']
     pallets = df_row['Pallets']
 
-    rate_df_row = pd.read_excel('db/stir.xlsx')
+    rate_df_row = pd.read_excel('db/stir.xlsx', engine='openpyxl')
     key = json.load(open('db/region.json', 'r'))
     df = pd.DataFrame(rate_df_row)
     df = pd.pivot_table(df, index=['Origin', 'Destination'])

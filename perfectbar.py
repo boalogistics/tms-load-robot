@@ -7,7 +7,7 @@ def get_price(df_row):
 
     pallets = df_row['Pallets']
 
-    rate_table = pd.read_excel('db/perfectbar.xlsx')
+    rate_table = pd.read_excel('db/perfectbar.xlsx', engine='openpyxl')
     df = pd.DataFrame(rate_table)
     df = pd.pivot_table(df, index=['Destination'])
     retail = df.loc[destination][pallets]
