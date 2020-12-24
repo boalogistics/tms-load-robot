@@ -177,10 +177,10 @@ if len(passport_df.index) > 0:
                 logging.info(str(current_load) + ' exceeds 20 pallets: ' + str(current_plts))
         except Exception as e:
             logging.info(str(current_load) +  ' errored. No rate found for ' + repr(e))
-        
+
         export_row = pd.DataFrame([[current_row['Customer Name'], current_load, current_cs, current_plts, base_retail, margin]])
         export_df = pd.concat([export_df, export_row], ignore_index=False)
-        
+
 if len(stir_df.index) > 0:
     stir_df.reset_index(drop=True, inplace=True)
     for row in stir_df.index:
@@ -228,7 +228,7 @@ if len(wildbrine_df.index) > 0:
                 logging.info(str(current_load) + ' exceeds 9 pallets: ' + str(current_plts))
         except Exception as e:
             logging.info(str(current_load) +  ' errored. No rate found for ' + repr(e))
-        
+
         export_row = pd.DataFrame([[current_row['Customer Name'], current_load, current_cs, current_plts, base_retail, margin]])
         export_df = pd.concat([export_df, export_row], ignore_index=False)
 
@@ -253,7 +253,7 @@ if len(papacantella_df.index) > 0:
                 logging.info(str(current_load) + ' exceeds 14 pallets: ' + str(current_plts))
         except Exception as e:
             logging.info(str(current_load) +  ' errored. No rate found for ' + repr(e))
-        
+
         export_row = pd.DataFrame([[current_row['Customer Name'], current_load, current_cs, current_plts, base_retail, margin]])
         export_df = pd.concat([export_df, export_row], ignore_index=False)
 
@@ -278,7 +278,7 @@ if len(svd_df.index) > 0:
                 logging.info(str(current_load) + ' exceeds max weight / pallet (30,600 / 24): ' + str(current_row['Weight']) + ' / ' + str(current_plts))
         except Exception as e:
             logging.info(str(current_load) +  ' errored. No rate found for ' + repr(e))
-        
+
         export_row = pd.DataFrame([[current_row['Customer Name'], current_load, current_cs, current_plts, base_retail, margin]])
         export_df = pd.concat([export_df, export_row], ignore_index=False)
 
@@ -303,7 +303,7 @@ if len(pocino_df.index) > 0:
                 logging.info(str(current_load) + ' exceeds 15 pallets: ' + str(current_plts))
         except Exception as e:
             logging.info(str(current_load) +  ' errored. No rate found for ' + repr(e))
-        
+
         export_row = pd.DataFrame([[current_row['Customer Name'], current_load, current_cs, current_plts, base_retail, margin]])
         export_df = pd.concat([export_df, export_row], ignore_index=False)
 
@@ -328,7 +328,7 @@ if len(perfectbar_df.index) > 0:
                 logging.info(str(current_load) + ' exceeds 10 pallets: ' + str(current_plts))
         except Exception as e:
             logging.info(str(current_load) +  ' errored. No rate found for ' + repr(e))
-        
+
         export_row = pd.DataFrame([[current_row['Customer Name'], current_load, current_cs, current_plts, base_retail, margin]])
         export_df = pd.concat([export_df, export_row], ignore_index=False)
 
@@ -353,7 +353,7 @@ if len(reynaldos_df.index) > 0:
                 logging.info(str(current_load) + ' exceeds 12 pallets: ' + str(current_plts))
         except Exception as e:
             logging.info(str(current_load) +  ' errored. No rate found for ' + repr(e))
-        
+
         export_row = pd.DataFrame([[current_row['Customer Name'], current_load, current_cs, current_plts, base_retail, margin]])
         export_df = pd.concat([export_df, export_row], ignore_index=False)
 
