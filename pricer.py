@@ -162,7 +162,7 @@ if len(passport_df.index) > 0:
         current_row = passport_df.iloc[row]
         current_load = current_row['Load #']
         current_plts = current_row['Pallets']
-        current_cs = current_row['C/ City'] + ', ' + current_row['C/ State']
+        current_cs = f'{current_row["C/ City"]}, {current_row["C/ State"]}'
         base_retail = '-'
         margin = '-'
 
@@ -172,11 +172,11 @@ if len(passport_df.index) > 0:
                 base_retail = selling_price[1]
                 enter_billing(*selling_price)
                 margin = (current_row['Billed'] + selling_price[1] - current_row['Cost']) / (current_row['Billed'] + selling_price[1])
-                logging.info(str(current_load) + ' ' + current_cs + ' margin: ' + str(margin) + ', pallets: ' + str(current_plts))
+                logging.info(f'{str(current_load)} {current_cs} margin: {str(margin)}, pallets: {str(current_plts)}')
             else:
-                logging.info(str(current_load) + ' exceeds 20 pallets: ' + str(current_plts))
+                logging.info(f'{str(current_load)} exceeds 20 pallets: {str(current_plts)}')
         except Exception as e:
-            logging.info(str(current_load) +  ' errored. No rate found for ' + repr(e))
+            logging.info(f'{str(current_load)} errored. No rate found for {repr(e)}')
 
         export_row = pd.DataFrame([[current_row['Customer Name'], current_load, current_cs, current_plts, base_retail, margin]])
         export_df = pd.concat([export_df, export_row], ignore_index=False)
@@ -187,7 +187,7 @@ if len(stir_df.index) > 0:
         current_row = stir_df.iloc[row]
         current_load = current_row['Load #']
         current_plts = current_row['Pallets']
-        current_cs = current_row['C/ City'] + ', ' + current_row['C/ State']
+        current_cs = f'{current_row["C/ City"]}, {current_row["C/ State"]}'
         base_retail = '-'
         margin = '-'
 
@@ -200,9 +200,9 @@ if len(stir_df.index) > 0:
             base_retail = selling_price[1]
             enter_billing(*selling_price)
             margin = (current_row['Billed'] + selling_price[1] - current_row['Cost']) / (current_row['Billed'] + selling_price[1])
-            logging.info(str(current_load) + ' ' + current_cs + ' margin: ' + str(margin) + ', pallets: ' + str(current_plts))
+            logging.info(f'{str(current_load)} {current_cs} margin: {str(margin)}, pallets: {str(current_plts)}')
         except Exception as e:
-            logging.info(str(current_row['Load #']) +  ' errored. No rate found for ' + repr(e))
+            logging.info(f'{str(current_load)} errored. No rate found for {repr(e)}')
 
         export_row = pd.DataFrame([[current_row['Customer Name'], current_load, current_cs, current_plts, base_retail, margin]])
         export_df = pd.concat([export_df, export_row], ignore_index=False)
@@ -213,7 +213,7 @@ if len(wildbrine_df.index) > 0:
         current_row = wildbrine_df.iloc[row]
         current_load = current_row['Load #']
         current_plts = current_row['Pallets']
-        current_cs = current_row['C/ City'] + ', ' + current_row['C/ State']
+        current_cs = f'{current_row["C/ City"]}, {current_row["C/ State"]}'
         base_retail = '-'
         margin = '-'
 
@@ -223,11 +223,11 @@ if len(wildbrine_df.index) > 0:
                 base_retail = selling_price[1]
                 enter_billing(*selling_price)
                 margin = (current_row['Billed'] + selling_price[1] - current_row['Cost']) / (current_row['Billed'] + selling_price[1])
-                logging.info(str(current_load) + ' ' + current_cs + ' margin: ' + str(margin) + ', pallets: ' + str(current_plts))
+                logging.info(f'{str(current_load)} {current_cs} margin: {str(margin)}, pallets: {str(current_plts)}')
             else:
-                logging.info(str(current_load) + ' exceeds 9 pallets: ' + str(current_plts))
+                logging.info(f'{str(current_load)} exceeds 9 pallets: {str(current_plts)}')
         except Exception as e:
-            logging.info(str(current_load) +  ' errored. No rate found for ' + repr(e))
+            logging.info(f'{str(current_load)} errored. No rate found for {repr(e)}')
 
         export_row = pd.DataFrame([[current_row['Customer Name'], current_load, current_cs, current_plts, base_retail, margin]])
         export_df = pd.concat([export_df, export_row], ignore_index=False)
@@ -238,7 +238,7 @@ if len(papacantella_df.index) > 0:
         current_row = papacantella_df.iloc[row]
         current_load = current_row['Load #']
         current_plts = current_row['Pallets']
-        current_cs = current_row['C/ City'] + ', ' + current_row['C/ State']
+        current_cs = f'{current_row["C/ City"]}, {current_row["C/ State"]}'
         base_retail = '-'
         margin = '-'
 
@@ -248,11 +248,11 @@ if len(papacantella_df.index) > 0:
                 base_retail = selling_price[1]
                 enter_billing(*selling_price)
                 margin = (current_row['Billed'] + selling_price[1] - current_row['Cost']) / (current_row['Billed'] + selling_price[1])
-                logging.info(str(current_load) + ' ' + current_cs + ' margin: ' + str(margin) + ', pallets: ' + str(current_plts))
+                logging.info(f'{str(current_load)} {current_cs} margin: {str(margin)}, pallets: {str(current_plts)}')
             else:
-                logging.info(str(current_load) + ' exceeds 14 pallets: ' + str(current_plts))
+                logging.info(f'{str(current_load)} exceeds 14 pallets: {str(current_plts)}')
         except Exception as e:
-            logging.info(str(current_load) +  ' errored. No rate found for ' + repr(e))
+            logging.info(f'{str(current_load)} errored. No rate found for {repr(e)}')
 
         export_row = pd.DataFrame([[current_row['Customer Name'], current_load, current_cs, current_plts, base_retail, margin]])
         export_df = pd.concat([export_df, export_row], ignore_index=False)
@@ -263,7 +263,7 @@ if len(svd_df.index) > 0:
         current_row = svd_df.iloc[row]
         current_load = current_row['Load #']
         current_plts = current_row['Pallets']
-        current_cs = current_row['C/ City'] + ', ' + current_row['C/ State']
+        current_cs = f'{current_row["C/ City"]}, {current_row["C/ State"]}'
         base_retail = '-'
         margin = '-'
 
