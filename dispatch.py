@@ -114,4 +114,5 @@ logging.info(f'{loads_dispatched} loads dispatched.')
 logging.info(f'{loads_not_dispatched} loads not dispatched.')
 print('Browser closed.')
 
-os.startfile('logs\\dispatch.log')
+if os.name == 'nt':
+    os.startfile('logs\\dispatch.log')
