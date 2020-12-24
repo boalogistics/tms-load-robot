@@ -46,7 +46,7 @@ for truck in truck_dict_list:
         load = [truck['load_no'], carrier_lookup[carrier_name]]
         loadlist.append(load)
     except:
-        logging.info('Truck # ' + truck['truck_no'] + ', Load # ' + truck['load_no'] + ', ' + carrier_name + ' is not on the carrier list.')
+        logging.info(f'Truck # {truck["truck_no"]} Load # {truck["load_no"]} {carrier_name} is not on the carrier list.')
         loads_not_dispatched += 1
 
 url = 'https://boa.3plsystemscloud.com/'
@@ -83,7 +83,7 @@ for x in loadlist:
 
         if carrier_insurance_expired:
             carrier_name = browser.find_element_by_xpath(f"//div[@id='{PREFIX}divCarrierInfo']/div[1]/strong").text
-            logging.info(load_id + ' not dispatched. Carrier {}\'s insurance on file is expired.'.format(carrier_name))
+            logging.info(f'{load_id} not dispatched. Carrier {carrier_name}\'s insurance on file is expired.')
             loads_not_dispatched += 1
         else:
             # dispatch
