@@ -33,6 +33,8 @@ def getlist():
         print('invalid load numbers present!')
     
     output = "['" + "', '".join(res_list_int) + "']"
+    # uniquefy list by converting to set and back
+    output = list(set(output))
 
     print(output)
 
