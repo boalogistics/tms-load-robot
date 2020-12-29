@@ -2,6 +2,7 @@ import getpass
 import logging
 import logging.config
 import os
+import sys
 import time
 from datetime import date, datetime, timedelta
 import pandas as pd
@@ -9,22 +10,32 @@ from selenium.webdriver.support.ui import Select
 import tms_login as tms
 
 today = date.today()
-weekday = datetime.weekday(today)
 
-# sets up start date and end date for filter
-# checks if today is Monday to calculate previous business day 1pm
-if weekday == 0:
-    subtract_day = 2
+# set up start date and end date for filter
+# if no args passed automatically use prev bus. day to today
+if len(sys.argv) < 2:
+    weekday = datetime.weekday(today)
+
+    # checks if today is Monday to calculate previous business day 1pm
+    if weekday == 0:
+        subtract_day = 2
+    else:
+        subtract_day = 0
+
+    s_date = today + timedelta(-1 - subtract_day)
+    e_date = today
+    datestamp = today
+elif len(sys.argv) == 3:
+    # takes args start and end dates as MMDD ex. 0420 = APR 20
+    s_date = date(today.year, int(sys.argv[1][:2]), int(sys.argv[1][2:]))
+    e_date = date(today.year, int(sys.argv[2][:2]), int(sys.argv[2][2:]))
+    datestamp = e_date
 else:
-    subtract_day = 0
+    print('Error: Need 2 arguments: start and end dates in MMDD format.')
+    sys.exit()
 
-s_date = today + timedelta(-1 - subtract_day)
-e_date = today
 start = s_date.strftime("%m/%d/%Y 13:00:01")
 end = e_date.strftime("%m/%d/%Y 13:00:00")
-
-filename = 'logs\\book' + today.strftime('_%m%d%Y_') + '.csv'
-
 
 # initialize logger
 print('Initializing logger...')
@@ -32,7 +43,8 @@ logging.config.fileConfig(fname='logs/cfg/book.conf')
 logger = logging.getLogger('')
 
 # daily report isolating single day
-report = logging.FileHandler(filename=filename)
+log_filename = 'logs\\book' + datestamp.strftime('_%m%d%Y_') + '.csv'
+report = logging.FileHandler(filename=log_filename)
 formatter = logging.Formatter()
 report.setFormatter(formatter)
 logger.addHandler(report)
@@ -160,6 +172,6 @@ logging.info(f'{loads_not_booked} loads not booked.')
 print('Browser closed.')
 
 logging.shutdown()
-print(f'Session log saved to {filename}.')
+print(f'Session log saved to {log_filename}.')
 print('Logger closed.')
-os.startfile(filename)
+os.startfile(log_filename)
