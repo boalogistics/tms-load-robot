@@ -9,7 +9,22 @@ from selenium.webdriver.support.ui import Select
 import tms_login as tms
 
 today = date.today()
+weekday = datetime.weekday(today)
+
+# sets up start date and end date for filter
+# checks if today is Monday to calculate previous business day 1pm
+if weekday == 0:
+    subtract_day = 2
+else:
+    subtract_day = 0
+
+s_date = today + timedelta(-1 - subtract_day)
+e_date = today
+start = s_date.strftime("%m/%d/%Y 13:00:01")
+end = e_date.strftime("%m/%d/%Y 13:00:00")
+
 filename = 'logs\\book' + today.strftime('_%m%d%Y_') + '.csv'
+
 
 # initialize logger
 print('Initializing logger...')
@@ -43,20 +58,6 @@ print('Logged into TMS.')
 report_code = '3092F43103C3'
 report_url = f'{url}App_BW/staff/Reports/ReportViewer.aspx?code={report_code}'
 browser.get(report_url)
-
-weekday = datetime.weekday(today)
-
-# sets up start date and end date for filter
-# checks if today is Monday to calculate previous business day 1pm
-if weekday == 0:
-    subtract_day = 2
-else:
-    subtract_day = 0
-
-s_date = today + timedelta(-1 - subtract_day)
-e_date = today
-start = s_date.strftime("%m/%d/%Y 13:00:01")
-end = e_date.strftime("%m/%d/%Y 13:00:00")
 
 startbox = browser.find_element_by_xpath("//td[1]/input[@class='filter between'][1]")
 endbox = browser.find_element_by_xpath("//td[1]/input[@class='filter between'][2]")
