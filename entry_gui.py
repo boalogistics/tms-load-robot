@@ -32,9 +32,9 @@ def getlist():
         res_list_int = list(filter(lambda x: len(x) == 6, res_list_int))
         print('invalid load numbers present!')
     
-    output = "['" + "', '".join(res_list_int) + "']"
     # uniquefy list by converting to set and back
-    output = list(set(output))
+    res_list_int = list(set(res_list_int))
+    output = "['" + "', '".join(res_list_int) + "']"
 
     print(output)
 
