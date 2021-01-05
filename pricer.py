@@ -21,7 +21,6 @@ import reynaldos
 
 
 def enter_billing(load, price, discount_amt=0):
-    # url = 'http://boa.3plsystemscloud.com/'
     try:
         edit_pricing = (
             f'{url}App_BW/staff/shipment/shipmentCostPop.aspx?loadid={load}'
@@ -240,7 +239,7 @@ if len(papacantella_df.index) > 0:
         current_plts = current_row['Pallets']
         current_cs = f'{current_row["C/ City"]}, {current_row["C/ State"]}'
         base_retail = '-'
-        margin = '-'
+        margin = '-'                        
 
         try:
             if current_plts <= 14:
