@@ -24,7 +24,7 @@ def enter_billing(load, price, discount_amt=0):
     try:
         edit_pricing = (
             f'{url}App_BW/staff/shipment/shipmentCostPop.aspx?loadid={load}'
-            )
+        )
         browser.get(edit_pricing)
 
         td_list = browser.find_elements_by_tag_name('td')
@@ -116,7 +116,7 @@ df = data[0]
 load_table = df[[
     'Load #', 'Customer Name', 'Consignee', 'S/ City', 'S/ State', 'C/ City',
     'C/ State', 'C/ Zip', 'Equipment', 'Pallets', 'Weight', 'Base Retail', 'Cost', 'Billed', 'Customer #'
-    ]].drop(len(df.index)-1)
+]].drop(len(df.index)-1)
 
 # filter rows that have 0 Base Retail entered
 load_table['Base Retail'] = pd.to_numeric(load_table['Base Retail'], downcast='float')
