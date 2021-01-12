@@ -99,13 +99,15 @@ time.sleep(3)
 after = os.listdir(DOWNLOAD_FOLDER)
 change = set(after) - set(before)
 
+while len(change) == 0:
+    logging.info('No file downloaded.')
+
 if len(change) == 1:
     file_name = change.pop()
     logging.info(f'{file_name} downloaded.')
-elif len(change) == 0:
-    logging.info('No file downloaded.')
 else:
-    logging.info('More than one file downloaded.')
+    logging.info('More than one file downloaded. Please check only one file gets downloaded.')
+    sys.exit()
 
 # output file extension is .xls but is actually.html format
 filepath = f'{DOWNLOAD_FOLDER}\\{file_name}'
