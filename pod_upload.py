@@ -33,7 +33,7 @@ for x in load_list:
         browser.get(load_url)
 
         client_name = browser.find_element_by_xpath(f"//div[@id='{PREFIX}divCustomerInfo']/div[1]/a").text
-        public_pod = client_name == 'Stir Foods LLC'
+        # public_pod = client_name == 'Stir Foods LLC'
 
         upload = f'{BASE_URL}App_BW/staff/utilities/DocStorageAdd.aspx?loadid={load_id}'
         browser.get(upload)
@@ -41,7 +41,7 @@ for x in load_list:
         choose_file = browser.find_element_by_id(f'{PREFIX}fileUpLoadDoc')
         choose_file.send_keys(pod_path)
 
-        if public_pod:
+        if client_name == 'Stir Foods LLC':
             view_permission = Select(browser.find_element_by_id(f'{PREFIX}rdoPermissionList'))
             view_permission.select_by_value('1')
             logging.info(f'{load_id} POD made public for {client_name}')
