@@ -157,6 +157,9 @@ reynaldos_df = load_table[load_table['Customer #'] == 766]
 
 export_df = pd.DataFrame([['Customer Name', 'Load', 'Destination', 'Pallets', 'Base Retail', 'Margin']])
 
+
+# TODO change order of ops to calculate retail for all first then batch enter into TMS, confirmation msg entered successfully at end
+
 if len(passport_df.index) > 0:
     passport_df.reset_index(drop=True, inplace=True)
     for row in passport_df.index:
