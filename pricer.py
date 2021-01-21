@@ -115,7 +115,8 @@ data = pd.read_html(filepath)
 df = data[0]
 load_table = df[[
     'Load #', 'Customer Name', 'Consignee', 'S/ City', 'S/ State', 'C/ City',
-    'C/ State', 'C/ Zip', 'Equipment', 'Pallets', 'Weight', 'Base Retail', 'Cost', 'Billed', 'Customer #'
+    'C/ State', 'C/ Zip', 'Equipment', 'Pallets', 'Weight', 'Base Retail', 
+    'Cost', 'Billed', 'Customer #', 'S/ Status'
 ]].drop(len(df.index)-1)
 
 # filter rows that have 0 Base Retail entered
@@ -155,7 +156,7 @@ svd_df = load_table[load_table['Customer #'] == 611]
 perfectbar_df = load_table[load_table['Customer #'] == 1364]
 reynaldos_df = load_table[load_table['Customer #'] == 766]
 
-export_df = pd.DataFrame([['Customer Name', 'Load', 'Destination', 'Pallets', 'Base Retail', 'Margin']])
+export_df = pd.DataFrame([['Customer Name', 'Load', 'Status', 'Destination', 'Pallets', 'Base Retail', 'Margin']])
 
 
 # TODO change order of ops to calculate retail for all first then batch enter into TMS, confirmation msg entered successfully at end
@@ -182,7 +183,7 @@ if len(passport_df.index) > 0:
         except Exception as e:
             logging.info(f'{str(current_load)} errored. No rate found for {repr(e)}')
 
-        export_row = pd.DataFrame([[current_row['Customer Name'], current_load, current_cs, current_plts, base_retail, margin]])
+        export_row = pd.DataFrame([[current_row['Customer Name'], current_load, current_row['S/ Status'], current_cs, current_plts, base_retail, margin]])
         export_df = pd.concat([export_df, export_row], ignore_index=False)
 
 if len(stir_df.index) > 0:
@@ -208,7 +209,7 @@ if len(stir_df.index) > 0:
         except Exception as e:
             logging.info(f'{str(current_load)} errored. No rate found for {repr(e)}')
 
-        export_row = pd.DataFrame([[current_row['Customer Name'], current_load, current_cs, current_plts, base_retail, margin]])
+        export_row = pd.DataFrame([[current_row['Customer Name'], current_load, current_row['S/ Status'], current_cs, current_plts, base_retail, margin]])
         export_df = pd.concat([export_df, export_row], ignore_index=False)
 
 if len(wildbrine_df.index) > 0:
@@ -233,7 +234,7 @@ if len(wildbrine_df.index) > 0:
         except Exception as e:
             logging.info(f'{str(current_load)} errored. No rate found for {repr(e)}')
 
-        export_row = pd.DataFrame([[current_row['Customer Name'], current_load, current_cs, current_plts, base_retail, margin]])
+        export_row = pd.DataFrame([[current_row['Customer Name'], current_load, current_row['S/ Status'], current_cs, current_plts, base_retail, margin]])
         export_df = pd.concat([export_df, export_row], ignore_index=False)
 
 if len(papacantella_df.index) > 0:
@@ -258,7 +259,7 @@ if len(papacantella_df.index) > 0:
         except Exception as e:
             logging.info(f'{str(current_load)} errored. No rate found for {repr(e)}')
 
-        export_row = pd.DataFrame([[current_row['Customer Name'], current_load, current_cs, current_plts, base_retail, margin]])
+        export_row = pd.DataFrame([[current_row['Customer Name'], current_load, current_row['S/ Status'], current_cs, current_plts, base_retail, margin]])
         export_df = pd.concat([export_df, export_row], ignore_index=False)
 
 if len(svd_df.index) > 0:
@@ -283,7 +284,7 @@ if len(svd_df.index) > 0:
         except Exception as e:
             logging.info(f'{str(current_load)} errored. No rate found for {repr(e)}')
 
-        export_row = pd.DataFrame([[current_row['Customer Name'], current_load, current_cs, current_plts, base_retail, margin]])
+        export_row = pd.DataFrame([[current_row['Customer Name'], current_load, current_row['S/ Status'], current_cs, current_plts, base_retail, margin]])
         export_df = pd.concat([export_df, export_row], ignore_index=False)
 
 if len(pocino_df.index) > 0:
@@ -308,7 +309,7 @@ if len(pocino_df.index) > 0:
         except Exception as e:
             logging.info(f'{str(current_load)} errored. No rate found for {repr(e)}')
 
-        export_row = pd.DataFrame([[current_row['Customer Name'], current_load, current_cs, current_plts, base_retail, margin]])
+        export_row = pd.DataFrame([[current_row['Customer Name'], current_load, current_row['S/ Status'], current_cs, current_plts, base_retail, margin]])
         export_df = pd.concat([export_df, export_row], ignore_index=False)
 
 if len(perfectbar_df.index) > 0:
@@ -333,7 +334,7 @@ if len(perfectbar_df.index) > 0:
         except Exception as e:
             logging.info(f'{str(current_load)} errored. No rate found for {repr(e)}')
 
-        export_row = pd.DataFrame([[current_row['Customer Name'], current_load, current_cs, current_plts, base_retail, margin]])
+        export_row = pd.DataFrame([[current_row['Customer Name'], current_load, current_row['S/ Status'], current_cs, current_plts, base_retail, margin]])
         export_df = pd.concat([export_df, export_row], ignore_index=False)
 
 if len(reynaldos_df.index) > 0:
@@ -358,7 +359,7 @@ if len(reynaldos_df.index) > 0:
         except Exception as e:
             logging.info(f'{str(current_load)} errored. No rate found for {repr(e)}')
 
-        export_row = pd.DataFrame([[current_row['Customer Name'], current_load, current_cs, current_plts, base_retail, margin]])
+        export_row = pd.DataFrame([[current_row['Customer Name'], current_load, current_row['S/ Status'], current_cs, current_plts, base_retail, margin]])
         export_df = pd.concat([export_df, export_row], ignore_index=False)
 
 browser.quit()
