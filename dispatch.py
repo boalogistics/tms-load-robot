@@ -61,6 +61,8 @@ for x in loadlist:
     browser.get(load_url)
 
     # verify load is in booked status
+    # TODO ADD WAIT HERE
+    WebDriverWait(browser, timeout=30).until(EC.presence_of_element_located((By.ID, 'lblTitle')))
     status = browser.find_element_by_id('lblTitle').text.upper()
     booked = status.find('BOOKED') != -1
 
@@ -69,15 +71,20 @@ for x in loadlist:
         og_window = browser.window_handles[0]
 
         # assign carrier
+        WebDriverWait(browser, timeout=30).until(EC.presence_of_element_located((By.ID, f'{PREFIX}hlCarrierVolLink')))
         vol_carrier_link = browser.find_element_by_id(f'{PREFIX}hlCarrierVolLink')
         vol_carrier_link.click()
+
+        WebDriverWait(browser, timeout=30).until(EC.presence_of_element_located((By.ID, f'{PREFIX}ListBoxCarriers')))
         carrier_select = Select(browser.find_element_by_id(f'{PREFIX}ListBoxCarriers'))
         carrier_select.select_by_value(carrier_id)
+
+        WebDriverWait(browser, timeout=30).until(EC.presence_of_element_located((By.ID, f'{PREFIX}SelectCarrierSave')))
         select_carrier_btn = browser.find_element_by_id(f'{PREFIX}SelectCarrierSave')
         select_carrier_btn.click()
-        WebDriverWait(browser, timeout=30).until(EC.presence_of_element_located((By.ID, f'{PREFIX}ctlWarningsVertical_lblInsuranceWarnings')))
 
         # verify carrier insurance on file is not expired
+        WebDriverWait(browser, timeout=30).until(EC.presence_of_element_located((By.ID, f'{PREFIX}ctlWarningsVertical_lblInsuranceWarnings')))
         carrier_insurance = browser.find_element_by_id(f'{PREFIX}ctlWarningsVertical_lblInsuranceWarnings').text.upper()
         carrier_insurance_expired = carrier_insurance.find('EXPIRED') != -1
 
@@ -89,8 +96,10 @@ for x in loadlist:
             # dispatch
             # dispatch = 'http://boa.3plsystemscloud.com/App_BW/staff/operations/trackDispatchPop.aspx?loadid='+load_id
             # browser.get(dispatch)
+            WebDriverWait(browser, timeout=30).until(EC.presence_of_element_located((By.ID, f'{PREFIX}lbDispatchLink')))
             dispatch_link = browser.find_element_by_id(f'{PREFIX}lbDispatchLink')
             dispatch_link.click()
+ 
             WebDriverWait(browser, timeout=30).until(EC.number_of_windows_to_be(2))
 
             # set handle to popup and switches to popup
@@ -98,6 +107,7 @@ for x in loadlist:
             browser.switch_to.window(popup)
 
             # variable and selections for Priority
+            WebDriverWait(browser, timeout=30).until(EC.presence_of_element_located((By.ID, f'{PREFIX}btnDispatchComplete')))
             dispatch_btn = browser.find_element_by_id('btnDispatchComplete')
             dispatch_btn.click()
             browser.switch_to.window(og_window)
