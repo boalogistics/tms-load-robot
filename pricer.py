@@ -137,7 +137,8 @@ client_dict = {
     'pocino': 933,
     'svd': 611,
     'perfectbar': 1364,
-    'reynaldos': 766
+    'reynaldos': 766,
+    'fabrique': 1124
 }
 
 client_df_dict ={}
@@ -155,6 +156,7 @@ pocino_df = load_table[load_table['Customer #'] == 933]
 svd_df = load_table[load_table['Customer #'] == 611]
 perfectbar_df = load_table[load_table['Customer #'] == 1364]
 reynaldos_df = load_table[load_table['Customer #'] == 766]
+fabrique_df = load_table[load_table['Customer #'] == 1124]
 
 export_df = pd.DataFrame([['Customer Name', 'Load', 'Status', 'Destination', 'Pallets', 'Base Retail', 'Margin']])
 
@@ -248,14 +250,14 @@ if len(papacantella_df.index) > 0:
         margin = '-'                        
 
         try:
-            if current_plts <= 14:
+            if current_plts <= 14 and (current_row['Weight'] / current_plts) <= 1650:
                 selling_price = papacantella.get_price(current_row)
                 base_retail = selling_price[1]
                 enter_billing(*selling_price)
                 margin = (current_row['Billed'] + selling_price[1] - current_row['Cost']) / (current_row['Billed'] + selling_price[1])
                 logging.info(f'{str(current_load)} {current_cs} margin: {str(margin)}, pallets: {str(current_plts)}')
             else:
-                logging.info(f'{str(current_load)} exceeds 14 pallets: {str(current_plts)}')
+                logging.info(f'{str(current_load)} exceeds max weight / pallets (1650 lbs per plts / 14 pallets): {str(current_row["Weight"] / current_plts)} lbs per plt / {str(current_plts)}')
         except Exception as e:
             logging.info(f'{str(current_load)} errored. No rate found for {repr(e)}')
 
