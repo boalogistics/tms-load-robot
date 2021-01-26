@@ -258,7 +258,7 @@ if len(papacantella_df.index) > 0:
                 margin = (current_row['Billed'] + selling_price[1] - current_row['Cost']) / (current_row['Billed'] + selling_price[1])
                 logging.info(f'{str(current_load)} {current_cs} margin: {str(margin)}, pallets: {str(current_plts)}')
             else:
-                logging.info(f'{str(current_load)} exceeds max weight / pallets (1650 lbs per plts / 14 pallets): {str(current_row["Weight"] / current_plts)} lbs per plt / {str(current_plts)}')
+                logging.info(f'{str(current_load)} exceeds max weight / pallets (1650 lbs per plts / 14 pallets): {str(round(current_row["Weight"] / current_plts))} lbs per plt / {str(current_plts)}')
         except Exception as e:
             logging.info(f'{str(current_load)} errored. No rate found for {repr(e)}')
 
@@ -385,7 +385,8 @@ if len(fabrique_df.index) > 0:
             else:
                 logging.info(f'{str(current_load)} exceeds 3 pallets: {str(current_plts)}')
         except Exception as e:
-            logging.info(f'{str(current_load)} errored. No rate found for {repr(e)}')
+            print(e)
+            # logging.info(f'{str(current_load)} errored. No rate found for {repr(e)}')
 
         export_row = pd.DataFrame([[current_row['Customer Name'], current_load, current_row['S/ Status'], current_cs, current_plts, base_retail, margin]])
         export_df = pd.concat([export_df, export_row], ignore_index=False)
