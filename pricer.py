@@ -258,7 +258,7 @@ if len(papacantella_df.index) > 0:
                 margin = (current_row['Billed'] + selling_price[1] - current_row['Cost']) / (current_row['Billed'] + selling_price[1])
                 logging.info(f'{str(current_load)} {current_cs} margin: {str(margin)}, pallets: {str(current_plts)}')
             else:
-                logging.info(f'{str(current_load)} exceeds max weight / pallets (1650 lbs per plts / 14 pallets): {str(round(current_row["Weight"] / current_plts))} lbs per plt / {str(current_plts)}')
+                logging.info(f'{str(current_load)} exceeds max weight / pallets (1650 lbs per plt or 14 pallets): {str(round(current_row["Weight"] / current_plts))} lbs per plt / {str(current_plts)} plts')
         except Exception as e:
             logging.info(f'{str(current_load)} errored. No rate found for {repr(e)}')
 
@@ -283,7 +283,7 @@ if len(svd_df.index) > 0:
                 margin = (current_row['Billed'] + selling_price[1] - current_row['Cost']) / (current_row['Billed'] + selling_price[1])
                 logging.info(f'{str(current_load)} {current_cs} margin: {str(margin)}, pallets: {str(current_plts)}')
             else:
-                logging.info(f'{str(current_load)} exceeds max weight / pallet (30,600 / 24): {str(current_row["Weight"])} / {str(current_plts)}')
+                logging.info(f'{str(current_load)} exceeds max weight or pallet (30,600 lbs / 24 plts): {str(current_row["Weight"])} lbs / {str(current_plts)} plts')
         except Exception as e:
             logging.info(f'{str(current_load)} errored. No rate found for {repr(e)}')
 
