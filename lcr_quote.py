@@ -6,8 +6,10 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select, WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
-url = 'https://boa.3plsystemscloud.com/'
-browser = tms.login(url, False)
+baseurl = 'https://boa.3plsystemscloud.com/'
+browser = tms.login(baseurl, False)
+
+PREFIX = 'ctl00_BodyContent_'
 
 # put FOR loop here to loop through list of load numbers
 loadlist = []
@@ -15,21 +17,21 @@ loadlist = []
 for x in loadlist:
     try:
         load_id = x
-        url = 'https://boa.3plsystemscloud.com/App_BW/staff/shipment/shipmentDetail.aspx?loadid='+load_id
+        url = f'{baseurl}App_BW/staff/shipment/shipmentDetail.aspx?loadid={load_id}'
         browser.get(url)
 
         # assign carrier
-        lcr_carrier_link = browser.find_element_by_id('ctl00_BodyContent_hlCarrierLCRLink')
+        lcr_carrier_link = browser.find_element_by_id(f'{PREFIX}hlCarrierLCRLink')
         lcr_carrier_link.click()
     
         # volume carrier only check
-        volume_only = len(browser.find_elements(By.ID, 'ctl00_BodyContent_LineVolumeDiv'))
+        volume_only = len(browser.find_elements(By.ID, f'{PREFIX}LineVolumeDiv'))
     
         if volume_only:
             print(load_id + ' is volume only')
         else:
             # wait until the rate table populates and becomes clickable
-            WebDriverWait(browser, timeout=120).until(EC.element_to_be_clickable((By.ID, 'ctl00_BodyContent_objRateEngine_gvRates_ctl02_lnkQuoteNow')))
+            WebDriverWait(browser, timeout=120).until(EC.element_to_be_clickable((By.ID, f'{PREFIX}objRateEngine_gvRates_ctl02_lnkQuoteNow')))
 
             # carrier filter logic
             rows = browser.find_elements_by_css_selector('tr.select-tooltip')
@@ -55,8 +57,8 @@ for x in loadlist:
                     break 
 
             buttons[button_index].click()
-            WebDriverWait(browser, timeout=30).until(EC.element_to_be_clickable((By.ID, 'ctl00_BodyContent_divCarrierInfo')))
-            carrier_info = browser.find_element_by_xpath("//div[@id='ctl00_BodyContent_divCarrierInfo']/div[1]/strong").text
+            WebDriverWait(browser, timeout=30).until(EC.element_to_be_clickable((By.ID, f'{PREFIX}divCarrierInfo')))
+            carrier_info = browser.find_element_by_xpath(f"//div[@id='{PREFIX}divCarrierInfo']/div[1]/strong").text
 
             print(load_id)
             print(carrier_info)
