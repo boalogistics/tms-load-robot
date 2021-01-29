@@ -50,7 +50,7 @@ for truck in truck_dict_list:
         loads_not_dispatched += 1
 
 url = 'https://boa.3plsystemscloud.com/'
-browser = tms.login(url)
+browser = tms.login(url, False)
 
 PREFIX = 'ctl00_BodyContent_'
 
@@ -72,9 +72,11 @@ for x in loadlist:
             og_window = browser.window_handles[0]
 
             # assign carrier
-            WebDriverWait(browser, timeout=30).until(EC.presence_of_element_located((By.ID, f'{PREFIX}hlCarrierVolLink')))
-            vol_carrier_link = browser.find_element_by_id(f'{PREFIX}hlCarrierVolLink')
-            vol_carrier_link.click()
+            select_carrier = f'{url}App_BW/staff/shipment/selectcarriermore.aspx?loadId={load_id}'
+            browser.get(select_carrier)
+            # WebDriverWait(browser, timeout=30).until(EC.presence_of_element_located((By.ID, f'{PREFIX}hlCarrierVolLink')))
+            # vol_carrier_link = browser.find_element_by_id(f'{PREFIX}hlCarrierVolLink')
+            # vol_carrier_link.click()
 
             WebDriverWait(browser, timeout=30).until(EC.presence_of_element_located((By.ID, f'{PREFIX}ListBoxCarriers')))
             carrier_select = Select(browser.find_element_by_id(f'{PREFIX}ListBoxCarriers'))
@@ -88,30 +90,35 @@ for x in loadlist:
             WebDriverWait(browser, timeout=30).until(EC.presence_of_element_located((By.ID, f'{PREFIX}ctlWarningsVertical_lblInsuranceWarnings')))
             carrier_insurance = browser.find_element_by_id(f'{PREFIX}ctlWarningsVertical_lblInsuranceWarnings').text.upper()
             carrier_insurance_expired = carrier_insurance.find('EXPIRED') != -1
+            carrier_not_insured = carrier_insurance.find('not') != -1
 
             if carrier_insurance_expired:
                 carrier_name = browser.find_element_by_xpath(f"//div[@id='{PREFIX}divCarrierInfo']/div[1]/strong").text
                 logging.info(f'{load_id} not dispatched. Carrier {carrier_name}\'s insurance on file is expired.')
                 loads_not_dispatched += 1
+            elif carrier_not_insured:
+                carrier_name = browser.find_element_by_xpath(f"//div[@id='{PREFIX}divCarrierInfo']/div[1]/strong").text
+                logging.info(f'{load_id} not dispatched. Carrier {carrier_name}\ is not insured.')
+                loads_not_dispatched += 1
             else:
                 # dispatch
-                # dispatch = 'http://boa.3plsystemscloud.com/App_BW/staff/operations/trackDispatchPop.aspx?loadid='+load_id
-                # browser.get(dispatch)
-                WebDriverWait(browser, timeout=30).until(EC.presence_of_element_located((By.ID, f'{PREFIX}lbDispatchLink')))
-                dispatch_link = browser.find_element_by_id(f'{PREFIX}lbDispatchLink')
-                dispatch_link.click()
+                dispatch = f'{url}App_BW/staff/operations/trackDispatchPop.aspx?loadid={load_id}'
+                browser.get(dispatch)
+                # WebDriverWait(browser, timeout=30).until(EC.presence_of_element_located((By.ID, f'{PREFIX}lbDispatchLink')))
+                # dispatch_link = browser.find_element_by_id(f'{PREFIX}lbDispatchLink')
+                # dispatch_link.click()
     
-                WebDriverWait(browser, timeout=30).until(EC.number_of_windows_to_be(2))
+                # WebDriverWait(browser, timeout=30).until(EC.number_of_windows_to_be(2))
 
                 # set handle to popup and switches to popup
-                popup = browser.window_handles[1]
-                browser.switch_to.window(popup)
+                # popup = browser.window_handles[1]
+                # browser.switch_to.window(popup)
 
                 # variable and selections for Priority
-                WebDriverWait(browser, timeout=30).until(EC.presence_of_element_located((By.ID, f'{PREFIX}btnDispatchComplete')))
+                WebDriverWait(browser, timeout=30).until(EC.presence_of_element_located((By.ID, 'btnDispatchComplete')))
                 dispatch_btn = browser.find_element_by_id('btnDispatchComplete')
                 dispatch_btn.click()
-                browser.switch_to.window(og_window)
+                # browser.switch_to.window(og_window)
 
                 logging.info(f'Load number {load_id} dispatched!')
                 loads_dispatched += 1
