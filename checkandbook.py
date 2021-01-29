@@ -123,17 +123,19 @@ loads_not_booked = 0
 
 browser = tms.login(url)
 
+PREFIX = 'ctl00_BodyContent_'
+
 for x in load_list:
     load_id = x
     load_url = f'{url}App_BW/staff/shipment/shipmentDetail.aspx?loadid={load_id}'
     browser.get(load_url)
 
     # verify client is in good standing without credit hold
-    client_credit = browser.find_element_by_id('ctl00_BodyContent_ctlWarningsVertical_lblCreditWarnings').text.upper()
+    client_credit = browser.find_element_by_id(f'{PREFIX}ctlWarningsVertical_lblCreditWarnings').text.upper()
     client_credit_exceeded = client_credit.find('EXCEEDED') != -1
 
     if client_credit_exceeded:
-        client_name = browser.find_element_by_xpath("//div[@id='ctl00_BodyContent_divCustomerInfo']/div[1]/a").text
+        client_name = browser.find_element_by_xpath(f"//div[@id='{PREFIX}divCustomerInfo']/div[1]/a").text
         logging.info(f'{load_id} not booked. Client {client_name} has exceeded credit limit.')
         loads_not_booked += 1
     else:
@@ -158,7 +160,7 @@ for x in load_list:
             browser.get(edit_shipment)
 
             # variable and selections for Equipment Types
-            priority = Select(browser.find_element_by_id('ctl00_BodyContent_priority'))
+            priority = Select(browser.find_element_by_id(f'{PREFIX}priority'))
             priority.select_by_value('6')
 
             # save changes
