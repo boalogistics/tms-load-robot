@@ -6,7 +6,9 @@ import sys
 import time
 from datetime import date, datetime, timedelta
 import pandas as pd
-from selenium.webdriver.support.ui import Select
+from selenium.webdriver.support.ui import Select, WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.by import By
 import tms_login as tms
 
 today = date.today()
@@ -131,6 +133,7 @@ for x in load_list:
     browser.get(load_url)
 
     # verify client is in good standing without credit hold
+    WebDriverWait(browser, timeout=30).until(EC.presence_of_element_located((By.ID, f'{PREFIX}ctlWarningsVertical_lblCreditWarnings')))
     client_credit = browser.find_element_by_id(f'{PREFIX}ctlWarningsVertical_lblCreditWarnings').text.upper()
     client_credit_exceeded = client_credit.find('EXCEEDED') != -1
 
@@ -140,6 +143,7 @@ for x in load_list:
         loads_not_booked += 1
     else:
         # check if load is already in booked/dispatched/cancelled status and trace priority
+        WebDriverWait(browser, timeout=30).until(EC.presence_of_element_located((By.ID, 'lblTitle')))
         status = browser.find_element_by_id('lblTitle').text.upper()
 
         quote_status = status.find('QUOTED') > -1
@@ -160,6 +164,7 @@ for x in load_list:
             browser.get(edit_shipment)
 
             # variable and selections for Equipment Types
+            WebDriverWait(browser, timeout=30).until(EC.presence_of_element_located((By.ID, f'{PREFIX}priority')))
             priority = Select(browser.find_element_by_id(f'{PREFIX}priority'))
             priority.select_by_value('6')
 
