@@ -388,14 +388,14 @@ if len(fabrique_df.index) > 0:
         margin = '-'
 
         try:
-            if current_plts <= 3:
+            if current_plts <= 3 and (current_row['Weight'] / current_plts) <= 2000:
                 selling_price = fabrique.get_price(current_row)
                 base_retail = selling_price[1]
                 enter_billing(*selling_price)
                 margin = (current_row['Billed'] + selling_price[1] - current_row['Cost']) / (current_row['Billed'] + selling_price[1])
                 logging.info(f'{str(current_load)} {current_cs} margin: {str(margin)}, pallets: {str(current_plts)}')
             else:
-                logging.info(f'{str(current_load)} exceeds 3 pallets: {str(current_plts)}')
+                logging.info(f'{str(current_load)} exceeds max weight / pallets (2000 lbs per plt or 3 pallets): {str(round(current_row["Weight"] / current_plts))} lbs per plt / {str(current_plts)} plts')
         except Exception as e:
             print(e)
             logging.info(f'{str(current_load)} errored. No rate found for {repr(e)}')
