@@ -1,6 +1,7 @@
 # TODO module and variable naming; how to structure 'selling_price' variable
 
 import getpass
+import json
 import logging
 import logging.config
 import os
@@ -127,7 +128,7 @@ priced = load_table[load_table['Base Retail'] != 0]
 print('Following loads already priced')
 print(priced)
 load_table = load_table[load_table['Base Retail'] == 0]
-print(load_table)
+# print(load_table)
 
 # TODO store client name + id in json
 
@@ -150,7 +151,7 @@ client_df_dict ={}
 for key in client_dict:
     client_df_dict[key] = load_table[load_table['Customer #'] == client_dict[key]]
 
-print(client_df_dict)
+# print(client_df_dict)
 
 passport_df = load_table[load_table['Customer #'] == 1495]
 stir_df = load_table[load_table['Customer #'] == 1374]
@@ -165,6 +166,12 @@ house_df = load_table[load_table['Customer #'] == 1110]
 rose_df = load_table[load_table['Customer #'] == 1540]
 
 export_df = pd.DataFrame([['Customer Name', 'Load', 'Status', 'Destination', 'Pallets', 'Base Retail', 'Margin']])
+
+
+for key in client_df_dict:
+    client_df = client_df_dict[key]
+    if len(client_df.index) > 0:
+        client_df.reset_index(drop=True, inplace=True)
 
 
 # TODO change order of ops to calculate retail for all first then batch enter into TMS, confirmation msg entered successfully at end
@@ -205,7 +212,7 @@ if len(stir_df.index) > 0:
         margin = '-'
 
         try:
-            current_row = stir_df.iloc[row]
+            # current_row = stir_df.iloc[row]
             # TODO how to account for rates not on table? and manually entered existing?
             selling_price = discount.get_price(current_row)
             # removing costco discount
