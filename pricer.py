@@ -19,7 +19,8 @@ import svd
 import perfectbar
 import reynaldos
 import fabrique
-
+import house
+import rose
 
 def enter_billing(load, price, discount_amt=0):
     try:
@@ -67,7 +68,7 @@ loads_file = open(sys.argv[1], 'r')
 listified = loads_file.read().strip('][').split(', ')
 loadlist = [load.strip("'") for load in listified]
 
-# # set to Chrome default download folder - BOA CITRIX DESKTOP DEFAULT SETTINGS
+# set to Chrome default download folder - BOA CITRIX DESKTOP DEFAULT SETTINGS
 DOWNLOAD_FOLDER = f"C:\\Users\\{getpass.getuser().title()}\\Downloads"
 
 # list of files before downloading
@@ -139,7 +140,9 @@ client_dict = {
     'svd': 611,
     'perfectbar': 1364,
     'reynaldos': 766,
-    'fabrique': 1124
+    'fabrique': 1124,
+    'house': 1110,
+    'rose': 1540
 }
 
 client_df_dict ={}
@@ -158,6 +161,8 @@ svd_df = load_table[load_table['Customer #'] == 611]
 perfectbar_df = load_table[load_table['Customer #'] == 1364]
 reynaldos_df = load_table[load_table['Customer #'] == 766]
 fabrique_df = load_table[load_table['Customer #'] == 1124]
+house_df = load_table[load_table['Customer #'] == 1110]
+rose_df = load_table[load_table['Customer #'] == 1540]
 
 export_df = pd.DataFrame([['Customer Name', 'Load', 'Status', 'Destination', 'Pallets', 'Base Retail', 'Margin']])
 
@@ -386,7 +391,59 @@ if len(fabrique_df.index) > 0:
                 logging.info(f'{str(current_load)} exceeds 3 pallets: {str(current_plts)}')
         except Exception as e:
             print(e)
-            # logging.info(f'{str(current_load)} errored. No rate found for {repr(e)}')
+            logging.info(f'{str(current_load)} errored. No rate found for {repr(e)}')
+
+        export_row = pd.DataFrame([[current_row['Customer Name'], current_load, current_row['S/ Status'], current_cs, current_plts, base_retail, margin]])
+        export_df = pd.concat([export_df, export_row], ignore_index=False)
+
+if len(house_df.index) > 0:
+    house_df.reset_index(drop=True, inplace=True)
+    for row in house_df.index:
+        current_row = house_df.iloc[row]
+        current_load = current_row['Load #']
+        current_plts = current_row['Pallets']
+        current_cs = current_row['C/ City'] + ', ' + current_row['C/ State']
+        base_retail = '-'
+        margin = '-'
+
+        try:
+            if current_plts <= 16 and (current_row['Weight'] / current_plts) <= 1650:
+                selling_price = house.get_price(current_row)
+                base_retail = selling_price[1]
+                enter_billing(*selling_price)
+                margin = (current_row['Billed'] + selling_price[1] - current_row['Cost']) / (current_row['Billed'] + selling_price[1])
+                logging.info(f'{str(current_load)} {current_cs} margin: {str(margin)}, pallets: {str(current_plts)}')
+            else:
+                logging.info(f'{str(current_load)} exceeds max weight / pallets (1650 lbs per plt or 16 pallets): {str(round(current_row["Weight"] / current_plts))} lbs per plt / {str(current_plts)} plts')
+        except Exception as e:
+            print(e)
+            logging.info(f'{str(current_load)} errored. No rate found for {repr(e)}')
+
+        export_row = pd.DataFrame([[current_row['Customer Name'], current_load, current_row['S/ Status'], current_cs, current_plts, base_retail, margin]])
+        export_df = pd.concat([export_df, export_row], ignore_index=False)
+
+if len(rose_df.index) > 0:
+    rose_df.reset_index(drop=True, inplace=True)
+    for row in rose_df.index:
+        current_row = rose_df.iloc[row]
+        current_load = current_row['Load #']
+        current_plts = current_row['Pallets']
+        current_cs = current_row['C/ City'] + ', ' + current_row['C/ State']
+        base_retail = '-'
+        margin = '-'
+
+        try:
+            if current_plts <= 2 and (current_row['Weight'] / current_plts) <= 751:
+                selling_price = rose.get_price(current_row)
+                base_retail = selling_price[1]
+                enter_billing(*selling_price)
+                margin = (current_row['Billed'] + selling_price[1] - current_row['Cost']) / (current_row['Billed'] + selling_price[1])
+                logging.info(f'{str(current_load)} {current_cs} margin: {str(margin)}, pallets: {str(current_plts)}')
+            else:
+                logging.info(f'{str(current_load)} exceeds max weight / pallets (751 lbs per plt or 2 pallets): {str(round(current_row["Weight"] / current_plts))} lbs per plt / {str(current_plts)} plts')
+        except Exception as e:
+            print(e)
+            logging.info(f'{str(current_load)} errored. No rate found for {repr(e)}')
 
         export_row = pd.DataFrame([[current_row['Customer Name'], current_load, current_row['S/ Status'], current_cs, current_plts, base_retail, margin]])
         export_df = pd.concat([export_df, export_row], ignore_index=False)
