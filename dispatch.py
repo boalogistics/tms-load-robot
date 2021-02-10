@@ -72,9 +72,6 @@ for load in loadlist:
         booked = status.find('BOOKED') != -1
 
         if booked:
-            # set first window handle
-            og_window = browser.window_handles[0]
-
             # assign carrier
             select_carrier = f'{url}App_BW/staff/shipment/selectcarriermore.aspx?loadId={load_id}'
             browser.get(select_carrier)
@@ -110,7 +107,6 @@ for load in loadlist:
                 WebDriverWait(browser, timeout=30).until(EC.presence_of_element_located((By.ID, 'btnDispatchComplete')))
                 dispatch_btn = browser.find_element_by_id('btnDispatchComplete')
                 dispatch_btn.click()
-                # browser.switch_to.window(og_window)
 
                 logging.info(f'Load number {load_id} dispatched!')
                 loads_dispatched += 1
