@@ -38,14 +38,16 @@ for truck in trucks[1:]:
 with open('db/carrierid.json', 'r') as f:
     carrier_lookup = json.load(f)
 
-# get load number, truck number, and carrier name
+# get load number, truck number, and carrier name from Sheets data
+# lookup carrier name vs TMS carrier id and store load #, carrier id in list
 loadlist = []
 for truck in truck_dict_list:
     carrier_name = truck['carrier_name']
     try:
-        load = {}
-        load['id'] = truck['load_no']
-        load['carrier'] = carrier_lookup[carrier_name]
+        load = {
+            'id': truck['load_no'],
+            'carrier': carrier_lookup[carrier_name]
+        }
         loadlist.append(load)
     except:
         logging.info(f'Truck # {truck["truck_no"]} Load # {truck["load_no"]} {carrier_name} is not on the carrier list.')
