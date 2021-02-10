@@ -74,9 +74,6 @@ for x in loadlist:
             # assign carrier
             select_carrier = f'{url}App_BW/staff/shipment/selectcarriermore.aspx?loadId={load_id}'
             browser.get(select_carrier)
-            # WebDriverWait(browser, timeout=30).until(EC.presence_of_element_located((By.ID, f'{PREFIX}hlCarrierVolLink')))
-            # vol_carrier_link = browser.find_element_by_id(f'{PREFIX}hlCarrierVolLink')
-            # vol_carrier_link.click()
 
             WebDriverWait(browser, timeout=30).until(EC.presence_of_element_located((By.ID, f'{PREFIX}ListBoxCarriers')))
             carrier_select = Select(browser.find_element_by_id(f'{PREFIX}ListBoxCarriers'))
@@ -104,15 +101,6 @@ for x in loadlist:
                 # dispatch
                 dispatch = f'{url}App_BW/staff/operations/trackDispatchPop.aspx?loadid={load_id}'
                 browser.get(dispatch)
-                # WebDriverWait(browser, timeout=30).until(EC.presence_of_element_located((By.ID, f'{PREFIX}lbDispatchLink')))
-                # dispatch_link = browser.find_element_by_id(f'{PREFIX}lbDispatchLink')
-                # dispatch_link.click()
-    
-                # WebDriverWait(browser, timeout=30).until(EC.number_of_windows_to_be(2))
-
-                # set handle to popup and switches to popup
-                # popup = browser.window_handles[1]
-                # browser.switch_to.window(popup)
 
                 # variable and selections for Priority
                 WebDriverWait(browser, timeout=30).until(EC.presence_of_element_located((By.ID, 'btnDispatchComplete')))
