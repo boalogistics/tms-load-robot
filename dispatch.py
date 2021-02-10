@@ -103,7 +103,6 @@ for load in loadlist:
                 dispatch = f'{url}App_BW/staff/operations/trackDispatchPop.aspx?loadid={load_id}'
                 browser.get(dispatch)
 
-                # variable and selections for Priority
                 WebDriverWait(browser, timeout=30).until(EC.presence_of_element_located((By.ID, 'btnDispatchComplete')))
                 dispatch_btn = browser.find_element_by_id('btnDispatchComplete')
                 dispatch_btn.click()
