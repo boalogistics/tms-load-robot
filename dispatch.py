@@ -28,22 +28,24 @@ loads_not_dispatched = 0
 truck_sheet = open_sheet('Warehousing Sheet Data Feed', 'EXPORT')
 trucks = truck_sheet.get_all_values()
 
+# populate list of dictionaries with output from Google Sheet 
 truck_dict_list = []
-
-for x in trucks[1:]:
-    truck_dict = create_truck(x)
+for truck in trucks[1:]:
+    truck_dict = create_truck(truck)
     truck_dict_list.append(truck_dict)
 
 # carrier name - id # look up table in json
 with open('db/carrierid.json', 'r') as f:
     carrier_lookup = json.load(f)
 
+# get load number, truck number, and carrier name
 loadlist = []
-
 for truck in truck_dict_list:
     carrier_name = truck['carrier_name']
     try:
-        load = [truck['load_no'], carrier_lookup[carrier_name]]
+        load = {}
+        load['id'] = truck['load_no']
+        load['carrier'] = carrier_lookup[carrier_name]
         loadlist.append(load)
     except:
         logging.info(f'Truck # {truck["truck_no"]} Load # {truck["load_no"]} {carrier_name} is not on the carrier list.')
@@ -54,9 +56,9 @@ browser = tms.login(url, False)
 
 PREFIX = 'ctl00_BodyContent_'
 
-for x in loadlist:
-    load_id = x[0]
-    carrier_id = x[1]
+for load in loadlist:
+    load_id = load['id']
+    carrier_id = load['carrier']
     load_url = f'{url}App_BW/staff/shipment/shipmentDetail.aspx?loadid={load_id}'
     logging.info(f'Opening {load_id}...')
     browser.get(load_url)
