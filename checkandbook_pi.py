@@ -75,7 +75,7 @@ download = browser.find_element_by_id('ctl00_ContentBody_butExportToExcel')
 download.click()
 time.sleep(3)
 
-browser.close()
+browser.quit()
 print('Retrieved entry report.')
 
 # list of files in Downloads folder after downloading to extract filename
