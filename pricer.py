@@ -130,26 +130,12 @@ print(priced)
 load_table = load_table[load_table['Base Retail'] == 0]
 # print(load_table)
 
-# TODO store client name + id in json
-
-client_dict = {
-    'passport': 1495,
-    'stir': 1374,
-    'wildbrine': 890,
-    'papacantella': 1232,
-    'pocino': 933,
-    'svd': 611,
-    'perfectbar': 1364,
-    'reynaldos': 766,
-    'fabrique': 1124,
-    'house': 1110,
-    'rose': 1540
-}
-
+# load client info & config 
+client_dict = json.load(open('db/clients.json', 'r'))
 client_df_dict ={}
 
 for key in client_dict:
-    client_df_dict[key] = load_table[load_table['Customer #'] == client_dict[key]]
+    client_df_dict[key] = load_table[load_table['Customer #'] == client_dict[key]['id']]
 
 # print(client_df_dict)
 
@@ -172,6 +158,12 @@ for key in client_df_dict:
     client_df = client_df_dict[key]
     if len(client_df.index) > 0:
         client_df.reset_index(drop=True, inplace=True)
+        for row in client_df.iloc:
+            load_no = row['Load #']
+            plts = row['Pallets']
+            dest_city_state = f'{row["C/ City"]}, {row["C/ State"]}'
+            base_retail = '-'
+            margin = '-'
 
 
 # TODO change order of ops to calculate retail for all first then batch enter into TMS, confirmation msg entered successfully at end
