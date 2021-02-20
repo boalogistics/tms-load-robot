@@ -150,7 +150,7 @@ for x in load_list:
             edit_shipment = f'{url}App_BW/staff/shipment/EditShipmentPop.aspx?loadid={load_id}'
             browser.get(edit_shipment)
 
-            # variable and selections for Equipment Types
+            # variable and selections for Priority Level
             WebDriverWait(browser, timeout=30).until(EC.presence_of_element_located((By.ID, f'{PREFIX}priority')))
             priority = Select(browser.find_element_by_id(f'{PREFIX}priority'))
             priority.select_by_value('6')
