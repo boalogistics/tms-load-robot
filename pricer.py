@@ -22,6 +22,8 @@ import reynaldos
 import fabrique
 import house
 import rose
+import surcharge
+
 
 def enter_billing(load, price, discount_amt=0):
     try:
@@ -172,6 +174,7 @@ export_df = pd.DataFrame([['Customer Name', 'Load', 'Status', 'Destination', 'Pa
 #                     max_plts = client_dict[key]['max_plts']
 #                     selling_price = house.get_price(current_row)
 #                     base_retail = selling_price[1]
+# TODO change selling price from list to single variable, use load_no above to get load number
 #                     enter_billing(*selling_price)
 #                     margin = (current_row['Billed'] + selling_price[1] - current_row['Cost']) / (current_row['Billed'] + selling_price[1])
 #                     logging.info(f'{str(current_load)} {current_cs} margin: {str(margin)}, pallets: {str(current_plts)}')
@@ -229,6 +232,7 @@ if len(stir_df.index) > 0:
             # discount_amt = discount.get_discount(current_row, selling_price[1])
             base_retail = selling_price[1]
             enter_billing(*selling_price)
+            surcharge.add_surcharge(current_load, browser, 'extreme_stir')
             margin = (current_row['Billed'] + selling_price[1] - current_row['Cost']) / (current_row['Billed'] + selling_price[1])
             logging.info(f'{str(current_load)} {current_cs} margin: {str(margin)}, pallets: {str(current_plts)}')
         except Exception as e:
