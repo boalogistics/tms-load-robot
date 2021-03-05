@@ -4,22 +4,10 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import Select
 
 
-def get_discount(df_row, price):
-    consignee_name = df_row['Consignee'].upper()
-    consignee_city = df_row['C/ City']
-    pallets = df_row['Pallets']
-    is_costco = consignee_name.find('COSTCO') != -1 and consignee_city in costco_discount_dict and pallets < 11
-    if is_costco:
-        discount_amt = calc_costco_discount(consignee_city, pallets, price)
-    else:
-        discount_amt = float(price) * -0.02
-    return discount_amt
-
-
 def add_surcharge(load, WebdriverObject, charge, surcharge_amt=0):
     surcharge_type = {
-        'extreme_stir': ['Extreme Weather','298'],
-        'dedicated': ['Dedicated Truck','241'],
+        'extreme_stir': ['Extreme Weather:','298'],
+        'dedicated': ['Dedicated Truck:', '241'],
         'extreme': ['PLACEHOLDER', '2']
     }
     
@@ -48,5 +36,8 @@ def add_surcharge(load, WebdriverObject, charge, surcharge_amt=0):
             surcharge_input.send_keys(Keys.DELETE)
             surcharge_input.send_keys(str(surcharge_amt))
             logging.info(f'{load} additional surcharge {surcharge[0]} {surcharge_amt}')
+
+        save_price_btn = WebdriverObject.find_element_by_id('btnUpdateCosts')
+        save_price_btn.click()
     except Exception as e:
         logging.info(f'{load} threw {repr(e)}')
