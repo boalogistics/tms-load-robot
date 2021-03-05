@@ -59,10 +59,6 @@ if len(sys.argv) < 2:
     print('Error: Expected TXT file as argument.')
     sys.exit()
 
-continue_check = discount.verify_month()
-if continue_check == False:
-    sys.exit()
-
 # initialize logger
 logging.config.fileConfig(fname='logs/cfg/price.conf')
 logger = logging.getLogger('')
