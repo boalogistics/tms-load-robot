@@ -57,8 +57,13 @@ exportreport = logging.FileHandler(filename='logs/book_export.csv', mode='w+')
 exportreport.setFormatter(formatter)
 logger.addHandler(exportreport)
 
-# set to Chrome default download folder - BOA CITRIX DESKTOP DEFAULT SETTINGS
-DOWNLOAD_FOLDER = f"C:\\Users\\{getpass.getuser().title()}\\Downloads"
+# check if on citrx ('nt') or pi
+if os.name == 'nt':
+    # set to Chrome default download folder - BOA CITRIX DESKTOP DEFAULT SETTINGS
+    DOWNLOAD_FOLDER = f"C:\\Users\\{getpass.getuser().title()}\\Downloads"
+else:
+    # constant for downloads folder - Pi default for Chromium
+    DOWNLOAD_FOLDER = '/home/pi/Downloads/'
 
 # list of files before downloading
 before = os.listdir(DOWNLOAD_FOLDER)
@@ -181,4 +186,6 @@ print('Browser closed.')
 logging.shutdown()
 print(f'Session log saved to {log_filename}.')
 print('Logger closed.')
-os.startfile(log_filename)
+
+if os.name == 'nt':
+    os.startfile(log_filename)
