@@ -154,6 +154,7 @@ reynaldos_df = load_table[load_table['Customer #'] == 766]
 fabrique_df = load_table[load_table['Customer #'] == 1124]
 house_df = load_table[load_table['Customer #'] == 1110]
 rose_df = load_table[load_table['Customer #'] == 1540]
+azuma_df = load_table[load_table['Customer #'] == 1301]
 
 export_df = pd.DataFrame([['Customer Name', 'Load', 'Status', 'Destination', 'Pallets', 'Base Retail', 'Margin']])
 
@@ -468,6 +469,19 @@ if len(rose_df.index) > 0:
 
         export_row = pd.DataFrame([[current_row['Customer Name'], current_load, current_row['S/ Status'], current_cs, current_plts, base_retail, margin]])
         export_df = pd.concat([export_df, export_row], ignore_index=False)
+
+if len(azuma_df.index) > 0:
+    azuma_df.reset_index(drop=True, inplace=True)
+    for row in azuma_df.index:
+        current_row = azuma_df.iloc[row]
+        load = current_row['Load #']
+        try:
+            edit_pricing = (f'{url}App_BW/staff/shipment/shipmentCostPop.aspx?loadid={load}')
+            browser.get(edit_pricing)
+            # Invoice line requires non zero number to keep line 
+            surcharge.add_surcharge(load, browser, 'dedicated', 0.01)
+        except Exception as e:
+            logging.info(f'{load} errored. {repr(e)}')
 
 browser.quit()
 print('Browser closed.')
