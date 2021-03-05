@@ -323,7 +323,7 @@ if len(pocino_df.index) > 0:
         margin = '-'
 
         try:
-            if current_plts <= 15:
+            if current_plts <= 10:
                 selling_price = pocino.get_price(current_row)
                 base_retail = selling_price[1]
                 enter_billing(*selling_price)
