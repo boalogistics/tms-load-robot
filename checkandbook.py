@@ -111,7 +111,7 @@ else:
 # sets filepath to downloaded file and create DataFrame from file
 # output file extension is .xls but is actually.html format
 
-filepath = f'{DOWNLOAD_FOLDER}\\{file_name}'
+filepath = f'{DOWNLOAD_FOLDER}/{file_name}'
 data = pd.read_html(filepath)
 df = data[0]
 
