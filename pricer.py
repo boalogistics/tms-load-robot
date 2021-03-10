@@ -154,8 +154,8 @@ azuma_df = load_table[load_table['Customer #'] == 1301]
 export_df = pd.DataFrame([['Customer Name', 'Load', 'Status', 'Destination', 'Pallets', 'Base Retail', 'Margin']])
 
 
-for key in client_df_dict:
-    client_df = client_df_dict[key]
+for client_name in client_df_dict:
+    client_df = client_df_dict[client_name]
     if len(client_df.index) > 0:
         client_df.reset_index(drop=True, inplace=True)
         for row in client_df.iloc:
@@ -166,12 +166,16 @@ for key in client_df_dict:
             base_retail = '-'
             margin = '-'
             
+            if client_dict[client_name]['id'] == 1301:
+                print('Azuma')
             try:
-                client_attribs = client_dict[key]
+                client_attribs = client_dict[client_name]
                 max_keys = ['max_plts', 'max_wt', 'max_wt_pp']
                 has_max = any(key in client_attribs for key in max_keys)
+                exceeds_plts, exceeds_wt, exceeds_wt_pp = False, False, False
+                max_plts, max_wt, max_wt_pp = 'n/a', 'n/a', 'n/a'
+                
                 if has_max:
-                    exceeds_plts, exceeds_wt, exceeds_wt_pp = False
                     if 'max_plts' in client_attribs:
                         max_plts = client_attribs['max_plts']
                         exceeds_plts = plts > max_plts
@@ -181,23 +185,22 @@ for key in client_df_dict:
                     if 'max_wt_pp' in client_attribs:
                         max_wt_pp = client_attribs['max_wt_pp']
                         exceeds_wt_pp = (weight / plts) > max_wt_pp
-                    
-                    if any([exceeds_plts, exceeds_wt, exceeds_wt_pp]):
-                        logging.info(f'{str(load_no)} exceeds max weight / pallets (1650 lbs per plt or 16 pallets): {str(round(current_row["Weight"] / current_plts))} lbs per plt / {str(current_plts)} plts')
 
-
-                    selling_price = ***MODULE***.get_price(current_row)
-                    base_retail = selling_price[1]
-# TODO change selling price from list to single variable, use load_no above to get load number
-                    enter_billing(*selling_price)
-                    margin = (current_row['Billed'] + selling_price[1] - current_row['Cost']) / (current_row['Billed'] + selling_price[1])
-                    logging.info(f'{str(current_load)} {current_cs} margin: {str(margin)}, pallets: {str(current_plts)}')
+                if any([exceeds_plts, exceeds_wt, exceeds_wt_pp]):
+                    print(
+                        f'{str(load_no)} exceeds one or more maximums: Max weight per plt: {max_wt_pp} lbs / {str(round(weight / plts))} lbs; Max plts: {max_plts} plts / {str(plts)} plts; Max total weight: {max_wt} lbs / {str(weight)} lbs'
+                    )
                 else:
+                    # TODO CUSTOMIZE GET_PRICE MODIFIERS
+                    selling_price = get_price(row, client_name)
+                    base_retail = selling_price
+#                     enter_billing(load_no, selling_price)
+                    margin = (row['Billed'] + selling_price - row['Cost']) / (row['Billed'] + selling_price)
+                    print(f'{str(load_no)} {dest_city_state} margin: {str(margin)}, pallets: {str(plts)}')
             except Exception as e:
-                print(e)
-                logging.info(f'{str(current_load)} errored. No rate found for {repr(e)}')
+                print(f'{str(load_no)} errored. No rate for {e}')
 
-            export_row = pd.DataFrame([[current_row['Customer Name'], current_load, current_row['S/ Status'], current_cs, current_plts, base_retail, margin]])
+            export_row = pd.DataFrame([[row['Customer Name'], load_no, row['S/ Status'], dest_city_state, plts, base_retail, margin]])
             export_df = pd.concat([export_df, export_row], ignore_index=False)
 
 # TODO change order of ops to calculate retail for all first then batch enter into TMS, confirmation msg entered successfully at end
