@@ -13,7 +13,7 @@ MAX_WEIGHT_2 = 2350
 discount_rates = [
     0.006, 0.0075, 0.0035, 0.0035, 0.0040,
     0.0045, 0.005, 0.0055, 0.006, 0.006
-    ]
+]
 # look up df_row in json for Costco location x Pallets
 costco_discount_dict = json.load(open('db/costco_table.json', 'r'))
 
@@ -101,10 +101,3 @@ def apply_discount(load, discount_amt, WebdriverObject):
         discount_input.send_keys(str(discount_amt))
     except Exception as e:
         logging.info(f'{load} threw {repr(e)}')
-
-def verify_month():
-    print('Stir rates set to December on.')
-    verify = 'narf'
-    while verify != 'Y' and verify != 'N':
-        verify = input('Continue? (Y)es or (N)o: ').upper()
-    return verify == 'Y'
