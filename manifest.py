@@ -11,13 +11,16 @@ load_list = []
 # repeat until sheet returns list of load numbers
 while len(load_list) == 0:
     sheet = open_sheet('Warehousing Sheet Data Feed', 'client_update_query')
-    loads = sheet.get_all_values() 
+    loads = sheet.get_all_values()
     load_list = [load[0] for load in loads[1:]]
 
 print(load_list)
 
-# set to Chrome default download folder - BOA CITRIX DESKTOP DEFAULT SETTINGS
-DOWNLOAD_FOLDER = f"C:\\Users\\{getpass.getuser().title()}\\Downloads"
+# check if on citrix ('nt') or pi and set Chrome default d/l folder
+if os.name == 'nt':
+    DOWNLOAD_FOLDER = f"C:\\Users\\{getpass.getuser().title()}\\Downloads\\"
+else:
+    DOWNLOAD_FOLDER = '/home/pi/Downloads/'
 
 # list of files before downloading
 before = os.listdir(DOWNLOAD_FOLDER)
@@ -43,7 +46,7 @@ save_report_btn.click()
 browser.implicitly_wait(3)
 download = browser.find_element_by_id('ctl00_ContentBody_butExportToExcel')
 download.click()
-time.sleep(5)
+time.sleep(3)
 browser.quit()
 
 # list of files in Downloads folder after downloading to extract filename
@@ -52,13 +55,15 @@ change = set(after) - set(before)
 
 if len(change) == 1:
     file_name = change.pop()
+    print('File successfully downloaded.')
 elif len(change) == 0:
-    pass
+    print('No file downloaded.')
 else:
-    pass
+    print('More than one file downloaded.')
 
 # output file extension is .xls but is actually.html format
-filepath = f'{DOWNLOAD_FOLDER}\\{file_name}'
+filepath = f'{DOWNLOAD_FOLDER}{file_name}'
+print(filepath)
 data = pd.read_html(filepath)
 df = data[0]
 load_table = df.drop(len(df.index)-1).values.tolist()
