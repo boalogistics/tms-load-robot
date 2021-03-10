@@ -60,7 +60,7 @@ logger.addHandler(exportreport)
 # check if on citrx ('nt') or pi
 if os.name == 'nt':
     # set to Chrome default download folder - BOA CITRIX DESKTOP DEFAULT SETTINGS
-    DOWNLOAD_FOLDER = f"C:\\Users\\{getpass.getuser().title()}\\Downloads"
+    DOWNLOAD_FOLDER = f"C:\\Users\\{getpass.getuser().title()}\\Downloads\\"
 else:
     # constant for downloads folder - Pi default for Chromium
     DOWNLOAD_FOLDER = '/home/pi/Downloads/'
@@ -111,7 +111,7 @@ else:
 # sets filepath to downloaded file and create DataFrame from file
 # output file extension is .xls but is actually.html format
 
-filepath = f'{DOWNLOAD_FOLDER}\\{file_name}'
+filepath = f'{DOWNLOAD_FOLDER}{file_name}'
 data = pd.read_html(filepath)
 df = data[0]
 
