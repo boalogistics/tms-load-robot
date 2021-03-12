@@ -1,29 +1,21 @@
-# TODO module and variable naming; how to structure 'selling_price' variable
-
 import getpass
 import json
 import logging
 import logging.config
 import os
+import re
 import sys
 import time
+from math import ceil
 import pandas as pd
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support.ui import Select
 import tms_login as tms
-import discount
-import passport
-import wildbrine
-import pocino
-import papacantella
-import svd
-import perfectbar
-import reynaldos
-import fabrique
-import house
-import rose
-import surcharge
+
+SURCHARGE_PCT = 0.2
 
 
+# TODO REFACTOR ENTER BILLING & SURCHARGE TOGETHER
 def enter_billing(load, price, discount_amt=0):
     try:
         edit_pricing = (
@@ -44,14 +36,121 @@ def enter_billing(load, price, discount_amt=0):
         else:
             logging(f'{load} already has existing pricing.')
 
-        if discount_amt:
-            discount.apply_discount(load, discount_amt, browser)
-            logging.info(f'{load} discounted {discount_amt} ({float(discount_amt) / price})')
+        # if discount_amt:
+        #     discount.apply_discount(load, discount_amt, browser)
+        #     logging.info(f'{load} discounted {discount_amt} ({float(discount_amt) / price})')
 
         save_price_btn = browser.find_element_by_id('btnUpdateCosts')
         save_price_btn.click()
     except Exception as e:
         logging.info(f'{load} threw {repr(e)}')
+
+
+def add_surcharge(load, charge, surcharge_amt):
+    surcharge_type = {
+        'dedicated': ['Dedicated Truck:', '241'],
+        'extreme': ['Extreme Weather:','298']
+    }
+    
+    surcharge = surcharge_type[charge]
+
+    try:
+        edit_pricing = (
+            f'{url}App_BW/staff/shipment/shipmentCostPop.aspx?loadid={load}'
+        )
+        browser.get(edit_pricing)
+
+        td_list = browser.find_elements_by_tag_name('td')
+        surcharge_exists = any(td.text == surcharge[0] for td in td_list)
+        while not surcharge_exists:
+            supplemental_select = Select(browser.find_element_by_id('ddlAddSupplementals'))
+            try:
+                supplemental_select.select_by_value(surcharge[1])
+            except Exception as e:
+                logging.exception(f'{load} threw {repr(e)}')
+            add_button = browser.find_element_by_id('btnAddSupplemental')
+            add_button.click()
+            logging.info(f'Added invoice line {surcharge[0]}')
+            td_list = browser.find_elements_by_tag_name('td')
+            surcharge_exists = any(td.text == surcharge[0] for td in td_list)
+
+        surcharge_box_pos = [td.text for td in td_list].index(surcharge[0])
+        # input box in next TD cell after {SURCHARGE} label
+        surcharge_cell = td_list[surcharge_box_pos + 1]
+        surcharge_input = surcharge_cell.find_element_by_tag_name('input')
+        surcharge_input.send_keys(Keys.CONTROL + 'a')
+        surcharge_input.send_keys(Keys.DELETE)
+        surcharge_input.send_keys(str(surcharge_amt))
+        logging.info(f'{load} additional surcharge {surcharge[0]} {surcharge_amt}')
+
+        save_price_btn = browser.find_element_by_id('btnUpdateCosts')
+        save_price_btn.click()
+    except Exception as e:
+        logging.info(f'{load} threw {repr(e)}')
+
+def calc_wt_sc(baseprice, weight, pallets):
+    # Max weight to count as 1 chargeable pallet
+    MAX_WEIGHT = 1768
+    # Pallets exceeding will count as 2 chargeable plts
+    MAX_WEIGHT_2 = 2350
+    # Percent discount for pallet counts 1 to 10
+    discount_rates = [
+        0.006, 0.0075, 0.0035, 0.0035, 0.0040,
+        0.0045, 0.005, 0.0055, 0.006, 0.006
+    ]
+    
+    wt_per_plt = weight / pallets
+
+    if wt_per_plt <= MAX_WEIGHT:
+        chgble_plt = 1
+    elif wt_per_plt > MAX_WEIGHT_2:
+        chgble_plt = 2
+    else:
+        chgble_plt = wt_per_plt / MAX_WEIGHT
+
+    discount = discount_rates[pallets - 1]
+    chargeable_selling = (chgble_plt * baseprice) * (1 - discount)
+
+    if baseprice > chargeable_selling:
+        return baseprice
+    else:
+        if pallets < 5:
+            return ceil((chargeable_selling - 5) / 10) * 10
+        else:
+            return ceil((chargeable_selling / 10)) * 10
+
+
+def get_price(df_row, client):
+    '''Master function with all included
+    '''
+    rate_table = pd.read_excel(f'db/{client}.xlsx', engine='openpyxl')
+    df = pd.DataFrame(rate_table)
+    pallets = df_row['Pallets']
+    origin = f'{df_row["S/ City"]}, {df_row["S/ State"]}'
+    
+    # Check if destination zip code required
+    regex_nums = re.findall('[0-9]', rate_table['Destination'][0])
+    if len(regex_nums) > 0:
+        destination = f'{df_row["C/ City"]}, {df_row["C/ State"]} {str(int(df_row["C/ Zip"])).zfill(5)}'
+    else:
+        destination = f'{df_row["C/ City"]}, {df_row["C/ State"]}'
+        
+    if client == 'passport':
+        temp = df_row['Equipment']
+        key = json.load(open('db/equipment.json', 'r'))
+        df = pd.pivot_table(df, index=['Origin', 'Temp', 'Destination'])
+        retail = df.loc[origin].loc[key[temp]].loc[destination][pallets]
+    elif client == 'stir':
+        weight = df_row['Weight']
+        key = json.load(open('db/region.json', 'r'))
+        df = pd.pivot_table(df, index=['Origin', 'Destination'])
+        base_selling = df.loc[key[origin]].loc[destination][pallets]
+        retail = calc_wt_sc(base_selling, weight, pallets)        
+    else:
+        df = pd.pivot_table(df, index=['Destination'])
+        retail = df.loc[destination][pallets]
+
+    return retail
 
 
 if len(sys.argv) < 2:
@@ -135,371 +234,81 @@ client_df_dict ={}
 
 for key in client_dict:
     client_df_dict[key] = load_table[load_table['Customer #'] == client_dict[key]['id']]
+# TODO COMBINE DF AND MAIN CLIENT DICTS
 
 # print(client_df_dict)
-
-passport_df = load_table[load_table['Customer #'] == 1495]
-stir_df = load_table[load_table['Customer #'] == 1374]
-wildbrine_df = load_table[load_table['Customer #'] == 890]
-papacantella_df = load_table[load_table['Customer #'] == 1232]
-pocino_df = load_table[load_table['Customer #'] == 933]
-svd_df = load_table[load_table['Customer #'] == 611]
-perfectbar_df = load_table[load_table['Customer #'] == 1364]
-reynaldos_df = load_table[load_table['Customer #'] == 766]
-fabrique_df = load_table[load_table['Customer #'] == 1124]
-house_df = load_table[load_table['Customer #'] == 1110]
-rose_df = load_table[load_table['Customer #'] == 1540]
-azuma_df = load_table[load_table['Customer #'] == 1301]
 
 export_df = pd.DataFrame([[
     'Customer Name', 'Load', 'Status', 
     'Destination', 'Pallets', 'Base Retail', 'Margin'
 ]])
 
+# TODO change order of ops to calculate retail for all first then batch enter into TMS, confirmation msg entered successfully at end
 
 for client_name in client_df_dict:
     client_df = client_df_dict[client_name]
     if len(client_df.index) > 0:
         client_df.reset_index(drop=True, inplace=True)
         for row in client_df.iloc:
+            client_id = client_dict[client_name]['id']
             load_no = row['Load #']
             plts = row['Pallets']
             weight = row['Weight']
-            dest_city_state = f'{row["C/ City"]}, {row["C/ State"]}'
+            dest_city = row['C/ City']
+            dest_city_state = f'{dest_city}, {row["C/ State"]}'
             base_retail = '-'
             margin = '-'
             
-            if client_dict[client_name]['id'] == 1301:
-                print('Azuma')
             try:
-                client_attribs = client_dict[client_name]
-                max_keys = ['max_plts', 'max_wt', 'max_wt_pp']
-                has_max = any(key in client_attribs for key in max_keys)
-                exceeds_plts, exceeds_wt, exceeds_wt_pp = False, False, False
-                max_plts, max_wt, max_wt_pp = 'n/a', 'n/a', 'n/a'
-                
-                if has_max:
-                    if 'max_plts' in client_attribs:
-                        max_plts = client_attribs['max_plts']
-                        exceeds_plts = plts > max_plts
-                    if 'max_wt' in client_attribs:
-                        max_wt = client_attribs['max_wt']
-                        exceeds_wt = weight > max_wt
-                    if 'max_wt_pp' in client_attribs:
-                        max_wt_pp = client_attribs['max_wt_pp']
-                        exceeds_wt_pp = (weight / plts) > max_wt_pp
-
-                if any([exceeds_plts, exceeds_wt, exceeds_wt_pp]):
-                    print(
-                        f'{str(load_no)} exceeds one or more maximums: Max weight per plt: {max_wt_pp} lbs / {str(round(weight / plts))} lbs; Max plts: {max_plts} plts / {str(plts)} plts; Max total weight: {max_wt} lbs / {str(weight)} lbs'
-                    )
-                else:
-                    # TODO CUSTOMIZE GET_PRICE MODIFIERS
+                if client_id == 1301:
+                    logging.info('Azuma dedicated line')
+                    add_surcharge(load_no, 'dedicated', 0.01)
+                elif client_id == 1495 and (dest_city == 'Tracy' or dest_city == 'Mira Loma'):
                     selling_price = get_price(row, client_name)
                     base_retail = selling_price
-#                     enter_billing(load_no, selling_price)
+                    enter_billing(load_no, selling_price)
                     margin = (row['Billed'] + selling_price - row['Cost']) / (row['Billed'] + selling_price)
-                    print(f'{str(load_no)} {dest_city_state} margin: {str(margin)}, pallets: {str(plts)}')
+                    logging.info(f'{str(load_no)} {dest_city_state} margin: {str(margin)}, pallets: {str(plts)}')
+                else:
+                    client_attribs = client_dict[client_name]
+                    max_keys = ['max_plts', 'max_wt', 'max_wt_pp']
+                    has_max = any(key in client_attribs for key in max_keys)
+                    exceeds_plts, exceeds_wt, exceeds_wt_pp = False, False, False
+                    max_plts, max_wt, max_wt_pp = 'n/a', 'n/a', 'n/a'
+
+                    if has_max:
+                        if 'max_plts' in client_attribs:
+                            max_plts = client_attribs['max_plts']
+                            exceeds_plts = plts > max_plts
+                        if 'max_wt' in client_attribs:
+                            max_wt = client_attribs['max_wt']
+                            exceeds_wt = weight > max_wt
+                        if 'max_wt_pp' in client_attribs:
+                            max_wt_pp = client_attribs['max_wt_pp']
+                            exceeds_wt_pp = (weight / plts) > max_wt_pp
+
+                    if any([exceeds_plts, exceeds_wt, exceeds_wt_pp]):
+                        logging.info(
+                            f'{str(load_no)} exceeds one or more maximums: Max weight per plt: {max_wt_pp} lbs / {str(round(weight / plts))} lbs; Max plts: {max_plts} plts / {str(plts)} plts; Max total weight: {max_wt} lbs / {str(weight)} lbs'
+                        )
+                    else:
+                        selling_price = get_price(row, client_name)
+                        base_retail = selling_price
+                        enter_billing(load_no, selling_price)
+
+                        # Extreme Weather Surcharge // 1374 == Stir
+                        if client_id == 1374:
+                            surcharge_price = selling_price * SURCHARGE_PCT
+                            add_surcharge(load_no, 'extreme', surcharge_price)
+                            selling_price = selling_price + surcharge_price
+                        
+                        margin = (row['Billed'] + selling_price - row['Cost']) / (row['Billed'] + selling_price)
+                        logging.info(f'{str(load_no)} {dest_city_state} margin: {str(margin)}, pallets: {str(plts)}')
             except Exception as e:
-                print(f'{str(load_no)} errored. No rate for {e}')
+                    logging.exception(f'{str(load_no)} errored. No rate for {e}')
 
             export_row = pd.DataFrame([[row['Customer Name'], load_no, row['S/ Status'], dest_city_state, plts, base_retail, margin]])
             export_df = pd.concat([export_df, export_row], ignore_index=False)
-
-# TODO change order of ops to calculate retail for all first then batch enter into TMS, confirmation msg entered successfully at end
-
-if len(passport_df.index) > 0:
-    passport_df.reset_index(drop=True, inplace=True)
-    for row in passport_df.index:
-        current_row = passport_df.iloc[row]
-        current_load = current_row['Load #']
-        current_plts = current_row['Pallets']
-        current_cs = f'{current_row["C/ City"]}, {current_row["C/ State"]}'
-        base_retail = '-'
-        margin = '-'
-
-        try:
-            if current_plts <= 20 or current_row['C/ City'] == 'Mira Loma' or current_row['C/ City'] == 'Tracy':
-                selling_price = passport.get_price(current_row)
-                base_retail = selling_price[1]
-                enter_billing(*selling_price)
-                margin = (current_row['Billed'] + selling_price[1] - current_row['Cost']) / (current_row['Billed'] + selling_price[1])
-                logging.info(f'{str(current_load)} {current_cs} margin: {str(margin)}, pallets: {str(current_plts)}')
-            else:
-                logging.info(f'{str(current_load)} exceeds 20 pallets: {str(current_plts)}')
-        except Exception as e:
-            logging.info(f'{str(current_load)} errored. No rate found for {repr(e)}')
-
-        export_row = pd.DataFrame([[current_row['Customer Name'], current_load, current_row['S/ Status'], current_cs, current_plts, base_retail, margin]])
-        export_df = pd.concat([export_df, export_row], ignore_index=False)
-
-if len(stir_df.index) > 0:
-    stir_df.reset_index(drop=True, inplace=True)
-    for row in stir_df.index:
-        current_row = stir_df.iloc[row]
-        current_load = current_row['Load #']
-        current_plts = current_row['Pallets']
-        current_cs = f'{current_row["C/ City"]}, {current_row["C/ State"]}'
-        base_retail = '-'
-        margin = '-'
-
-        try:
-            # current_row = stir_df.iloc[row]
-            # TODO how to account for rates not on table? and manually entered existing?
-            selling_price = discount.get_price(current_row)
-            # removing costco discount
-            # discount_amt = discount.get_discount(current_row, selling_price[1])
-            base_retail = selling_price[1]
-            enter_billing(*selling_price)
-            surcharge.add_surcharge(current_load, browser, 'extreme_stir')
-            margin = (current_row['Billed'] + selling_price[1] - current_row['Cost']) / (current_row['Billed'] + selling_price[1])
-            logging.info(f'{str(current_load)} {current_cs} margin: {str(margin)}, pallets: {str(current_plts)}')
-        except Exception as e:
-            logging.info(f'{str(current_load)} errored. No rate found for {repr(e)}')
-
-        export_row = pd.DataFrame([[current_row['Customer Name'], current_load, current_row['S/ Status'], current_cs, current_plts, base_retail, margin]])
-        export_df = pd.concat([export_df, export_row], ignore_index=False)
-
-if len(wildbrine_df.index) > 0:
-    wildbrine_df.reset_index(drop=True, inplace=True)
-    for row in wildbrine_df.index:
-        current_row = wildbrine_df.iloc[row]
-        current_load = current_row['Load #']
-        current_plts = current_row['Pallets']
-        current_cs = f'{current_row["C/ City"]}, {current_row["C/ State"]}'
-        base_retail = '-'
-        margin = '-'
-
-        try:
-            if current_plts <= 9:
-                selling_price = wildbrine.get_price(current_row)
-                base_retail = selling_price[1]
-                enter_billing(*selling_price)
-                margin = (current_row['Billed'] + selling_price[1] - current_row['Cost']) / (current_row['Billed'] + selling_price[1])
-                logging.info(f'{str(current_load)} {current_cs} margin: {str(margin)}, pallets: {str(current_plts)}')
-            else:
-                logging.info(f'{str(current_load)} exceeds 9 pallets: {str(current_plts)}')
-        except Exception as e:
-            logging.info(f'{str(current_load)} errored. No rate found for {repr(e)}')
-
-        export_row = pd.DataFrame([[current_row['Customer Name'], current_load, current_row['S/ Status'], current_cs, current_plts, base_retail, margin]])
-        export_df = pd.concat([export_df, export_row], ignore_index=False)
-
-if len(papacantella_df.index) > 0:
-    papacantella_df.reset_index(drop=True, inplace=True)
-    for row in papacantella_df.index:
-        current_row = papacantella_df.iloc[row]
-        current_load = current_row['Load #']
-        current_plts = current_row['Pallets']
-        current_cs = f'{current_row["C/ City"]}, {current_row["C/ State"]}'
-        base_retail = '-'
-        margin = '-'                        
-
-        try:
-            if current_plts <= 14 and (current_row['Weight'] / current_plts) <= 1650:
-                selling_price = papacantella.get_price(current_row)
-                base_retail = selling_price[1]
-                enter_billing(*selling_price)
-                margin = (current_row['Billed'] + selling_price[1] - current_row['Cost']) / (current_row['Billed'] + selling_price[1])
-                logging.info(f'{str(current_load)} {current_cs} margin: {str(margin)}, pallets: {str(current_plts)}')
-            else:
-                logging.info(f'{str(current_load)} exceeds max weight / pallets (1650 lbs per plt or 14 pallets): {str(round(current_row["Weight"] / current_plts))} lbs per plt / {str(current_plts)} plts')
-        except Exception as e:
-            logging.info(f'{str(current_load)} errored. No rate found for {repr(e)}')
-
-        export_row = pd.DataFrame([[current_row['Customer Name'], current_load, current_row['S/ Status'], current_cs, current_plts, base_retail, margin]])
-        export_df = pd.concat([export_df, export_row], ignore_index=False)
-
-if len(svd_df.index) > 0:
-    svd_df.reset_index(drop=True, inplace=True)
-    for row in svd_df.index:
-        current_row = svd_df.iloc[row]
-        current_load = current_row['Load #']
-        current_plts = current_row['Pallets']
-        current_cs = f'{current_row["C/ City"]}, {current_row["C/ State"]}'
-        base_retail = '-'
-        margin = '-'
-
-        try:
-            if current_plts <= 24 and current_row['Weight'] <= 30600:
-                selling_price = svd.get_price(current_row)
-                base_retail = selling_price[1]
-                enter_billing(*selling_price)
-                margin = (current_row['Billed'] + selling_price[1] - current_row['Cost']) / (current_row['Billed'] + selling_price[1])
-                logging.info(f'{str(current_load)} {current_cs} margin: {str(margin)}, pallets: {str(current_plts)}')
-            else:
-                logging.info(f'{str(current_load)} exceeds max weight or pallet (30,600 lbs / 24 plts): {str(current_row["Weight"])} lbs / {str(current_plts)} plts')
-        except Exception as e:
-            logging.info(f'{str(current_load)} errored. No rate found for {repr(e)}')
-
-        export_row = pd.DataFrame([[current_row['Customer Name'], current_load, current_row['S/ Status'], current_cs, current_plts, base_retail, margin]])
-        export_df = pd.concat([export_df, export_row], ignore_index=False)
-
-if len(pocino_df.index) > 0:
-    pocino_df.reset_index(drop=True, inplace=True)
-    for row in pocino_df.index:
-        current_row = pocino_df.iloc[row]
-        current_load = current_row['Load #']
-        current_plts = current_row['Pallets']
-        current_cs = current_row['C/ City'] + ', ' + current_row['C/ State']
-        base_retail = '-'
-        margin = '-'
-
-        try:
-            if current_plts <= 10:
-                selling_price = pocino.get_price(current_row)
-                base_retail = selling_price[1]
-                enter_billing(*selling_price)
-                margin = (current_row['Billed'] + selling_price[1] - current_row['Cost']) / (current_row['Billed'] + selling_price[1])
-                logging.info(f'{str(current_load)} {current_cs} margin: {str(margin)}, pallets: {str(current_plts)}')
-            else:
-                logging.info(f'{str(current_load)} exceeds 15 pallets: {str(current_plts)}')
-        except Exception as e:
-            logging.info(f'{str(current_load)} errored. No rate found for {repr(e)}')
-
-        export_row = pd.DataFrame([[current_row['Customer Name'], current_load, current_row['S/ Status'], current_cs, current_plts, base_retail, margin]])
-        export_df = pd.concat([export_df, export_row], ignore_index=False)
-
-if len(perfectbar_df.index) > 0:
-    perfectbar_df.reset_index(drop=True, inplace=True)
-    for row in perfectbar_df.index:
-        current_row = perfectbar_df.iloc[row]
-        current_load = current_row['Load #']
-        current_plts = current_row['Pallets']
-        current_cs = current_row['C/ City'] + ', ' + current_row['C/ State']
-        base_retail = '-'
-        margin = '-'
-
-        try:
-            if current_plts <= 10:
-                selling_price = perfectbar.get_price(current_row)
-                base_retail = selling_price[1]
-                enter_billing(*selling_price)
-                margin = (current_row['Billed'] + selling_price[1] - current_row['Cost']) / (current_row['Billed'] + selling_price[1])
-                logging.info(f'{str(current_load)} {current_cs} margin: {str(margin)}, pallets: {str(current_plts)}')
-            else:
-                logging.info(f'{str(current_load)} exceeds 10 pallets: {str(current_plts)}')
-        except Exception as e:
-            logging.info(f'{str(current_load)} errored. No rate found for {repr(e)}')
-
-        export_row = pd.DataFrame([[current_row['Customer Name'], current_load, current_row['S/ Status'], current_cs, current_plts, base_retail, margin]])
-        export_df = pd.concat([export_df, export_row], ignore_index=False)
-
-if len(reynaldos_df.index) > 0:
-    reynaldos_df.reset_index(drop=True, inplace=True)
-    for row in reynaldos_df.index:
-        current_row = reynaldos_df.iloc[row]
-        current_load = current_row['Load #']
-        current_plts = current_row['Pallets']
-        current_cs = current_row['C/ City'] + ', ' + current_row['C/ State']
-        base_retail = '-'
-        margin = '-'
-
-        try:
-            if current_plts <= 12:
-                selling_price = reynaldos.get_price(current_row)
-                base_retail = selling_price[1]
-                enter_billing(*selling_price)
-                margin = (current_row['Billed'] + selling_price[1] - current_row['Cost']) / (current_row['Billed'] + selling_price[1])
-                logging.info(f'{str(current_load)} {current_cs} margin: {str(margin)}, pallets: {str(current_plts)}')
-            else:
-                logging.info(f'{str(current_load)} exceeds 12 pallets: {str(current_plts)}')
-        except Exception as e:
-            logging.info(f'{str(current_load)} errored. No rate found for {repr(e)}')
-
-        export_row = pd.DataFrame([[current_row['Customer Name'], current_load, current_row['S/ Status'], current_cs, current_plts, base_retail, margin]])
-        export_df = pd.concat([export_df, export_row], ignore_index=False)
-
-if len(fabrique_df.index) > 0:
-    fabrique_df.reset_index(drop=True, inplace=True)
-    for row in fabrique_df.index:
-        current_row = fabrique_df.iloc[row]
-        current_load = current_row['Load #']
-        current_plts = current_row['Pallets']
-        current_cs = current_row['C/ City'] + ', ' + current_row['C/ State']
-        base_retail = '-'
-        margin = '-'
-
-        try:
-            if current_plts <= 3 and (current_row['Weight'] / current_plts) <= 2000:
-                selling_price = fabrique.get_price(current_row)
-                base_retail = selling_price[1]
-                enter_billing(*selling_price)
-                margin = (current_row['Billed'] + selling_price[1] - current_row['Cost']) / (current_row['Billed'] + selling_price[1])
-                logging.info(f'{str(current_load)} {current_cs} margin: {str(margin)}, pallets: {str(current_plts)}')
-            else:
-                logging.info(f'{str(current_load)} exceeds max weight / pallets (2000 lbs per plt or 3 pallets): {str(round(current_row["Weight"] / current_plts))} lbs per plt / {str(current_plts)} plts')
-        except Exception as e:
-            print(e)
-            logging.info(f'{str(current_load)} errored. No rate found for {repr(e)}')
-
-        export_row = pd.DataFrame([[current_row['Customer Name'], current_load, current_row['S/ Status'], current_cs, current_plts, base_retail, margin]])
-        export_df = pd.concat([export_df, export_row], ignore_index=False)
-
-if len(house_df.index) > 0:
-    house_df.reset_index(drop=True, inplace=True)
-    for row in house_df.index:
-        current_row = house_df.iloc[row]
-        current_load = current_row['Load #']
-        current_plts = current_row['Pallets']
-        current_cs = current_row['C/ City'] + ', ' + current_row['C/ State']
-        base_retail = '-'
-        margin = '-'
-
-        try:
-            if current_plts <= 16 and (current_row['Weight'] / current_plts) <= 1650:
-                selling_price = house.get_price(current_row)
-                base_retail = selling_price[1]
-                enter_billing(*selling_price)
-                margin = (current_row['Billed'] + selling_price[1] - current_row['Cost']) / (current_row['Billed'] + selling_price[1])
-                logging.info(f'{str(current_load)} {current_cs} margin: {str(margin)}, pallets: {str(current_plts)}')
-            else:
-                logging.info(f'{str(current_load)} exceeds max weight / pallets (1650 lbs per plt or 16 pallets): {str(round(current_row["Weight"] / current_plts))} lbs per plt / {str(current_plts)} plts')
-        except Exception as e:
-            print(e)
-            logging.info(f'{str(current_load)} errored. No rate found for {repr(e)}')
-
-        export_row = pd.DataFrame([[current_row['Customer Name'], current_load, current_row['S/ Status'], current_cs, current_plts, base_retail, margin]])
-        export_df = pd.concat([export_df, export_row], ignore_index=False)
-
-if len(rose_df.index) > 0:
-    rose_df.reset_index(drop=True, inplace=True)
-    for row in rose_df.index:
-        current_row = rose_df.iloc[row]
-        current_load = current_row['Load #']
-        current_plts = current_row['Pallets']
-        current_cs = current_row['C/ City'] + ', ' + current_row['C/ State']
-        base_retail = '-'
-        margin = '-'
-
-        try:
-            if current_plts <= 2 and (current_row['Weight'] / current_plts) <= 751:
-                selling_price = rose.get_price(current_row)
-                base_retail = selling_price[1]
-                enter_billing(*selling_price)
-                margin = (current_row['Billed'] + selling_price[1] - current_row['Cost']) / (current_row['Billed'] + selling_price[1])
-                logging.info(f'{str(current_load)} {current_cs} margin: {str(margin)}, pallets: {str(current_plts)}')
-            else:
-                logging.info(f'{str(current_load)} exceeds max weight / pallets (751 lbs per plt or 2 pallets): {str(round(current_row["Weight"] / current_plts))} lbs per plt / {str(current_plts)} plts')
-        except Exception as e:
-            print(e)
-            logging.info(f'{str(current_load)} errored. No rate found for {repr(e)}')
-
-        export_row = pd.DataFrame([[current_row['Customer Name'], current_load, current_row['S/ Status'], current_cs, current_plts, base_retail, margin]])
-        export_df = pd.concat([export_df, export_row], ignore_index=False)
-
-if len(azuma_df.index) > 0:
-    azuma_df.reset_index(drop=True, inplace=True)
-    for row in azuma_df.index:
-        current_row = azuma_df.iloc[row]
-        load = current_row['Load #']
-        try:
-            edit_pricing = (f'{url}App_BW/staff/shipment/shipmentCostPop.aspx?loadid={load}')
-            browser.get(edit_pricing)
-            # Invoice line requires non zero number to keep line 
-            surcharge.add_surcharge(load, browser, 'dedicated', 0.01)
-        except Exception as e:
-            logging.info(f'{load} errored. {repr(e)}')
 
 browser.quit()
 print('Browser closed.')
