@@ -17,7 +17,7 @@ def login(url, boolheadless=True):
     login_button = browser.find_element_by_id("ctl00_ContentBody_butLogin")
 
     # login credentials
-    boa_user.send_keys("***EMAIL HERE***")
-    boa_pw.send_keys("***PASSWORD HERE***")
+    boa_user.send_keys("daigo@boalogistics.com")
+    boa_pw.send_keys("ship12345")
     login_button.click()
     return browser
