@@ -12,7 +12,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import Select
 import tms_login as tms
 
-SURCHARGE_PCT = 0.2
+SURCHARGE_PCT = 0.13
 
 
 # TODO REFACTOR ENTER BILLING & SURCHARGE TOGETHER
@@ -48,6 +48,7 @@ def enter_billing(load, price, discount_amt=0):
 
 def add_surcharge(load, charge, surcharge_amt):
     surcharge_type = {
+        'additional': ['Additional Surcharge', '295'],
         'dedicated': ['Dedicated Truck:', '241'],
         'extreme': ['Extreme Weather:','298']
     }
@@ -192,7 +193,7 @@ save_report_btn.click()
 browser.implicitly_wait(3)
 download = browser.find_element_by_id('ctl00_ContentBody_butExportToExcel')
 download.click()
-time.sleep(3)
+time.sleep(5)
 
 # list of files in Downloads folder after downloading to extract filename
 after = os.listdir(DOWNLOAD_FOLDER)
@@ -236,7 +237,10 @@ for key in client_dict:
     client_df_dict[key] = load_table[load_table['Customer #'] == client_dict[key]['id']]
 # TODO COMBINE DF AND MAIN CLIENT DICTS
 
-# print(client_df_dict)
+# for key in client_dict:
+#     client_dict[key]['loads'] = load_table[load_table['Customer #'] == client_dict[key]['id']]
+
+# print(client_dict)
 
 export_df = pd.DataFrame([[
     'Customer Name', 'Load', 'Status', 
@@ -259,6 +263,8 @@ for client_name in client_df_dict:
             base_retail = '-'
             margin = '-'
             
+
+            # TODO SIMPLFIY CLIENT CHOICE AND SELLING/BASERETAIL/MARGIN LOGIC
             try:
                 if client_id == 1301:
                     logging.info('Azuma dedicated line')
@@ -297,17 +303,20 @@ for client_name in client_df_dict:
                         enter_billing(load_no, selling_price)
 
                         # Extreme Weather Surcharge // 1374 == Stir
-                        if client_id == 1374:
-                            surcharge_price = selling_price * SURCHARGE_PCT
-                            add_surcharge(load_no, 'extreme', surcharge_price)
-                            selling_price = selling_price + surcharge_price
+                        # if client_id == 1374:
+                        #     surcharge_price = selling_price * SURCHARGE_PCT
+                        #     add_surcharge(load_no, 'extreme', surcharge_price)
+                        #     selling_price = selling_price + surcharge_price
                         
                         margin = (row['Billed'] + selling_price - row['Cost']) / (row['Billed'] + selling_price)
                         logging.info(f'{str(load_no)} {dest_city_state} margin: {str(margin)}, pallets: {str(plts)}')
             except Exception as e:
-                    logging.exception(f'{str(load_no)} errored. No rate for {e}')
+                    logging.exception(f'{str(load_no)} errored. No rate for {repr(e)}')
 
-            export_row = pd.DataFrame([[row['Customer Name'], load_no, row['S/ Status'], dest_city_state, plts, base_retail, margin]])
+            export_row = pd.DataFrame([[
+                row['Customer Name'], load_no, row['S/ Status'], 
+                dest_city_state, plts, base_retail, margin
+            ]])
             export_df = pd.concat([export_df, export_row], ignore_index=False)
 
 browser.quit()
