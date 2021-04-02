@@ -12,7 +12,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import Select
 import tms_login as tms
 
-SURCHARGE_PCT = 0.13
+SURCHARGE_CLIENTS = [611, 890] # SVD = 611, WILDBRINE = 890
 
 
 # TODO REFACTOR ENTER BILLING & SURCHARGE TOGETHER
@@ -297,16 +297,21 @@ for client_name in client_df_dict:
                         logging.info(
                             f'{str(load_no)} exceeds one or more maximums: Max weight per plt: {max_wt_pp} lbs / {str(round(weight / plts))} lbs; Max plts: {max_plts} plts / {str(plts)} plts; Max total weight: {max_wt} lbs / {str(weight)} lbs'
                         )
+                        # Additional Surcharge // 611 == SVD -- $0.01 if base retail 0
+                        if client_id in SURCHARGE_CLIENTS:
+                            surcharge_price = 0.01
+                            add_surcharge(load_no, 'additional', surcharge_price)
                     else:
                         selling_price = get_price(row, client_name)
                         base_retail = selling_price
                         enter_billing(load_no, selling_price)
 
-                        # Extreme Weather Surcharge // 1374 == Stir
-                        # if client_id == 1374:
-                        #     surcharge_price = selling_price * SURCHARGE_PCT
-                        #     add_surcharge(load_no, 'extreme', surcharge_price)
-                        #     selling_price = selling_price + surcharge_price
+                        # 611 == SVD @ 5%, 890 == WILDBRINE @ 12%
+                        if client_id in SURCHARGE_CLIENTS:
+                            ## ENTER SURCHARGE PERCENTAGE
+                            surcharge_price = selling_price * 0.05
+                            add_surcharge(load_no, 'additional', surcharge_price)
+                            selling_price = selling_price + surcharge_price
                         
                         margin = (row['Billed'] + selling_price - row['Cost']) / (row['Billed'] + selling_price)
                         logging.info(f'{str(load_no)} {dest_city_state} margin: {str(margin)}, pallets: {str(plts)}')
