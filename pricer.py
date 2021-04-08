@@ -156,8 +156,7 @@ def get_price(df_row, client):
         retail = calc_wt_sc(base_selling, weight, pallets)        
     elif client == 'perfectbar':
         df = pd.pivot_table(df, index=['Origin', 'Destination'])
-        base_selling = df.loc[origin].loc[destination][pallets]
-        retail = calc_wt_sc(base_selling, weight, pallets)        
+        retail = df.loc[origin].loc[destination][pallets]
     else:
         df = pd.pivot_table(df, index=['Destination'])
         retail = df.loc[destination][pallets]
