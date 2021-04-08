@@ -12,8 +12,15 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import Select
 import tms_login as tms
 
-SURCHARGE_CLIENTS = [611, 890] # SVD = 611, WILDBRINE = 890
-
+SURCHARGE_CLIENTS = [611] # SVD = 611
+FTL_DESTS = [
+    'Garden Grove',
+    'Tracy',
+    'Los Angeles',
+    'Santa Fe Springs',
+    'Mira Loma'
+    'Ontario'
+]
 
 # TODO REFACTOR ENTER BILLING & SURCHARGE TOGETHER
 def enter_billing(load, price, discount_amt=0):
@@ -147,6 +154,10 @@ def get_price(df_row, client):
         df = pd.pivot_table(df, index=['Origin', 'Destination'])
         base_selling = df.loc[key[origin]].loc[destination][pallets]
         retail = calc_wt_sc(base_selling, weight, pallets)        
+    elif client == 'perfectbar':
+        df = pd.pivot_table(df, index=['Origin', 'Destination'])
+        base_selling = df.loc[origin].loc[destination][pallets]
+        retail = calc_wt_sc(base_selling, weight, pallets)        
     else:
         df = pd.pivot_table(df, index=['Destination'])
         retail = df.loc[destination][pallets]
@@ -269,7 +280,7 @@ for client_name in client_df_dict:
                 if client_id == 1301:
                     logging.info('Azuma dedicated line')
                     add_surcharge(load_no, 'dedicated', 0.01)
-                elif client_id == 1495 and (dest_city == 'Tracy' or dest_city == 'Mira Loma'):
+                elif client_id == 1495 and (dest_city in FTL_DESTS):
                     selling_price = get_price(row, client_name)
                     base_retail = selling_price
                     enter_billing(load_no, selling_price)
@@ -297,7 +308,7 @@ for client_name in client_df_dict:
                         logging.info(
                             f'{str(load_no)} exceeds one or more maximums: Max weight per plt: {max_wt_pp} lbs / {str(round(weight / plts))} lbs; Max plts: {max_plts} plts / {str(plts)} plts; Max total weight: {max_wt} lbs / {str(weight)} lbs'
                         )
-                        # Additional Surcharge // 611 == SVD -- $0.01 if base retail 0
+                        # Additional Surcharge // $0.01 if base retail 0
                         if client_id in SURCHARGE_CLIENTS:
                             surcharge_price = 0.01
                             add_surcharge(load_no, 'additional', surcharge_price)
@@ -306,10 +317,9 @@ for client_name in client_df_dict:
                         base_retail = selling_price
                         enter_billing(load_no, selling_price)
 
-                        # 611 == SVD @ 5%, 890 == WILDBRINE @ 12%
                         if client_id in SURCHARGE_CLIENTS:
-                            ## ENTER SURCHARGE PERCENTAGE
-                            surcharge_price = selling_price * 0.05
+                            surcharge_pct = client_attribs['surcharge_pct']
+                            surcharge_price = selling_price * surcharge_pct
                             add_surcharge(load_no, 'additional', surcharge_price)
                             selling_price = selling_price + surcharge_price
                         
