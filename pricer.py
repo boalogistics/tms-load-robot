@@ -55,7 +55,7 @@ def enter_billing(load, price, discount_amt=0):
 
 def add_surcharge(load, charge, surcharge_amt):
     surcharge_type = {
-        'additional': ['Additional Surcharge', '295'],
+        'additional': ['Additional Surcharge:', '295'],
         'dedicated': ['Dedicated Truck:', '241'],
         'extreme': ['Extreme Weather:','298']
     }
@@ -304,6 +304,7 @@ for client_name in client_df_dict:
                             exceeds_wt_pp = (weight / plts) > max_wt_pp
 
                     if any([exceeds_plts, exceeds_wt, exceeds_wt_pp]):
+                        # TODO check to see if method similar to SURCHARGE CLIENTS will work
                         logging.info(
                             f'{str(load_no)} exceeds one or more maximums: Max weight per plt: {max_wt_pp} lbs / {str(round(weight / plts))} lbs; Max plts: {max_plts} plts / {str(plts)} plts; Max total weight: {max_wt} lbs / {str(weight)} lbs'
                         )
