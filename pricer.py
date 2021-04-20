@@ -13,14 +13,7 @@ from selenium.webdriver.support.ui import Select
 import tms_login as tms
 
 SURCHARGE_CLIENTS = [611] # SVD = 611
-FTL_DESTS = [
-    'Garden Grove',
-    'Tracy',
-    'Los Angeles',
-    'Santa Fe Springs',
-    'Mira Loma'
-    'Ontario'
-]
+
 
 # TODO REFACTOR ENTER BILLING & SURCHARGE TOGETHER
 def enter_billing(load, price, discount_amt=0):
@@ -279,7 +272,7 @@ for client_name in client_df_dict:
                 if client_id == 1301:
                     logging.info('Azuma dedicated line')
                     add_surcharge(load_no, 'dedicated', 0.01)
-                elif client_id == 1495 and (dest_city in FTL_DESTS):
+                elif (client_id == 1495 or client_id == 1110) and (dest_city in client_dict[client_name]['ftl_dests']):
                     selling_price = get_price(row, client_name)
                     base_retail = selling_price
                     enter_billing(load_no, selling_price)
