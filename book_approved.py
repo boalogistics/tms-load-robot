@@ -22,7 +22,7 @@ listified = loads_file.read().strip('][').split(', ')
 loadlist = [load.strip("'") for load in listified]
 
 url = 'https://boa.3plsystemscloud.com/'
-browser = tms.login(url, False)
+browser = tms.login(url)
 print('Logged into TMS.')
 
 for x in loadlist:
