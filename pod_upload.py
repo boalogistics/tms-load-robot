@@ -41,10 +41,9 @@ for x in load_list:
         choose_file = browser.find_element_by_id(f'{PREFIX}fileUpLoadDoc')
         choose_file.send_keys(pod_path)
 
-        if client_name == 'Stir Foods LLC':
-            view_permission = Select(browser.find_element_by_id(f'{PREFIX}rdoPermissionList'))
-            view_permission.select_by_value('1')
-            logging.info(f'{load_id} POD made public for {client_name}')
+        view_permission = Select(browser.find_element_by_id(f'{PREFIX}rdoPermissionList'))
+        view_permission.select_by_value('1')
+        logging.info(f'{load_id} POD made public for {client_name}')
 
         upload_btn = browser.find_element_by_id(f'{PREFIX}btnUploadFile')
         upload_btn.click()

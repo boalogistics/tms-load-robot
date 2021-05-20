@@ -6,6 +6,12 @@ from selenium.webdriver.support.ui import WebDriverWait
 import tms_login as tms
 from data_extract import open_sheet
 
+# check if on citrix ('nt') or pi and set Chrome default d/l folder
+if os.name == 'nt':
+    DOWNLOAD_FOLDER = f"C:\\Users\\{getpass.getuser().title()}\\Downloads\\"
+else:
+    DOWNLOAD_FOLDER = '/home/pi/Downloads/'
+
 load_list = []
 
 # repeat until sheet returns list of load numbers
@@ -15,12 +21,6 @@ while len(load_list) == 0:
     load_list = [load[0] for load in loads[1:]]
 
 print(load_list)
-
-# check if on citrix ('nt') or pi and set Chrome default d/l folder
-if os.name == 'nt':
-    DOWNLOAD_FOLDER = f"C:\\Users\\{getpass.getuser().title()}\\Downloads\\"
-else:
-    DOWNLOAD_FOLDER = '/home/pi/Downloads/'
 
 # list of files before downloading
 before = os.listdir(DOWNLOAD_FOLDER)
