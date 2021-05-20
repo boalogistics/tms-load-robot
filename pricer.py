@@ -12,7 +12,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import Select
 import tms_login as tms
 
-SURCHARGE_PCT = 0.2
+SURCHARGE_CLIENTS = [611] # SVD = 611
 
 
 # TODO REFACTOR ENTER BILLING & SURCHARGE TOGETHER
@@ -48,6 +48,7 @@ def enter_billing(load, price, discount_amt=0):
 
 def add_surcharge(load, charge, surcharge_amt):
     surcharge_type = {
+        'additional': ['Additional Surcharge:', '295'],
         'dedicated': ['Dedicated Truck:', '241'],
         'extreme': ['Extreme Weather:','298']
     }
@@ -146,6 +147,9 @@ def get_price(df_row, client):
         df = pd.pivot_table(df, index=['Origin', 'Destination'])
         base_selling = df.loc[key[origin]].loc[destination][pallets]
         retail = calc_wt_sc(base_selling, weight, pallets)        
+    elif client == 'perfectbar':
+        df = pd.pivot_table(df, index=['Origin', 'Destination'])
+        retail = df.loc[origin].loc[destination][pallets]
     else:
         df = pd.pivot_table(df, index=['Destination'])
         retail = df.loc[destination][pallets]
@@ -192,7 +196,7 @@ save_report_btn.click()
 browser.implicitly_wait(3)
 download = browser.find_element_by_id('ctl00_ContentBody_butExportToExcel')
 download.click()
-time.sleep(3)
+time.sleep(5)
 
 # list of files in Downloads folder after downloading to extract filename
 after = os.listdir(DOWNLOAD_FOLDER)
@@ -236,7 +240,10 @@ for key in client_dict:
     client_df_dict[key] = load_table[load_table['Customer #'] == client_dict[key]['id']]
 # TODO COMBINE DF AND MAIN CLIENT DICTS
 
-# print(client_df_dict)
+# for key in client_dict:
+#     client_dict[key]['loads'] = load_table[load_table['Customer #'] == client_dict[key]['id']]
+
+# print(client_dict)
 
 export_df = pd.DataFrame([[
     'Customer Name', 'Load', 'Status', 
@@ -259,11 +266,13 @@ for client_name in client_df_dict:
             base_retail = '-'
             margin = '-'
             
+
+            # TODO SIMPLFIY CLIENT CHOICE AND SELLING/BASERETAIL/MARGIN LOGIC
             try:
                 if client_id == 1301:
                     logging.info('Azuma dedicated line')
                     add_surcharge(load_no, 'dedicated', 0.01)
-                elif client_id == 1495 and (dest_city == 'Tracy' or dest_city == 'Mira Loma'):
+                elif (client_id == 1495 or client_id == 1110) and (dest_city in client_dict[client_name]['ftl_dests']):
                     selling_price = get_price(row, client_name)
                     base_retail = selling_price
                     enter_billing(load_no, selling_price)
@@ -288,26 +297,34 @@ for client_name in client_df_dict:
                             exceeds_wt_pp = (weight / plts) > max_wt_pp
 
                     if any([exceeds_plts, exceeds_wt, exceeds_wt_pp]):
+                        # TODO check to see if method similar to SURCHARGE CLIENTS will work
                         logging.info(
                             f'{str(load_no)} exceeds one or more maximums: Max weight per plt: {max_wt_pp} lbs / {str(round(weight / plts))} lbs; Max plts: {max_plts} plts / {str(plts)} plts; Max total weight: {max_wt} lbs / {str(weight)} lbs'
                         )
+                        # Additional Surcharge // $0.01 if base retail 0
+                        if client_id in SURCHARGE_CLIENTS:
+                            surcharge_price = 0.01
+                            add_surcharge(load_no, 'additional', surcharge_price)
                     else:
                         selling_price = get_price(row, client_name)
                         base_retail = selling_price
                         enter_billing(load_no, selling_price)
 
-                        # Extreme Weather Surcharge // 1374 == Stir
-                        if client_id == 1374:
-                            surcharge_price = selling_price * SURCHARGE_PCT
-                            add_surcharge(load_no, 'extreme', surcharge_price)
+                        if client_id in SURCHARGE_CLIENTS:
+                            surcharge_pct = client_attribs['surcharge_pct']
+                            surcharge_price = selling_price * surcharge_pct
+                            add_surcharge(load_no, 'additional', surcharge_price)
                             selling_price = selling_price + surcharge_price
                         
                         margin = (row['Billed'] + selling_price - row['Cost']) / (row['Billed'] + selling_price)
                         logging.info(f'{str(load_no)} {dest_city_state} margin: {str(margin)}, pallets: {str(plts)}')
             except Exception as e:
-                    logging.exception(f'{str(load_no)} errored. No rate for {e}')
+                    logging.exception(f'{str(load_no)} errored. No rate for {repr(e)}')
 
-            export_row = pd.DataFrame([[row['Customer Name'], load_no, row['S/ Status'], dest_city_state, plts, base_retail, margin]])
+            export_row = pd.DataFrame([[
+                row['Customer Name'], load_no, row['S/ Status'], 
+                dest_city_state, plts, base_retail, margin
+            ]])
             export_df = pd.concat([export_df, export_row], ignore_index=False)
 
 browser.quit()
