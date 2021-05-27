@@ -12,7 +12,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import Select
 import tms_login as tms
 
-SURCHARGE_CLIENTS = [611] # SVD = 611
+SURCHARGE_CLIENTS = [611, 817] # SVD = 611, Pasta Piccinini = 817
 
 
 # TODO REFACTOR ENTER BILLING & SURCHARGE TOGETHER
@@ -298,9 +298,11 @@ for client_name in client_df_dict:
 
                     if any([exceeds_plts, exceeds_wt, exceeds_wt_pp]):
                         # TODO check to see if method similar to SURCHARGE CLIENTS will work
-                        logging.info(
-                            f'{str(load_no)} exceeds one or more maximums: Max weight per plt: {max_wt_pp} lbs / {str(round(weight / plts))} lbs; Max plts: {max_plts} plts / {str(plts)} plts; Max total weight: {max_wt} lbs / {str(weight)} lbs'
-                        )
+                        logging.info(f'{str(load_no)} exceeds one or more maximums: ')
+                        logging.info(f'  Max weight per plt: {max_wt_pp} lbs / {str(round(weight / plts))} lbs;')
+                        logging.info(f'  Max plts: {max_plts} plts / {str(plts)} plts;')
+                        logging.info(f'  Max total weight: {max_wt} lbs / {str(weight)} lbs')
+                        
                         # Additional Surcharge // $0.01 if base retail 0
                         if client_id in SURCHARGE_CLIENTS:
                             surcharge_price = 0.01
@@ -335,7 +337,7 @@ os.startfile('logs\\pricer.log')
 
 print('Exporting summary to Excel...')
 writer = pd.ExcelWriter('logs\\pricer.xlsx', engine="xlsxwriter")
-export_df.to_excel(writer, sheet_name='pricer')
+export_df.to_excel(writer, sheet_name='pricer', index=False)
 writer.save()
 os.startfile('logs\\pricer.xlsx')
 
