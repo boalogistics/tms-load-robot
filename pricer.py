@@ -12,7 +12,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import Select
 import tms_login as tms
 
-SURCHARGE_CLIENTS = [611, 817] # SVD = 611, Pasta Piccinini = 817
+SURCHARGE_CLIENTS = [817] # Pasta Piccinini = 817
 
 
 # TODO REFACTOR ENTER BILLING & SURCHARGE TOGETHER
