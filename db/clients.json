@@ -1,0 +1,63 @@
+{
+    "passport": {
+        "id": 1495,
+        "max_plts": 20,
+        "ftl_dests": ["Mira Loma" , "Garden Grove", "Tracy", "Los Angeles", "Santa Fe Springs", "Ontario"]
+    },
+    "stir": {
+        "id": 1374
+    },
+    "papacantella": {
+        "id": 1232,
+        "max_plts": 15,
+        "max_wt_pp": 1650
+    },
+    "pocino": {
+        "id": 933,
+        "max_plts": 15
+    },
+    "svd": {
+        "id": 611,
+        "max_plts": 17,
+        "max_wt": 26010
+    },
+    "perfectbar": {
+        "id": 1364,
+        "max_plts": 10,
+        "max_wt_pp": 1000
+    },
+    "reynaldos": {
+        "id": 766,        
+        "max_plts": 12
+    },
+    "fabrique": {
+        "id": 1124,
+        "max_plts": 3,
+        "max_wt_pp": 2000
+    },
+    "house": {
+        "id": 1110,
+        "max_plts": 15,
+        "max_wt_pp": 1670,
+        "ftl_dests": ["Mira Loma", "San Bernardino, CA"]
+    },
+    "rose": {
+        "id": 1540,
+        "max_plts": 2,
+        "max_wt_pp": 751
+    },
+    "azuma": {
+        "id": 1301
+    },
+    "pasta": {
+        "id": 817,
+        "max_plts": 10,
+        "max_wt_pp": 1790,
+        "surcharge_pct": 0.114 
+    },
+    "integrated": {
+        "id": 1067,
+        "max_plts": 2,
+        "max_wt_pp": 1996
+    }
+}
