@@ -116,11 +116,11 @@ data = pd.read_html(filepath)
 df = data[0]
 
 # grabs list of load numbers and load count, dropping the Totals row
-load_list_numbers = list(df['Load #'])[:-1]
-load_list = [str(load_num) for load_num in load_list_numbers]
+load_list_int = list(df['Load #'])[:-1]
+load_list_str = [str(load_num) for load_num in load_list_int]
 load_count = len(df.index) - 1
 
-logging.info(load_list)
+logging.info(load_list_str)
 logging.info(f'{load_count} loads entered today.')
 
 
