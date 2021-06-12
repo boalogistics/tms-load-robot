@@ -53,7 +53,7 @@ logger.addHandler(report)
 print('Logger initialized.')
 
 # constant file for emailing
-exportreport = logging.FileHandler(filename='logs/book_export.csv', mode='w+')
+exportreport = logging.FileHandler(filename='exports/book_export.csv', mode='w+')
 exportreport.setFormatter(formatter)
 logger.addHandler(exportreport)
 
@@ -186,6 +186,10 @@ print('Browser closed.')
 logging.shutdown()
 print(f'Session log saved to {log_filename}.')
 print('Logger closed.')
+
+# logfile_df = pd.read_csv('exports/book_export.csv')
+# logfile_df.to_html('book.html')
+
 
 if os.name == 'nt':
     os.startfile(log_filename)
