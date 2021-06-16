@@ -132,7 +132,7 @@ browser = tms.login(url)
 
 PREFIX = 'ctl00_BodyContent_'
 
-for x in load_list:
+for x in load_list_str:
     load_id = x
     load_url = f'{url}App_BW/staff/shipment/shipmentDetail.aspx?loadid={load_id}'
     browser.get(load_url)
