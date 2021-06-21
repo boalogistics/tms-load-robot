@@ -59,5 +59,15 @@
         "id": 1067,
         "max_plts": 2,
         "max_wt_pp": 1996
+    },
+    "bakkavor": {
+        "id": 792,
+        "max_plts": 12,
+        "max_wt_pp": 1549
+    },
+    "wildbrine": {
+        "id": 890,
+        "max_plts": 6,
+        "max_wt_pp": 2250
     }
 }
