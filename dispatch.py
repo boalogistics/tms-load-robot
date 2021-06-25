@@ -42,7 +42,7 @@ with open('db/carrierid.json', 'r') as f:
 # lookup carrier name vs TMS carrier id and store load #, carrier id in list
 loadlist = []
 for truck in truck_dict_list:
-    carrier_name = truck['carrier_name']
+    carrier_name = truck['carrier_name'].strip()
     try:
         load = {
             'id': truck['load_no'],
@@ -57,6 +57,9 @@ url = 'https://boa.3plsystemscloud.com/'
 browser = tms.login(url, False)
 
 PREFIX = 'ctl00_BodyContent_'
+
+# TODO pull TMS report into DF, then use status to filter down load list for relevant
+
 
 for load in loadlist:
     load_id = load['id']
