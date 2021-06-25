@@ -68,6 +68,10 @@
     "wildbrine": {
         "id": 890,
         "max_plts": 6,
-        "max_wt_pp": 2250
+        "max_wt_pp": 2600
+    },
+    "legacyfarms": {
+        "id": 1385,
+        "max_wt": 40000
     }
 }
