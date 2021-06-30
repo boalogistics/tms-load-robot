@@ -103,35 +103,37 @@ for load in loadlist:
             select_carrier_btn = browser.find_element_by_id(f'{PREFIX}SelectCarrierSave')
             select_carrier_btn.click()
 
-            # TEMPORARILY COMMENTING OUT INSURANCE CHECK LOGIC
-            # verify carrier insurance on file is not expired
-            WebDriverWait(browser, timeout=30).until(EC.presence_of_element_located((By.ID, f'{PREFIX}ctlWarningsVertical_lblInsuranceWarnings')))
-            carrier_insurance = browser.find_element_by_id(f'{PREFIX}ctlWarningsVertical_lblInsuranceWarnings').text.upper()
-            carrier_insurance_expired = carrier_insurance.find('EXPIRED') != -1
-            carrier_not_insured = carrier_insurance.find('not') != -1
+            if friday_dispatch:
+                # TEMPORARILY COMMENTING OUT INSURANCE CHECK LOGIC
+                # verify carrier insurance on file is not expired
+                WebDriverWait(browser, timeout=30).until(EC.presence_of_element_located((By.ID, f'{PREFIX}ctlWarningsVertical_lblInsuranceWarnings')))
+                carrier_insurance = browser.find_element_by_id(f'{PREFIX}ctlWarningsVertical_lblInsuranceWarnings').text.upper()
+                carrier_insurance_expired = carrier_insurance.find('EXPIRED') != -1
+                carrier_not_insured = carrier_insurance.find('not') != -1
 
-            if carrier_insurance_expired:
-                carrier_name = browser.find_element_by_xpath(f"//div[@id='{PREFIX}divCarrierInfo']/div[1]/strong").text
-                #logging.info(f'{load_id} not dispatched. Carrier {carrier_name}\'s insurance on file is expired.')
-                logging.info(f'WARNING {load_id} Carrier {carrier_name}\'s insurance on file is expired.')
-                #loads_not_dispatched += 1
-            elif carrier_not_insured:
-                carrier_name = browser.find_element_by_xpath(f"//div[@id='{PREFIX}divCarrierInfo']/div[1]/strong").text
-                #logging.info(f'{load_id} not dispatched. Carrier {carrier_name}\ is not insured.')
-                logging.info(f'WARNING {load_id} Carrier {carrier_name}\ is not insured.')
-               # loads_not_dispatched += 1
-           # else:
-           # UNINDENT BELOW WHEN RE-IMPLEMENTING INSURANCE CHECK BLOCK 
-           # dispatch
-            dispatch = f'{url}App_BW/staff/operations/trackDispatchPop.aspx?loadid={load_id}'
-            browser.get(dispatch)
+                if carrier_insurance_expired:
+                    carrier_name = browser.find_element_by_xpath(f"//div[@id='{PREFIX}divCarrierInfo']/div[1]/strong").text
+                    #logging.info(f'{load_id} not dispatched. Carrier {carrier_name}\'s insurance on file is expired.')
+                    logging.info(f'WARNING {load_id} Carrier {carrier_name}\'s insurance on file is expired.')
+                    #loads_not_dispatched += 1
+                elif carrier_not_insured:
+                    carrier_name = browser.find_element_by_xpath(f"//div[@id='{PREFIX}divCarrierInfo']/div[1]/strong").text
+                    #logging.info(f'{load_id} not dispatched. Carrier {carrier_name}\ is not insured.')
+                    logging.info(f'WARNING {load_id} Carrier {carrier_name}\ is not insured.')
+                # loads_not_dispatched += 1
+            # else:
+            # UNINDENT BELOW WHEN RE-IMPLEMENTING INSURANCE CHECK BLOCK 
+            # dispatch
 
-            WebDriverWait(browser, timeout=30).until(EC.presence_of_element_located((By.ID, 'btnDispatchComplete')))
-            dispatch_btn = browser.find_element_by_id('btnDispatchComplete')
-            dispatch_btn.click()
+                dispatch = f'{url}App_BW/staff/operations/trackDispatchPop.aspx?loadid={load_id}'
+                browser.get(dispatch)
 
-            logging.info(f'Load number {load_id} dispatched!')
-            loads_dispatched += 1
+                WebDriverWait(browser, timeout=30).until(EC.presence_of_element_located((By.ID, 'btnDispatchComplete')))
+                dispatch_btn = browser.find_element_by_id('btnDispatchComplete')
+                dispatch_btn.click()
+
+                logging.info(f'Load number {load_id} dispatched!')
+                loads_dispatched += 1
         else:
             logging.info(f'Auto dispatcher script did not dispatch: {status}')
             loads_not_dispatched += 1
