@@ -2,12 +2,19 @@ import json
 import logging
 import logging.config
 import os
+import sys
 from selenium.webdriver.support.ui import Select, WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 import tms_login as tms
 from data_extract import open_sheet, create_truck
 
+if len(sys.argv) < 2:
+    print('Error: Expected CARRIER ASSIGNMENT TYPE as argument (DISPATCH or TEMP).')
+    sys.exit()
+
+friday_dispatch = sys.argv[1] == 'dispatch'
+    
 # initialize logger
 print('Initializing logger...')
 logging.config.fileConfig(fname='logs/cfg/dispatch.conf')
@@ -28,30 +35,39 @@ loads_not_dispatched = 0
 truck_sheet = open_sheet('Warehousing Sheet Data Feed', 'EXPORT')
 trucks = truck_sheet.get_all_values()
 
-# populate list of dictionaries with output from Google Sheet 
-truck_dict_list = []
-for truck in trucks[1:]:
-    truck_dict = create_truck(truck)
-    truck_dict_list.append(truck_dict)
-
-# carrier name - id # look up table in json
-with open('db/carrierid.json', 'r') as f:
-    carrier_lookup = json.load(f)
-
-# get load number, truck number, and carrier name from Sheets data
-# lookup carrier name vs TMS carrier id and store load #, carrier id in list
 loadlist = []
-for truck in truck_dict_list:
-    carrier_name = truck['carrier_name'].strip()
-    try:
-        load = {
-            'id': truck['load_no'],
-            'carrier': carrier_lookup[carrier_name]
+
+if friday_dispatch:
+    # populate list of dictionaries with output from Google Sheet 
+    truck_dict_list = []
+    for truck in trucks[1:]:
+        truck_dict = create_truck(truck)
+        truck_dict_list.append(truck_dict)
+
+    # carrier name - id # look up table in json
+    with open('db/carrierid.json', 'r') as f:
+        carrier_lookup = json.load(f)
+
+    # get load number, truck number, and carrier name from Sheets data
+    # lookup carrier name vs TMS carrier id and store load #, carrier id in list
+    for truck in truck_dict_list:
+        carrier_name = truck['carrier_name'].strip()
+        try:
+            load = {
+                'id': truck['load_no'],
+                'carrier': carrier_lookup[carrier_name]
+            }
+            loadlist.append(load)
+        except:
+            logging.info(f'Truck # {truck["truck_no"]} Load # {truck["load_no"]} {carrier_name} is not on the carrier list.')
+            loads_not_dispatched += 1
+else:
+    for truck in trucks:
+        load = { 
+            'id':truck[0],
+            'carrier': 9335,
         }
-        loadlist.append(load)
-    except:
-        logging.info(f'Truck # {truck["truck_no"]} Load # {truck["load_no"]} {carrier_name} is not on the carrier list.')
-        loads_not_dispatched += 1
+        loadlist.append(load)   
 
 url = 'https://boa.3plsystemscloud.com/'
 browser = tms.login(url, False)
