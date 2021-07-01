@@ -145,7 +145,8 @@ for x in load_list_str:
     # temporarily remove credit check while Reefer restructres
     if client_credit_exceeded:
         client_name = browser.find_element_by_xpath(f"//div[@id='{PREFIX}divCustomerInfo']/div[1]/a").text
-        logging.info(f'{load_id} not booked. Client {client_name} has exceeded credit limit.')
+        # logging.info(f'{load_id} not booked. Client {client_name} has exceeded credit limit.')
+        logging.info(f'{load_id}, Client {client_name} has exceeded credit limit.')
         # loads_not_booked += 1
     # uncomment and indent to re-enable credit check
     # else:
