@@ -65,7 +65,7 @@ else:
     for truck in trucks[1:]:
         load = { 
             'id':truck[0],
-            'carrier': 9335,
+            'carrier': '9335',
         }
         loadlist.append(load)   
 
