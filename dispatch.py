@@ -62,7 +62,7 @@ if friday_dispatch:
             logging.info(f'Truck # {truck["truck_no"]} Load # {truck["load_no"]} {carrier_name} is not on the carrier list.')
             loads_not_dispatched += 1
 else:
-    for truck in trucks:
+    for truck in trucks[1:]:
         load = { 
             'id':truck[0],
             'carrier': 9335,
