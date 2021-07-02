@@ -89,19 +89,27 @@ for load in loadlist:
         WebDriverWait(browser, timeout=30).until(EC.presence_of_element_located((By.ID, 'lblTitle')))
         status = browser.find_element_by_id('lblTitle').text.upper()
         booked = status.find('BOOKED') != -1
+        # check if carrier already assigned
+        carrier_assigned = len(browser.find_elements(By.ID, 'ctl00_BodyContent_divShowCarrierInfo')) > 0
 
-        if booked:
-            # assign carrier
-            select_carrier = f'{url}App_BW/staff/shipment/selectcarriermore.aspx?loadId={load_id}'
-            browser.get(select_carrier)
+        if carrier_assigned:
+            carrier_name = browser.find_element_by_xpath("//div[@id='ctl00_BodyContent_divCarrierInfo']/div[1]/a").text
+            print(carrier_name)
 
-            WebDriverWait(browser, timeout=30).until(EC.presence_of_element_located((By.ID, f'{PREFIX}ListBoxCarriers')))
-            carrier_select = Select(browser.find_element_by_id(f'{PREFIX}ListBoxCarriers'))
-            carrier_select.select_by_value(carrier_id)
+        if booked:    
+            # check if need to change CONS to actual dispatch carrier
+            if not carrier_assigned or (carrier_name == 'CONS' and carrier_id != '9335'):
+                # assign carrier
+                select_carrier = f'{url}App_BW/staff/shipment/selectcarriermore.aspx?loadId={load_id}'
+                browser.get(select_carrier)
 
-            WebDriverWait(browser, timeout=30).until(EC.presence_of_element_located((By.ID, f'{PREFIX}SelectCarrierSave')))
-            select_carrier_btn = browser.find_element_by_id(f'{PREFIX}SelectCarrierSave')
-            select_carrier_btn.click()
+                WebDriverWait(browser, timeout=30).until(EC.presence_of_element_located((By.ID, f'{PREFIX}ListBoxCarriers')))
+                carrier_select = Select(browser.find_element_by_id(f'{PREFIX}ListBoxCarriers'))
+                carrier_select.select_by_value(carrier_id)
+
+                WebDriverWait(browser, timeout=30).until(EC.presence_of_element_located((By.ID, f'{PREFIX}SelectCarrierSave')))
+                select_carrier_btn = browser.find_element_by_id(f'{PREFIX}SelectCarrierSave')
+                select_carrier_btn.click()
 
             if friday_dispatch:
                 # TEMPORARILY COMMENTING OUT INSURANCE CHECK LOGIC
