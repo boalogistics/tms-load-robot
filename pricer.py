@@ -12,10 +12,10 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import Select
 import tms_login as tms
 
-SURCHARGE_CLIENTS = [817] # Pasta Piccinini = 817
+SURCHARGE_CLIENTS = [] # Pasta Piccinini = 817
 
 
-# TODO REFACTOR ENTER BILLING & SURCHARGE TOGETHER
+# TODO REFACTOR ENTER BILLING & SURCHARGE TOGETHER?
 def enter_billing(load, price, discount_amt=0):
     try:
         edit_pricing = (
@@ -135,7 +135,8 @@ def get_price(df_row, client):
         destination = f'{df_row["C/ City"]}, {df_row["C/ State"]} {str(int(df_row["C/ Zip"])).zfill(5)}'
     else:
         destination = f'{df_row["C/ City"]}, {df_row["C/ State"]}'
-        
+
+    # special cases for specific clients    
     if client == 'passport':
         temp = df_row['Equipment']
         key = json.load(open('db/equipment.json', 'r'))
@@ -147,9 +148,11 @@ def get_price(df_row, client):
         df = pd.pivot_table(df, index=['Origin', 'Destination'])
         base_selling = df.loc[key[origin]].loc[destination][pallets]
         retail = calc_wt_sc(base_selling, weight, pallets)        
-    elif client == 'perfectbar':
+    elif client == 'perfectbar'or client =='westerntrans':
         df = pd.pivot_table(df, index=['Origin', 'Destination'])
         retail = df.loc[origin].loc[destination][pallets]
+
+    # standard default lookup
     else:
         df = pd.pivot_table(df, index=['Destination'])
         retail = df.loc[destination][pallets]
@@ -269,9 +272,11 @@ for client_name in client_df_dict:
 
             # TODO SIMPLFIY CLIENT CHOICE AND SELLING/BASERETAIL/MARGIN LOGIC
             try:
-                if client_id == 1301:
+                # Azuma - only enter blank Dedicated surcharge line
+                if client_id == 1301 or client_id == 817:
                     logging.info('Azuma dedicated line')
                     add_surcharge(load_no, 'dedicated', 0.01)
+                # House Foods & Passort - ignore pallet limit for FTL locations
                 elif (client_id == 1495 or client_id == 1110) and (dest_city in client_dict[client_name]['ftl_dests']):
                     selling_price = get_price(row, client_name)
                     base_retail = selling_price
@@ -307,6 +312,17 @@ for client_name in client_df_dict:
                         if client_id in SURCHARGE_CLIENTS:
                             surcharge_price = 0.01
                             add_surcharge(load_no, 'additional', surcharge_price)
+                    # SPECIAL CASE FOR FTL LEGACY FARMS
+                    elif client_name == 'legacyfarms':
+                        # REJECT IF COST IS OVER STD $385
+                        if row['Cost'] > 385:
+                            logging.info(f'Cost exceeds 385.00: {row["Cost"]}')
+                        else:
+                            selling_price = get_price(row, client_name)
+                            base_retail = selling_price
+                            enter_billing(load_no, selling_price)
+                            margin = (row['Billed'] + selling_price - row['Cost']) / (row['Billed'] + selling_price)
+                            logging.info(f'{str(load_no)} {dest_city_state} margin: {str(margin)}, pallets: {str(plts)}')
                     else:
                         selling_price = get_price(row, client_name)
                         base_retail = selling_price
