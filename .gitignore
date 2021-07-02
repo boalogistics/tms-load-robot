@@ -2,7 +2,6 @@ cfg/
 venv/
 .vscode/
 __pycache__/
-ARCHIVE-passport-dry.xlsx
 sandbox.py
 mailsandbox.py
 loadnos.txt
