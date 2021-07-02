@@ -45,7 +45,7 @@ logging.config.fileConfig(fname='logs/cfg/book.conf')
 logger = logging.getLogger('')
 
 # daily report isolating single day
-log_filename = 'logs\\book' + datestamp.strftime('_%m%d%Y_') + '.csv'
+log_filename = f"logs/book{datestamp.strftime('_%m%d%Y_')}.csv"
 report = logging.FileHandler(filename=log_filename)
 formatter = logging.Formatter()
 report.setFormatter(formatter)
