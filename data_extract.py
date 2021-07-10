@@ -23,7 +23,6 @@ def create_truck(truck_list):
     truck_dict['married_load'] = truck_list[1]
     truck_dict['truck_no'] = truck_list[2]
     truck_dict['carrier_name'] = truck_list[3]
-    truck_dict['dispatched'] = truck_list[4]
     return truck_dict
 
 
