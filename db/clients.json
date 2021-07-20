@@ -73,5 +73,9 @@
     "legacyfarms": {
         "id": 1385,
         "max_wt": 40000
+    },
+    "freshcravings": {
+        "id": 1528,
+        "max_wt_pp": 2500
     }
 }
