@@ -1,0 +1,745 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"> == $0
+
+<html xmlns="http://www.w3.org/1999/xhtml" class=" js no-flexbox draganddrop rgba hsla multiplebgs backgroundsize borderimage borderradius boxshadow textshadow opacity cssanimations csscolumns cssgradients cssreflections csstransforms csstransforms3d csstransitions fontface generatedcontent localstorage sessionstorage no-applicationcache"><head id="ctl00_MasterPageHead"><title>
+	Boa Logistics 16.8.30.17093
+</title><meta content="C#" name="CODE_LANGUAGE"><meta content="JavaScript" name="vs_defaultClientScript"><meta name="ROBOTS" content="NOINDEX,NOFOLLOW"><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"><link href="/App_BW/styles/style_base.css" rel="stylesheet" type="text/css"><link href="/a_style.css" rel="stylesheet" type="text/css"><link href="/App_BW/styles/style_print_base.css" rel="stylesheet" type="text/css" media="print"><link rel="stylesheet" type="text/css" href="/App_BW/styles/custom-theme/jquery-ui-1.8.8.custom.css"><link rel="stylesheet" type="text/css" href="/App_BW/styles/custom-theme/jquery.ui.autocomplete.css"><link rel="Stylesheet" type="text/css" href="/App_BW/styles/bootstrap.icons.css">
+<script src="/App_BW/scripts/modernizr-2.5.3.custom.js" type="text/javascript"></script>
+<script type="text/javascript" language="JavaScript" src="/App_BW/scripts/jquery-1.4.2.min.js"></script>
+<script type="text/javascript" language="JavaScript" src="/App_BW/scripts/jquery-ui-1.8.8.custom.min.js"></script>
+<script type="text/javascript" language="JavaScript" src="/App_BW/scripts/calendarValidation.js"></script>
+<script type="text/javascript" src="/App_BW/scripts/DatePicker3PL.js"></script>
+<script type="text/javascript" language="JavaScript" src="/App_BW/scripts/Utils.js"></script>
+<script type="text/javascript" src="/App_BW/scripts/SuppChargesControl.js"></script>
+<script type="text/javascript" language="JavaScript">
+<!--
+    $(function () {
+        DatePickerSetup();
+        Sys.WebForms.PageRequestManager.getInstance().add_endRequest(DatePickerSetup);
+        setDateFields();
+        Sys.WebForms.PageRequestManager.getInstance().add_endRequest(setDateFields);
+    });
+    function setDateFields() {
+        $('.date-field').each(function () {
+            if (!$(this).is('[readonly]')) {
+                $(this).datepicker({
+                    showOn: 'both',
+                    buttonImage: '/App_BW/images/calendarNew.gif',
+                    buttonImageOnly: true,
+                    inline: true,
+                    changeMonth: true,
+                    changeYear: true
+                    , onSelect: function () {
+                        try {
+                            //alert('select');
+                            CalenderDateSelected(this);
+                        }
+                        catch (ex) {
+                        }
+                    }
+                    , onClose: function () {
+                        try {
+                            //alert('select');
+                            CalenderDateClosed(this);
+                        }
+                        catch (ex) {
+                        }
+                    }
+                }).css("vertical-align", "middle").next().css("vertical-align", "middle");
+                $(this).attr('autocomplete', 'off');
+                //$(this).attr('readonly', 'readonly');
+                $(this).keypress(function (e) {
+                    var code = (e.keyCode ? e.keyCode : e.which);
+                    if ((code == 8) || (code == 46)) {
+                        $(this).val('')
+                        try {
+                            dateControlCleared(this);
+                        }
+                        catch (ex) {
+                        }
+                    }
+                });
+                $(this).keydown(function (e) {
+                    var code = (e.keyCode ? e.keyCode : e.which);
+                    if ((code == 8) || (code == 46)) {
+                        $(this).val('')
+                        try {
+                            dateControlCleared(this);
+                        }
+                        catch (ex) {
+                        }
+                    }
+                });
+            }
+        });
+    }
+
+    //-->
+</script>
+
+
+
+    <script type="text/javascript" language="JavaScript">
+<!--
+
+        function displayDocumentation()
+        {
+            $("#divUsageInfo").dialog({
+                title: "How to use the template:",
+                resizable: false,
+                modal: true,
+                width: 'auto'
+            }).show();
+        }
+      
+           
+
+
+            //-->
+    </script>
+</head>
+<body>
+    <form name="aspnetForm" method="post" action="./UploadLoadList.aspx" onsubmit="javascript:return WebForm_OnSubmit();" id="aspnetForm" enctype="multipart/form-data">
+<div>
+<input type="hidden" name="__EVENTTARGET" id="__EVENTTARGET" value="">
+<input type="hidden" name="__EVENTARGUMENT" id="__EVENTARGUMENT" value="">
+<input type="hidden" name="__VIEWSTATE" id="__VIEWSTATE" value="/wEPDwULLTE0Nzk0NjMzNzkPZBYCZg9kFgICBA8WAh4HZW5jdHlwZQUTbXVsdGlwYXJ0L2Zvcm0tZGF0YRYIAgsPFgIeCWlubmVyaHRtbAUNQm9hIExvZ2lzdGljc2QCDw9kFgICAQ9kFgQCAQ8PZBYCHgRzaXplBQI1MGQCCw8WAh4HVmlzaWJsZWcWAmYPZBYCAgEPDxYCHgRUZXh0BZ8BMSgxNTU4NjcpLCAyKDE1NTg2OCksIDMoMTU1ODY5KSwgNCgxNTU4NzApLCA1KDE1NTg3MSksIDYoMTU1ODcyKSwgNygxNTU4NzMpLCA4KDE1NTg3NCksIDkoMTU1ODc1KSwgMTAoMTU1ODc2KSwgMTEoMTU1ODc3KSwgMTIoMTU1ODc4KSwgMTMoMTU1ODc5KSwgMTQoMTU1ODgwKSwgZGQCEQ8WAh8BBS1DbGljayBoZXJlIHRvIGNvbnRhY3QgdXMgb3IgY2FsbCAzMTAtNzUxLTYwMDNkAhUPFgIeBGhyZWYFIG1haWx0bzpkaXNwYXRjaEBib2Fsb2dpc3RpY3MuY29tZGSRCzyDIWxGYCmb6LemOASzY4nFTA==">
+</div>
+
+<script type="text/javascript">
+//<![CDATA[
+var theForm = document.forms['aspnetForm'];
+if (!theForm) {
+    theForm = document.aspnetForm;
+}
+function __doPostBack(eventTarget, eventArgument) {
+    if (!theForm.onsubmit || (theForm.onsubmit() != false)) {
+        theForm.__EVENTTARGET.value = eventTarget;
+        theForm.__EVENTARGUMENT.value = eventArgument;
+        theForm.submit();
+    }
+}
+//]]>
+</script>
+
+
+<script src="/WebResource.axd?d=WVtmr1QqOvVnK73nRs-S7SwcOxNqn4KzVBeb21BtI-a2NkZGOAgMsCMppgWz6rNm7HwG_oM-MDa-cDg4xoScBem4XGk1&amp;t=637100573640000000" type="text/javascript"></script>
+
+
+<script type="text/javascript">
+//<![CDATA[
+var HomeCompany = "Boa Logistics";//]]>
+</script>
+
+<script src="/App_BW/scripts/SessionAndLoginControl.js" type="text/javascript"></script>
+<script src="/App_BW/scripts/BaseMenus.js" type="text/javascript"></script>
+<script src="/App_BW/scripts/UniversalSearchControl.js" type="text/javascript"></script>
+<script src="/ScriptResource.axd?d=9-o2UlL7n4r7gurmbfKWquiPES24H9BUSNeZlJ8KCEhM_KJ1mNY-ARnM-JHdJngGRAPqLFSoDUu-T306_g2SUSMiZwsELO1qWIFWWmUK6f5doxGfVyGruBJRLeEMZ02N_6mfWtIcB5RdGyNXBg4XqEakJlY1&amp;t=5f65bdf4" type="text/javascript"></script>
+<script src="/ScriptResource.axd?d=abqMQUwI5A7w4vLLmeapfhe5OPqRX5zrWBj3yNUo1AJazRTcRVfFUhVfCcEiiO08MxFfvp68QaypJhYqvmIgFciTF1Xxutq8gdpoPk2f8qPjx4j8bRGdmxyfWqP0QR01YcarRQ2&amp;t=7c776dc1" type="text/javascript"></script>
+<script src="/ScriptResource.axd?d=G7bD16C9X6TphJqJ7Wpdgl70XUU_pMwFo56xY0UTd-ooRq07EDY4JaigBISSKNJgPsUzFg8jmJmdoepixuEUCl9FOrYiSrWoFFn7BFLfIttW_BWt4PKvEcyy65GHoE0H1yJLIQ2&amp;t=7c776dc1" type="text/javascript"></script>
+<script src="/ScriptResource.axd?d=_5B05M6v-hyvB7ad_fJTTNzRzDLl8Jwf7EJ_CWnxszY7i9tX6-bN2xLXx0i6hPg2U_EVma-tHc0bYqWp_fMh-wDF2_Nq27djMXck5NVdy-wqanDt5qluCiKe3Ge6ckW4maWqrQ2&amp;t=7c776dc1" type="text/javascript"></script>
+<script src="/ScriptResource.axd?d=Z94uR8Vwpgr6GIFAWQn48V0dvCHIZ9bow8eYKNaOrLyEveoIsjb7iXOTscVjsftupTZAK0hqsLoeld1UdNoKZE_xU__0cTCUUi9gF2VkKjSJC4LgOVwYp953elNz0W1cKJUT7tk0k0vh48K6Fy1QmEHpw841&amp;t=7c776dc1" type="text/javascript"></script>
+<script src="/ScriptResource.axd?d=7bescWlmQSmMmqMgubrrL-S_ka-BT5IcWOtIQOofTQQbLhmlVsW0NmHoWST1La_T1aMgMHgL4iT_AOei-OOEcelr5PDz2jyKP_nMZfcEY7vL_qHrzOBF4B7ip4MYyb-C8fvsJ80sqIrQOYtMP2wcpotrj0Q1&amp;t=7c776dc1" type="text/javascript"></script>
+<script type="text/javascript">
+//<![CDATA[
+function WebForm_OnSubmit() {
+null;if (typeof(ValidatorOnSubmit) == "function" && ValidatorOnSubmit() == false) return false;
+return true;
+}
+//]]>
+</script>
+
+<div>
+
+	<input type="hidden" name="__VIEWSTATEGENERATOR" id="__VIEWSTATEGENERATOR" value="C5DE13D8">
+	<input type="hidden" name="__PREVIOUSPAGE" id="__PREVIOUSPAGE" value="BKBZ1shW4yOGUEHELFp9DrJzo3yMCmBpibggVtdjF4W5KmM3Caho8ueqwzPF6igcbAp48KuO59cnXwLLJIdN7S2R2Uh5qkf-GspKUvI1uRi1XEYDA2qqNVvKymJrasjoCSuLgg2">
+	<input type="hidden" name="__EVENTVALIDATION" id="__EVENTVALIDATION" value="/wEdABEN8EOOHOhlbVvlSf+RG7WXT/NHG5RIPNKJ03tsWuh95tlQshVVSJrB7H73+SwBq5swKufPVwWBle1Z80GTVHPmQHA2jY7kTaAwBv1VuxSgiHEz5rFxCEir/uQVHe+COuHXzT46SmNoqSxL8HiiZJnzHPCQ0N3EG/LvyeNrc1lyfordKmOe3yhQiVeVPOwNZzDqdB6VlzOMUVQ0BcKfu+dY7A3p5MSkcXS8OlzlYZqjcltd+8uttOmE+Ev08r2HHzyFy8UxV4awiKGWdKHGcyVZe4Pe/7lLZopZmqj/olrCb21xkycA5KthvinzwqHBEwfRTuGvWwKiu1E7thU5K2NT1vDzQV3u2cq+QnZOY4jITB1E2YULck0khTVOXn/vVHfYWyjz">
+</div>
+        
+        <script type="text/javascript">
+//<![CDATA[
+Sys.WebForms.PageRequestManager._initialize('ctl00$ScriptManager1', 'aspnetForm', [], [], [], 90, 'ctl00');
+//]]>
+</script>
+
+        
+        <div class="container">
+
+            
+
+<script type="text/javascript" language="JavaScript">
+<!--
+	try
+	{
+		var g_blnInvalidSession = false;
+		var g_strLoginID = "55555C54055C909";
+		var g_strEmail = "";
+		
+		$(function ()
+		{
+			onLoadCodeSessionAndLogin();
+		});
+	}
+	catch (err) { }
+//-->
+</script>
+
+
+
+
+
+
+            
+            
+
+<link href="/App_BW/styles/style_messages.css" rel="stylesheet" type="text/css">
+
+<script type="text/javascript" language="JavaScript">
+<!--
+	$("#ctl00_mbMessage_tbxPageLoadId").val("ctl00_mbMessage");
+	var pageLoaded = false;
+
+	$(document).ready(function ()
+	{
+		if (pageLoaded == false)
+		{
+			pageLoaded = true;
+			initialFunction();
+		}
+	});
+
+	// pageLoad gets called on every post / partial post.
+	// Check for visiblity parameters to see if we need to display this.  Then fill in the correct info.
+	function pageLoad()
+	{
+		if(pageLoaded == false)
+		{
+			pageLoaded = true;
+		}
+		initialFunction();
+	}
+
+	function initialFunction()
+	{
+		$("[id$=tbxPageLoadId]").each(
+		function()
+		{
+			eval("pageLoad" + $(this).val() + "();");
+		});        
+	}
+
+	function pageLoadctl00_mbMessage()
+	{
+		$("#ctl00_mbMessage_imgCloseMessageBox").click(function ()
+		{
+			closeMessageBoxctl00_mbMessage();
+		});
+
+		var pageWidth = 0;
+		if (window.innerWidth)
+		{
+			pageWidth = window.innerWidth;
+		}
+		else
+		{
+			if (document.documentElement.clientWidth && document.documentElement.clientWidth > 0)
+			{
+				pageWidth = document.documentElement.clientWidth;
+			}
+			else
+			{
+				pageWidth = document.body.clientWidth;
+			}
+		}
+
+		if (pageWidth < $("#ctl00_mbMessage_divMessageBoxContainer").width() + 10)
+		{
+			if (pageWidth > 210)
+			{
+				$("#ctl00_mbMessage_divMessageBoxContainer").width(pageWidth - 10);
+			
+			}
+			else
+			{
+				$("#ctl00_mbMessage_divMessageBoxContainer").width(200);
+			}
+		}
+
+		var visible = $("#ctl00_mbMessage_tbxVisible").val();
+		if (visible == "True" || visible == "true")
+		{
+			showMessageBoxctl00_mbMessage();
+		}
+		else
+		{
+			closeMessageBoxctl00_mbMessage();
+		}
+	}
+
+	function closeMessageBoxctl00_mbMessage()
+	{
+		$("#ctl00_mbMessage_tbxMessageText").val("");
+		$("#ctl00_mbMessage_tbxVisible").val("");
+		$("#ctl00_mbMessage_divMessageBox").hide();
+	}
+
+	function CloseMessageBoxQuick()
+	{
+		closeMessageBoxctl00_mbMessage();
+	}
+
+	function ShowMessageBoxClientctl00_mbMessage(messageType, messageText, messageTextPrivate, maxWidth, maxHeight, showCancel)
+	{
+		if (messageType != "")
+			$("#ctl00_mbMessage_tbxMessageType").val(messageType);
+		if (messageText != "")
+			$("#ctl00_mbMessage_tbxMessageText").val(messageText);
+		if (messageTextPrivate != "")
+			$("#ctl00_mbMessage_tbxMessageTextPrivate").val(messageTextPrivate);
+		if (maxHeight != "")
+			$("#ctl00_mbMessage_tbxMaxHeight").val(maxHeight);
+		if (maxWidth != "")
+			$("#ctl00_mbMessage_tbxMaxWidth").val(maxWidth);
+		if (showCancel != "")
+			$("#ctl00_mbMessage_tbxShowCancel").val(showCancel);
+
+		showMessageBoxctl00_mbMessage();
+	}
+	
+	function ShowMessageBoxQuick(messageType, messageText)
+	{
+		if (messageText != "" && messageType != "")
+		{
+			ShowMessageBoxClientctl00_mbMessage(messageType, messageText, "", "", "", true);
+		}
+	}
+	
+	function ShowMessageBoxQuickctl00_mbMessage(messageType, messageText)
+	{
+		if (messageText != "" && messageType != "")
+		{
+			ShowMessageBoxClientctl00_mbMessage(messageType, messageText, "", "", "", true);
+		}
+	}
+	
+	function showMessageBoxctl00_mbMessage()
+	{
+		// discover message type and text
+		var messageType = $("#ctl00_mbMessage_tbxMessageType").val();
+		if (messageType == "")
+			messageType = "info";
+		var messageText = $("#ctl00_mbMessage_tbxMessageText").val();
+		var messageTextPrivate = $("#ctl00_mbMessage_tbxMessageTextPrivate").val();
+
+		// discover presentation info (dimensions, showcancel, etc...)
+		var maxWidth = $("#ctl00_mbMessage_tbxMaxWidth").val();
+		if (maxWidth == "")
+			maxWidth = "600px";
+		var maxHeight = $("#ctl00_mbMessage_tbxMaxHeight").val();
+		if (maxHeight == "")
+			maxHeight = "100px";
+		var showCancel = $("#ctl00_mbMessage_tbxMaxHeight").val();
+
+		setMessageBoxClassctl00_mbMessage(messageType);
+		$("[id$=lblMessage]").html(messageText);
+
+
+		$("#ctl00_mbMessage_divMessageBox").show();
+		$("#ctl00_mbMessage_divMessageBoxContainer").removeClass("NeverDisplay");
+
+		if (messageType.toLowerCase() != "error")
+		{
+			if (window.messageTimeoutctl00_mbMessage)
+				window.clearTimeout(window.messageTimeoutctl00_mbMessage);
+			window.messageTimeoutctl00_mbMessage = window.setTimeout(function () { closeMessageBoxctl00_mbMessage(); }, 10000);
+		}
+		else
+		{
+			window.clearTimeout(window.messageTimeoutctl00_mbMessage);
+		}
+	}
+
+	function setMessageBoxClassctl00_mbMessage(messageType)
+	{
+		$("#ctl00_mbMessage_divMessageBox").removeClass("info");
+		$("#ctl00_mbMessage_divMessageBox").removeClass("success");
+		$("#ctl00_mbMessage_divMessageBox").removeClass("warning");
+		$("#ctl00_mbMessage_divMessageBox").removeClass("validation");
+	    $("#ctl00_mbMessage_divMessageBox").removeClass("error");
+	    $("#ctl00_mbMessage_divMessageBox").removeClass("notheme");
+		$("#ctl00_mbMessage_divMessageBox").addClass(messageType.toString().toLowerCase());
+	}
+//-->
+</script>
+
+<style type="text/css">
+	
+	 
+</style>
+
+<div id="ctl00_mbMessage_divMessageBoxContainer" class="messageBoxContainer NeverDisplay" style="z-index: 100002;">
+	<div id="ctl00_mbMessage_divMessageBox" style="display: none;">
+	
+		<a id="ctl00_mbMessage_CloseButton" class="close"><img id="ctl00_mbMessage_imgCloseMessageBox" src="/App_BW/images/close.png" alt="Click here to close this message" style="border-width:0px;"></a>
+		<p>
+			<span id="ctl00_mbMessage_lblMessage"></span>
+		</p>
+		<div class="clear"></div>
+	
+</div>
+</div>
+
+<input name="ctl00$mbMessage$tbxVisible" type="text" id="ctl00_mbMessage_tbxVisible" class="NeverDisplay">
+<input name="ctl00$mbMessage$tbxShowCancel" type="text" id="ctl00_mbMessage_tbxShowCancel" class="NeverDisplay">
+<input name="ctl00$mbMessage$tbxMaxWidth" type="text" id="ctl00_mbMessage_tbxMaxWidth" class="NeverDisplay">
+<input name="ctl00$mbMessage$tbxMaxHeight" type="text" id="ctl00_mbMessage_tbxMaxHeight" class="NeverDisplay">
+<input name="ctl00$mbMessage$tbxMessageText" type="text" id="ctl00_mbMessage_tbxMessageText" class="NeverDisplay">
+<input name="ctl00$mbMessage$tbxMessageTextPrivate" type="text" id="ctl00_mbMessage_tbxMessageTextPrivate" class="NeverDisplay">
+<input name="ctl00$mbMessage$tbxMessageType" type="text" id="ctl00_mbMessage_tbxMessageType" class="NeverDisplay">
+<input name="ctl00$mbMessage$tbxPageLoadId" type="text" value="ctl00_mbMessage" id="ctl00_mbMessage_tbxPageLoadId" class="NeverDisplay">
+
+            
+                <div id="BodyLayoutStyle">
+                </div>
+            
+
+            <!-- Body Section Include -->
+            <div id="BodyMenuStyle">
+               
+                    
+
+<link type="text/css" href="/App_BW/styles/menu.css" rel="stylesheet">
+<script type="text/javascript" src="/App_BW/scripts/menu.js"></script>
+
+
+<script type="text/javascript" language="JavaScript">
+<!--
+
+    $(document).ready(function () {
+        pageReadyFunctions();
+
+        $(window).scroll(function () {
+            scrollingFunctions();
+        });
+    });
+
+    //-->
+</script>
+
+<div id="divMenuBar" style="height: 40px;">
+    <div id="divMenuDontPassMe"></div>
+    <div id="topMenu" style="top: 150px;position:;">
+        <div id="menulist">
+            <ul id="ctl00_BaseMenu_MainMenu_ulMenu" class="topMenu"><li class="current"><a href="/App_BW/staff/login.aspx" class="parent"><span>Home</span></a></li><li><a href="#" class="parent"><span>Utilities</span></a><div><ul style="display: none; left: -2px;"><li><a href="/App_BW/staff/users/userView.aspx"><span>View Customers</span></a></li><li><a href="/App_BW/staff/carrier/carrierList.aspx"><span>View Carriers</span></a></li><li><a href="/App_BW/staff/carrier/OnBoardingManagement.aspx"><span>View Carrier Onboarding</span></a></li><li><a href="/App_BW/staff/users/factorList.aspx"><span>View Factors</span></a></li><li><a href="/App_BW/staff/rating/ratingTariffList.aspx"><span>View Tariffs</span></a></li><li><a href="/App_BW/staff/utilities/LCR_Short1.aspx"><span>LCR</span></a></li><li><a href="javascript:rateOpeneFromMenu();"><span>Single Rate Calculator</span></a></li><li><a href="/App_BW/staff/Reports/ReportList.aspx"><span>Report Builder</span></a></li><li><a href="/App_BW/staff/utilities/faxlist.aspx"><span>Outgoing Fax List</span></a></li><li><a href="/App_BW/staff/shipment/shipmentSearch.aspx"><span>Search Shipments</span></a></li></ul></div></li><li><a href="#" class="parent"><span>Setup</span></a><div><ul style="display: none; left: -2px; width: 162px; height: 231px; overflow: hidden;"><li><a href="/App_BW/staff/users/userAdd.aspx" class="menulinkcolor"><span>Add Customers</span></a></li><li><a href="/App_BW/staff/carrier/carrierEditGeneral.aspx" class="menulinkcolor"><span>Add Carriers</span></a></li><li><a href="/App_BW/staff/rating/regionEdit.aspx" class="menulinkcolor"><span>Regions</span></a></li><li><a href="/App_BW/staff/rating/AccessorialList.aspx" class="menulinkcolor"><span>Supplementals</span></a></li><li><a href="/App_BW/staff/carrier/carrierCarrierGroupList.aspx" class="menulinkcolor"><span>Carrier Groups</span></a></li><li><a href="/App_BW/staff/carrier/carrierUpdateFuel.aspx" class="menulinkcolor"><span>Fuel Updates</span></a></li><li><a href="/App_BW/staff/carrier/carrierTrailerType.aspx" class="menulinkcolor"><span>Equipment Types</span></a></li><li><a href="/App_BW/staff/accounting/payableDisputeTypes.aspx" class="menulinkcolor"><span>Dispute Types</span></a></li><li><a href="/App_BW/staff/manager/PackageTypes.aspx" class="menulinkcolor"><span>Packages</span></a></li><li><a href="/App_BW/staff/manager/parameterText.aspx" class="menulinkcolor"><span>Custom Text</span></a></li><li><a href="/App_BW/Diagnostic/index.aspx" class="menulinkcolor"><span>Diagnostics</span></a></li></ul></div></li><li><a href="http://www.3plwiki.com" class="parent" target="_blank"><span>Help</span></a></li><li><a href="/App_BW/authenticate/logout.aspx" class="parent"><span>Logout</span></a></li><li class="back" style="left: 74px; width: 62px; display: block; overflow: hidden;"><div class="left"></div></li></ul>
+            <div id="divSearchControls" style="float: left; width: 150px;">
+                <div id="divUniversalSearch" style="float: left;">
+                    
+
+<link rel="stylesheet" type="text/css" href="/App_BW/styles/custom-theme/jquery.ui.autocomplete.css">
+
+
+
+<script type="text/javascript" language="JavaScript">
+<!--
+    var strUniversalSearchControlID = "inpSearch";
+
+    $(document).ready(function () {
+        //meer work
+        CallFunction("disable");
+        $("#imgarrow").click(function () {
+            $("#DropdownBox").toggle();
+
+            if ($("#DropdownBox").is(":visible")) {
+
+                var txt = $("#ddlcustom option:selected").val();
+
+                CallFunction(txt);
+
+            }
+        });
+
+
+        $(document).click(function (e) {
+            $('#ddlcustom').hover(function () {
+                $("#DropdownBox").show();
+            });
+
+            if (e.target.id != 'imgarrow' && e.target.id != 'ddlcustom' && e.target.id != 'DropdownBox' && e.target.id != 'inpSearch') {
+
+                $("#DropdownBox").hide();
+
+                if (e.target.parentElement.id != 'ddlcustom' && e.target.id != 'SearchBtn')
+                    CallFunction('disable');
+            }
+        });
+
+
+        $('#ddlcustom').change(function () {
+            var txt = $(this).val();
+
+            CallFunction(txt);
+        });
+
+
+
+
+        $("#SearchBtn").click(function () {
+            var txt = $("#ddlcustom option:selected").text();
+
+            CallFunction(txt);
+        });
+
+
+        function CallFunction(data) {
+
+            var maxResults = 8
+            var params = "{'Id':'" + data + "'}";
+
+            $.ajax({
+                type: "POST",
+                url: "/App_BW/servicesajax/AjaxServicesGet.asmx/GetAdvanceSearchBox",
+                data: params,
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (result) {
+                }
+            });
+
+        }
+
+
+
+        // meer work end
+        
+        onLoadCodeUniversalSearch();
+        
+    });
+    //-->
+</script>
+
+<div>
+    <input name="ctl00$BaseMenu$MainMenu$acMenuUniversal$inpSearch" type="text" id="inpSearch" class="Watermark ui-autocomplete-loading" autocomplete="off" role="textbox" aria-autocomplete="list" aria-haspopup="true">
+    <input type="hidden" name="ctl00$BaseMenu$MainMenu$acMenuUniversal$wmeSearch_ClientState" id="ctl00_BaseMenu_MainMenu_acMenuUniversal_wmeSearch_ClientState">
+
+
+    <!--<div id="imgarrow" class="downarrow"></div>
+
+
+
+        <div id="DropdownBox"  class="DropdownBox" > 
+
+         <select name="ctl00$BaseMenu$MainMenu$acMenuUniversal$ddlcustom" id="ddlcustom" class="ddldemo">
+	<option value="A">A</option>
+	<option value="B">B</option>
+	<option value="C">C</option>
+	<option value="D">D</option>
+
+</select>
+
+        <div id="btnCross" class="crossbtn"></div>
+         <div id="SearchBtn"></div> <br /><br /><br />
+        </div>-->
+</div>
+
+                </div>
+            </div>
+            <div style="padding-top: 8px; float: right">
+                <div id="ctl00_BaseMenu_MainMenu_div3rdPartyChat"></div>
+            </div>
+
+        </div>
+    </div>
+</div>
+<div style="clear: both"></div>
+
+                
+            </div>
+
+            <div id="ctl00_BodyLayoutPrintStyle" class="BodyLayoutPrintStyle">Boa Logistics</div>
+
+            <div id="BodyTitleStyle">
+                
+    Multiple Load Import
+    <img alt="Info" src="/App_BW/images/info.png" id="infoImage" onclick="displayDocumentation()">   
+    <div id="divUsageInfo" style="display:none; width:100%">
+        <ul>
+            <li>1. Please note each row in the template may be marked as <b>L (Load)</b> or <b>C (Commodity)</b> in the column <i>"LoadType"</i>.</li>
+            <li>2. To create a load section fill out the desired data marking the row as "L"; this section will be held to the requirements of row type L.</li>
+            <li>3. Each subsequent row marked with a "C" will be treated as a commodity line and added to the above load grouping; this section will be held to the requirements of row type C.</li>
+            <li>4. When using the template it is required that intended loads and their commodities be grouped together. </li>
+        </ul>
+        <p>
+            <b>Required Columns Row Type L: </b>LoadType, ClientID, sid, PickupDate, OrigZip, DescZip, Pieces, Packaging, Weight, CarrierSCAC <br>
+            <b>Commodity Pricing (Optional):</b> retail, retaildisc, cost, costdisc<br>
+            <b>Fuel Accessorial (Optional):</b> FuelSurchargeRetail,  FuelSurchargeCost<br>
+            <b>Shipment (Optional):</b> POReference, ShipperNo, ProNumber, PickupDockCloseTime, DeliveryDate, Palletized, Stackable,Pallets, PalletSize, Linearfeet,Shipmentvalue, Comments, CarrierName, TrailerTypeID, PayerDescription, Notes<br>
+            <b>Origin Address  (Optional):</b> OrigCompany,OrigAddress1,OrigAddress2,OrigCity,OrigState,OrigCountry,OrigContact,OrigEmail,OrigPhone,OrigFax,OrigNotes,OrigLocationType<br>
+            <b>Destination Address (Optional):</b> DescCompany,DescAddress1,DescAddress2,DescCity,DescState,DescCountry,DescContact,DescEmail,DescPhone,DescFax,DescNotes,DescLocationType<br>
+        </p>
+        <p>
+            <b>Required Columns Row Type C:</b> Pieces,Packaging,Class,Weight <br>
+            <b>Optional:</b> Description, NMFC, Density, Length, Width, Height, UnitsWeight, UnitsDim, UnitsDensity<br>
+        </p>
+        <span><b>Unit Dimension Values:</b></span>
+        <ul>
+            <li> 0 : Feet</li>
+            <li> 1 : Inches</li>
+            <li> 2 : Meters</li>
+            <li> 3 : Yards</li>
+            <li> 4 : CM</li>
+            <li> 5 : PCF</li>
+            <li> 6 : kgm</li>
+            <li> 10: lbs</li>
+            <li> 11: kg</li>
+        </ul>
+        <span><b>Shipment Mode Values:</b></span>
+        <ul>
+            <li> 1 : LTL</li>
+            <li> 2 : Truckload</li>
+            <li> 3 : Volume</li>
+            <li> 4 : Intermodal</li>
+            <li> 5 : Ocean</li>
+            <li> 6 : Drayage</li>
+            <li> 10: Air</li>
+            <li> 11: RF LTL</li>
+        </ul>
+        <span><b>Pallet Size Values:</b></span>
+        <ul>
+            <li> 0 : 48 x 48</li>
+            <li> 1 : 48 x 42</li>
+            <li> 2 : 48 x 40</li>
+            <li> 3 : 44 x 42</li>
+            <li> 4 : 42 x 42</li>
+            <li> 5 : Non Std</li>
+            <li> 6 : 40 x 24</li>
+        </ul>
+        <p>
+             *TrailerTypeIDs can be found under Setup-&gt;Equipment Types* <br>
+             *Package types are the values enabled in your current system <br>
+             *PalletSize (Optional): If value is blank, the shipment will default to "0" (48x48) <br>
+             *Date format is MM/DD/YYYY <br>
+             *The uploader currently only supports two stops, origin and destination. <br>
+        </p>
+    </div>
+
+            </div>
+
+            <div id="BodyContentStyle">
+                
+    <div style="width: 700px; margin: 0 auto 0 auto; text-align: left;">
+        <div id="ctl00_BodyContent_divOperations" class="DivPanelA">
+            <div style="height: 490px; width: 670px;">
+                <table style="border: solid 0px black;">
+                    <tbody><tr>
+                        <td colspan="2">File:
+                            <input type="file" name="ctl00$BodyContent$fileUpLoadDoc" id="ctl00_BodyContent_fileUpLoadDoc" class="cbold" size="50" style="width:350px;">
+                            <span id="ctl00_BodyContent_regxValidator" style="color:Red;display:none;"><br>Only .CSV is allowed.</span>
+                            </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">
+                            <input type="submit" name="ctl00$BodyContent$btnUploadFile" value="Upload File" onclick="javascript:WebForm_DoPostBackWithOptions(new WebForm_PostBackOptions(&quot;ctl00$BodyContent$btnUploadFile&quot;, &quot;&quot;, true, &quot;&quot;, &quot;&quot;, false, false))" id="ctl00_BodyContent_btnUploadFile" class="button">
+                            &nbsp;&nbsp;&nbsp;
+                            <a id="ctl00_BodyContent_hlTemplate" href="../../public/MultLoadImportTemplate.csv">Template</a>
+                            (right click -&gt; Save Target As)<br>
+                            &nbsp;
+                            <b>*Please download and use the most recent template before uploading as columns might have changed*</b>
+                        </td>
+                    </tr>
+                    <tr id="ctl00_BodyContent_trResults">
+	<td width="50%">Sucesses (Shows passed in ReferenceID and Load Number):<br>
+                            <span id="ctl00_BodyContent_lblSuccesses">1(155867), 2(155868), 3(155869), 4(155870), 5(155871), 6(155872), 7(155873), 8(155874), 9(155875), 10(155876), 11(155877), 12(155878), 13(155879), 14(155880), </span>
+                        </td>
+	<td width="50%">Errors (Shows passed in ReferenceID):<br>
+                            <span id="ctl00_BodyContent_lblErrors"></span>
+                        </td>
+</tr>
+
+                </tbody></table>
+            </div>
+        </div>
+    </div>
+    <input type="submit" name="ctl00$BodyContent$Button1" value="Customer Profile" onclick="javascript:WebForm_DoPostBackWithOptions(new WebForm_PostBackOptions(&quot;ctl00$BodyContent$Button1&quot;, &quot;&quot;, true, &quot;&quot;, &quot;../users/UserDetail.aspx&quot;, false, false))" id="ctl00_BodyContent_Button1" class="button">
+
+            </div>
+
+            <div id="BodyFooterStyle">
+                <!-- Footer Section -->
+                <h3><a href="/App_BW/public/contact.aspx" id="ctl00_FootContact" target="_blank">Click here to contact us or call 310-751-6003</a></h3>
+                <p class="cxsmall">
+                    <br>                    
+                    <a href="mailto:dispatch@boalogistics.com" id="ctl00_FootEmailSend" class="cxsmall">Send us an Email.</a>
+                    <br>
+                </p>
+            </div>
+        </div>
+
+
+    
+<script type="text/javascript">
+//<![CDATA[
+var Page_Validators =  new Array(document.getElementById("ctl00_BodyContent_regxValidator"));
+//]]>
+</script>
+
+<script type="text/javascript">
+//<![CDATA[
+var ctl00_BodyContent_regxValidator = document.all ? document.all["ctl00_BodyContent_regxValidator"] : document.getElementById("ctl00_BodyContent_regxValidator");
+ctl00_BodyContent_regxValidator.controltovalidate = "ctl00_BodyContent_fileUpLoadDoc";
+ctl00_BodyContent_regxValidator.errormessage = "<br>Only .CSV is allowed.";
+ctl00_BodyContent_regxValidator.display = "Dynamic";
+ctl00_BodyContent_regxValidator.evaluationfunction = "RegularExpressionValidatorEvaluateIsValid";
+ctl00_BodyContent_regxValidator.validationexpression = "(.*).(.csv)$";
+//]]>
+</script>
+
+
+<script type="text/javascript">
+//<![CDATA[
+
+var Page_ValidationActive = false;
+if (typeof(ValidatorOnLoad) == "function") {
+    ValidatorOnLoad();
+}
+
+function ValidatorOnSubmit() {
+    if (Page_ValidationActive) {
+        return ValidatorCommonOnSubmit();
+    }
+    else {
+        return true;
+    }
+}
+        Sys.Application.add_init(function() {
+    $create(Sys.Extended.UI.TextBoxWatermarkBehavior, {"ClientStateFieldID":"ctl00_BaseMenu_MainMenu_acMenuUniversal_wmeSearch_ClientState","WatermarkCssClass":"Watermark","WatermarkText":"Type to search","id":"ctl00_BaseMenu_MainMenu_acMenuUniversal_wmeSearch"}, null, null, $get("inpSearch"));
+});
+
+document.getElementById('ctl00_BodyContent_regxValidator').dispose = function() {
+    Array.remove(Page_Validators, document.getElementById('ctl00_BodyContent_regxValidator'));
+}
+//]]>
+</script>
+</form>
+
+
+<div class="ui-dialog ui-widget ui-widget-content ui-corner-all  ui-draggable" tabindex="-1" role="dialog" aria-labelledby="ui-dialog-title-divLogin" style="display: none; z-index: 899999; outline: 0px;"><div class="ui-dialog-titlebar ui-widget-header ui-corner-all ui-helper-clearfix"><span class="ui-dialog-title" id="ui-dialog-title-divLogin">Login</span><a href="#" class="ui-dialog-titlebar-close ui-corner-all" role="button"><span class="ui-icon ui-icon-closethick">close</span></a></div><div id="divLogin" style="" class="ui-dialog-content ui-widget-content">
+<div>
+	Your login session has expired. Please re-login.<br>
+    <div class="PanelBodyForm">
+        
+        <label>
+            Password:</label><input type="password" id="txtLoginPassword" onfocus="setupLoginTimer();">
+        <br>
+        
+        <label>
+            &nbsp;</label><input type="button" onclick="return loginUser();" value="Login">&nbsp;&nbsp;<span id="spnLoginErrorMessage" class="chighlight"></span><br>
+        <span id="spnLoginAsDifferentUser">
+            <label>
+                &nbsp;</label><a id="ctl00_ctlSessionAndLogin_hlLoginAsDifferentUser" href="/App_BW/staff/login.aspx">Login As Different User</a></span>
+    </div>
+</div>
+</div></div><div class="ui-dialog ui-widget ui-widget-content ui-corner-all  ui-draggable" tabindex="-1" role="dialog" aria-labelledby="ui-dialog-title-divSessionWarning" style="display: none; z-index: 899998; outline: 0px;"><div class="ui-dialog-titlebar ui-widget-header ui-corner-all ui-helper-clearfix"><span class="ui-dialog-title" id="ui-dialog-title-divSessionWarning">Session Expiring</span><a href="#" class="ui-dialog-titlebar-close ui-corner-all" role="button"><span class="ui-icon ui-icon-closethick">close</span></a></div><div id="divSessionWarning" style="" class="ui-dialog-content ui-widget-content">
+	<div>
+		Your login session will expire in <span id="spnSessionTimeLeft"></span> seconds.<br>
+		<a href="javascript:renewSession();">Renew Session</a>
+	</div>
+</div></div><ul class="ui-autocomplete ui-menu ui-widget ui-widget-content ui-corner-all" role="listbox" aria-activedescendant="ui-active-menuitem" style="z-index: 1; top: 0px; left: 0px; display: none;"></ul></body></html>
