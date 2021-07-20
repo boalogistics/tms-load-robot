@@ -6,6 +6,10 @@ def login(url, boolheadless=True):
     # activate headless mode
     options = Options()
     options.headless = boolheadless
+    options.add_argument('--remote-debugging-port=9222')
+    options.binary_location = '/usr/bin/chromium-browser'
+    options.add_argument('--no-sandbox')
+    options.add_argument('--disable-dev-shm-usage')
 
     # activate chrome driver
     browser = webdriver.Chrome(options=options)
