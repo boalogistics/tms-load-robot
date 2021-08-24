@@ -30,7 +30,7 @@ browser = tms.login(url, False)
 
 # enter report code into REPORT_CODE constant
 # "Manifest" report
-REPORT_CODE = '619619627ACA'
+REPORT_CODE = '5B05B05BE9D9'
 report_url = f'{url}App_BW/staff/Reports/ReportViewer.aspx?code={REPORT_CODE}'
 browser.get(report_url)
 

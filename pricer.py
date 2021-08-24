@@ -273,7 +273,7 @@ for client_name in client_df_dict:
             # TODO SIMPLFIY CLIENT CHOICE AND SELLING/BASERETAIL/MARGIN LOGIC
             try:
                 # Azuma - only enter blank Dedicated surcharge line
-                if client_id == 1301:
+                if client_id == 1301 : #or client_id == 817
                     logging.info('Azuma dedicated line')
                     add_surcharge(load_no, 'dedicated', 0.01)
                 # House Foods & Passort - ignore pallet limit for FTL locations
